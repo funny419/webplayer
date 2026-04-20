@@ -106,3 +106,17 @@
 - **에셋 동기화**: 마일스톤 PR에 `web/dist/ → android/app/src/main/assets/` 복사 완료 체크박스 포함.
 - **호환성 검증**: Android PR은 최소 API 24 기기/에뮬레이터에서 로드 확인 후 머지.
 - **번들 크기**: M4 이후 JS 번들 **2MB 초과** 시 android-dev에게 알림.
+
+---
+
+## §16 팀원 스폰 시 model 명시 규칙
+
+- 팀원 스폰 시 반드시 **`model: "sonnet"`** 을 명시할 것 — 생략하면 오류 발생.
+- 검증된 model 값:
+
+| model 값 | 실제 모델 |
+|----------|----------|
+| `"sonnet"` | claude-sonnet-4-6 |
+| `"haiku"` | claude-haiku-4-5-20251001 |
+
+- `"opus"` 및 model 생략은 현재 API에서 **유효하지 않음**.
