@@ -26,6 +26,10 @@ class MainActivity : AppCompatActivity() {
             allowFileAccess = true
             domStorageEnabled = true   // LocalStorage 지원 (게임 저장 시스템용)
             mediaPlaybackRequiresUserGesture = false
+            // Vite 빌드의 <script type="module" crossorigin> 이 file:// 에서
+            // 모듈 스크립트를 로드할 수 있도록 허용 (API 30+ deprecated이나 minSdk 24 지원에 필요)
+            @Suppress("DEPRECATION")
+            allowFileAccessFromFileURLs = true
         }
 
         // 외부 브라우저로 열리지 않도록 WebViewClient 설정
