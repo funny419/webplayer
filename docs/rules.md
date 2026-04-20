@@ -9,6 +9,7 @@
 - **GitHub Issue Close**를 완료 기준으로 한다.
 - 프로젝트 보드 Status(Done)와 Issue Close를 **반드시 동시에** 처리한다.
 - 프로젝트 보드 Done 상태만으로는 완료로 인정하지 않는다.
+- `vite build` 성공 확인 후 웹 관련 이슈를 Done 처리한다.
 
 ## 2. 의사결정 및 승인
 
@@ -49,3 +50,38 @@
 
 - 팀원 간 주요 결정은 SendMessage로 기록을 남긴다.
 - PM은 팀장의 지시를 전체 팀에 공지할 의무가 있다.
+
+---
+
+## 8. 기획 변경 프로세스 (game-planner 제안)
+
+- **GDD 동결 이후 변경**: M1 GDD 확정 후 기획 변경은 **GP + PM 공동 승인** 필요.
+  변경 시 `docs/GDD.md` 변경 이력 섹션에 버전/날짜/내용을 기록한다.
+- **퀘스트/밸런스 데이터 변경 시**: `docs/data/` 하위 JSON 파일 수정 시 **web-dev에게 DM으로 변경 내용을 사전 공지**한다 (구현 중인 코드에 영향 가능).
+- **스토리/대사 확정 시점**: **M4 시작 전** `docs/data/dialogues.json` 대사를 확정한다. 이후 변경 시 PM 승인 필요 (구현 후 대사 수정은 공수가 큼).
+
+## 9. 에셋 관리 규칙 (designer 제안)
+
+### 네이밍 규칙
+- 스프라이트: `{캐릭터}_{동작}_{방향}.png` (예: `player_walk_down.png`)
+- 타일셋: `{지역}_{유형}.png` (예: `dungeon_floor.png`)
+- 변경 시 **web-dev와 사전 합의 필수** (코드 내 key 이름과 1:1 대응)
+
+### 에셋 배치 규칙
+- 원본은 `design/`에 보관
+- 게임 사용본은 web-dev가 `web/public/assets/`로 복사
+- 복사 여부는 PR 체크리스트로 확인
+
+### Placeholder → 실제 에셋 교체 시
+- **M5 이후** 교체 시작, 파일명/key는 동일하게 유지 (코드 변경 없이 교체)
+- 교체 완료된 에셋은 `design/asset-list.md`에서 `📦 → ✅`로 상태 업데이트
+
+### 에셋 승인 프로세스
+- `design/` 폴더 변경은 designer 최종 승인
+- 에셋 규격 변경(크기, 프레임 수)은 web-dev와 사전 협의 후 진행
+
+## 10. Android 연동 규칙 (android-dev 제안)
+
+- **에셋 동기화 체크리스트**: 주요 마일스톤 PR에 `web/dist/ → android/app/src/main/assets/` 수동 복사 완료 여부를 체크박스로 포함한다.
+- **WebView 호환성 검증**: Android 관련 변경 PR은 **최소 API 24 기기 또는 에뮬레이터**에서 로드 확인 후 머지한다.
+- **번들 크기 모니터링**: M4 이후 `vite build` 시 JS 번들이 **2MB 초과**하면 android-dev에게 알림 (저사양 기기 성능 영향).
