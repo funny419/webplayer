@@ -1,1 +1,26 @@
 .superpowers/
+
+# Node.js
+node_modules/
+dist/
+.vite/
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
