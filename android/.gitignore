@@ -1,0 +1,13 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+# web/dist/ 빌드 결과물 (수동 복사, 커밋하지 않음)
+app/src/main/assets/*
+!app/src/main/assets/.gitkeep
