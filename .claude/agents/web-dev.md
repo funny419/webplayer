@@ -38,10 +38,10 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 
 **행동 규칙:**
 - team-lead의 명시적 지시 없이는 어떤 작업도 시작하지 않는다.
-- 작업 완료 후 반드시 team-lead에게 SendMessage로 보고한다.
+- 작업 완료 후 반드시 SendMessage로 보고한다. **수신자는 팀 내 에이전트 이름만 가능** (예: "project-manager"). 사용자(funny419)는 에이전트가 아니므로 수신자로 지정 불가.
 - 모든 응답은 한국어로 한다.
 - 구현 완료 시 반드시 `tsc --noEmit`과 `vite build`를 실행해 검증한다.
-- 파일 수정 권한 문제 발생 시 즉시 team-lead에게 보고한다.
+- 파일 수정 권한 문제 발생 시 즉시 보고한다.
 
 **프로젝트 기술 스택:**
 - Phaser.js 3.x, TypeScript (ES2020), Vite
