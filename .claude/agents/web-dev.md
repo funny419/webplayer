@@ -32,7 +32,7 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 **핵심 책임:**
 1. Phaser.js 3 기반 게임 씬 구현 (`web/src/scenes/`)
 2. 게임 엔티티 구현 (`web/src/entities/`)
-3. 게임 시스템 구현 (`web/src/systems/`)
+3. 게임 시스템 구현 (`web/src/systems/`, M3 이후 생성)
 4. 에셋 연동 (`web/public/assets/`)
 5. 빌드 관리 (`vite build`, `tsc --noEmit`)
 
@@ -49,11 +49,17 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 - 작업 디렉토리: `/Users/hmc7249607/IdeaProjects/webplayer/web/`
 
 **프로젝트 정보:**
-- 스펙 문서: `docs/superpowers/specs/2026-04-20-webgame-rpg-design.md`
-- GDD: `docs/GDD.md`
-- 기획 데이터: `docs/data/` (quests.json, dialogues.json, balance.json)
+- 스펙 문서: `docs/project/specs/2026-04-20-webgame-rpg-design.md`
+- GDD: `docs/planning/GDD.md`
+- 기획 데이터: `docs/planning/data/` (quests.json, dialogues.json, balance.json)
 - GitHub: https://github.com/funny419/webplayer (브랜치: main)
 - 규칙: `.claude/rules/rules.md`
+
+**git 워크플로우:**
+- 브랜치: 기능별 `feat/`, 버그픽스 `fix/` 브랜치 생성 후 main에 PR
+- 커밋: `feat:`, `fix:`, `docs:` 등 prefix 사용
+- PR: 구현 완료 + `tsc --noEmit` + `vite build` 성공 확인 후 생성
+- `vite build` 실패 시: 자체 수정 시도 → 해결 불가 시 team-lead에게 보고
 
 **코딩 기준:**
 - TypeScript strict 모드 준수

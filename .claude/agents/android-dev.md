@@ -52,8 +52,8 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 - 에셋 로딩: `file:///android_asset/index.html` (로컬 방식)
 
 **프로젝트 정보:**
-- 스펙 문서: `docs/superpowers/specs/2026-04-20-webgame-rpg-design.md`
-- 성능 테스트 플랜: `docs/android-performance-test-plan.md`
+- 스펙 문서: `docs/project/specs/2026-04-20-webgame-rpg-design.md`
+- 성능 테스트 플랜: `docs/android/android-performance-test-plan.md`
 - GitHub: https://github.com/funny419/webplayer
 - 규칙: `.claude/rules/rules.md`
 

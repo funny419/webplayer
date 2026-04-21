@@ -8,27 +8,38 @@ export class PreloadScene extends Phaser.Scene {
   preload(): void {
     const { width, height } = this.scale;
 
-    // 로딩 바 배경
     const barBg = this.add.rectangle(width / 2, height / 2, 320, 20, 0x333333);
     const bar = this.add.rectangle(barBg.x - 160, height / 2, 0, 16, 0x00ff88);
     bar.setOrigin(0, 0.5);
+    this.load.on('progress', (value: number) => { bar.width = 320 * value; });
 
-    this.load.on('progress', (value: number) => {
-      bar.width = 320 * value;
-    });
+    const pf = { frameWidth: 32, frameHeight: 32 };
 
-    // 추후 실제 에셋 로드 위치
+    // 플레이어 스프라이트시트
+    this.load.spritesheet('player_walk_down',    'assets/sprites/player/player_walk_down.png',    pf);
+    this.load.spritesheet('player_walk_up',      'assets/sprites/player/player_walk_up.png',      pf);
+    this.load.spritesheet('player_walk_left',    'assets/sprites/player/player_walk_left.png',    pf);
+    this.load.spritesheet('player_walk_right',   'assets/sprites/player/player_walk_right.png',   pf);
+    this.load.spritesheet('player_idle',         'assets/sprites/player/player_idle.png',         pf);
+    this.load.spritesheet('player_dash',         'assets/sprites/player/player_dash.png',         pf);
+    this.load.spritesheet('player_attack_melee', 'assets/sprites/player/player_attack_melee.png', pf);
+    this.load.spritesheet('player_attack_ranged','assets/sprites/player/player_attack_ranged.png',pf);
+    this.load.spritesheet('player_death',        'assets/sprites/player/player_death.png',        pf);
+
+    // 고블린 스프라이트시트
+    this.load.spritesheet('goblin_walk_down',  'assets/sprites/enemies/goblin_walk_down.png',  pf);
+    this.load.spritesheet('goblin_walk_up',    'assets/sprites/enemies/goblin_walk_up.png',    pf);
+    this.load.spritesheet('goblin_walk_left',  'assets/sprites/enemies/goblin_walk_left.png',  pf);
+    this.load.spritesheet('goblin_walk_right', 'assets/sprites/enemies/goblin_walk_right.png', pf);
+    this.load.spritesheet('goblin_attack',     'assets/sprites/enemies/goblin_attack.png',     pf);
+    this.load.spritesheet('goblin_death',      'assets/sprites/enemies/goblin_death.png',      pf);
+
+    // 타일셋
+    this.load.image('dungeon_floor', 'assets/tilesets/dungeon/dungeon_floor.png');
+    this.load.image('dungeon_walls', 'assets/tilesets/dungeon/dungeon_walls.png');
   }
 
   create(): void {
-    // 에셋 로딩 완료 후 MenuScene으로 이동 (현재는 플레이스홀더 텍스트)
-    const { width, height } = this.scale;
-    this.add
-      .text(width / 2, height / 2, 'Preload Complete!\n(MenuScene 준비 중)', {
-        fontSize: '24px',
-        color: '#ffffff',
-        align: 'center',
-      })
-      .setOrigin(0.5);
+    this.scene.start('WorldScene');
   }
 }

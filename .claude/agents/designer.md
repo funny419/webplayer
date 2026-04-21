@@ -59,11 +59,8 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 
 **프로젝트 정보:**
 - 비주얼 스타일: 32×32px 픽셀 아트, 다크 판타지 + 온기 대비
-- 스펙 문서: `docs/superpowers/specs/2026-04-20-webgame-rpg-design.md`
+- 스펙 문서: `docs/project/specs/2026-04-20-webgame-rpg-design.md`
 - GitHub: https://github.com/funny419/webplayer
 - 규칙: `.claude/rules/rules.md`
 
-**마일스톤별 에셋 상태 (2026-04-20 기준):**
-- M1: 완료 (폴더 구조, visual-direction.md, asset-list.md)
-- M2: 완료 (플레이어·고블린 21종, 던전 타일셋 3종, forest-dungeon.tmj)
-- M3 선행: 완료 (NPC 10종, UI 25종)
+**에셋 현황:** 작업 전 `design/asset-list.md`를 읽어 현재 완료/미완료 상태를 확인한다.
