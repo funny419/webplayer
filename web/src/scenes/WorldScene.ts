@@ -3,6 +3,8 @@ import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Goblin } from '../entities/Goblin';
 import { BossBase } from '../entities/BossBase';
+import { QuestSystem, QuestData } from '../systems/Quest';
+import { InventorySystem } from '../systems/Inventory';
 
 const TILE = 32;
 const MAP_COLS = 30;
@@ -30,6 +32,8 @@ export class WorldScene extends Phaser.Scene {
   private enemies: Enemy[] = [];
   private projectiles!: Phaser.Physics.Arcade.Group;
   private activeBosses: BossBase[] = [];
+  private quest!: QuestSystem;
+  private inventory!: InventorySystem;
 
   // Combat input
   private attackKey!: Phaser.Input.Keyboard.Key;
@@ -51,6 +55,7 @@ export class WorldScene extends Phaser.Scene {
 
   create(): void {
     this.projectiles = this.physics.add.group();
+    this.initSystems();
     this.createAnimations();
     this.createProjectileTexture();
     this.createPlaceholderMap();
@@ -60,6 +65,7 @@ export class WorldScene extends Phaser.Scene {
     this.setupInput();
     this.setupUI();
     this.setupBossEventHandlers();
+    this.setupQuestEventHandlers();
   }
 
   update(_time: number, delta: number): void {
@@ -338,6 +344,46 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  // ── 시스템 초기화 ────────────────────────────────────────────────────────
+
+  private initSystems(): void {
+    this.inventory = new InventorySystem();
+    const questData = this.cache.json.get('quests') as { main_quests: QuestData[]; side_quests: QuestData[] };
+    this.quest = new QuestSystem(questData, this.inventory);
+    // mq_01은 게임 시작 시 즉시 수락
+    this.quest.accept('mq_01');
+  }
+
+  private setupQuestEventHandlers(): void {
+    // 적 처치 → QuestSystem 연동
+    this.events.on('enemy_killed', (enemyId: string) => {
+      this.quest.onEnemyKilled(enemyId);
+    });
+
+    // 아이템 획득 → QuestSystem 연동
+    this.inventory.on('item_added', (id: string, qty: number) => {
+      this.quest.onItemCollected(id, qty);
+    });
+
+    // 엔딩 트리거 (mq_11 완료)
+    this.quest.on('game_ending', () => {
+      this.time.delayedCall(2000, () => {
+        const clearData = {
+          playtime: this.time.now,
+          level: 1,   // Player 레벨 시스템 미구현 — 기본값
+          questsPct: Math.round(
+            ([...Array(11)].filter((_, i) =>
+              this.quest.getStatus(`mq_0${i + 1}`) === 'completed' ||
+              this.quest.getStatus(`mq_11`) === 'completed',
+            ).length / 18) * 100,
+          ),
+          date: new Date().toISOString(),
+        };
+        this.scene.start('EndingScene', clearData);
+      });
+    });
+  }
+
   // ── 보스 연동 ────────────────────────────────────────────────────────────
 
   /** 보스를 씬에 등록. enemies 배열 + activeBosses 배열에 추가. */
@@ -411,10 +457,9 @@ export class WorldScene extends Phaser.Scene {
       }
     });
 
-    // 키 아이템 드롭 (QuestSystem 연동 — 추후 통합)
+    // 키 아이템 드롭 → Inventory 연동
     this.events.on('boss_key_item', (itemId: string) => {
-      // TODO: Inventory 연동 시 this.inventory.addKeyItem(itemId) 호출
-      console.warn(`[Boss] Key item dropped (미연동): ${itemId}`);
+      this.inventory.addKeyItem(itemId);
     });
   }
 

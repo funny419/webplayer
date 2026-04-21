@@ -37,6 +37,9 @@ export class PreloadScene extends Phaser.Scene {
     // 타일셋
     this.load.image('dungeon_floor', 'assets/tilesets/dungeon/dungeon_floor.png');
     this.load.image('dungeon_walls', 'assets/tilesets/dungeon/dungeon_walls.png');
+
+    // 퀘스트 데이터
+    this.load.json('quests', 'data/quests.json');
   }
 
   create(): void {
