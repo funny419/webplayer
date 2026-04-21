@@ -1,5 +1,5 @@
 {
-  "_comment": "밸런싱 마스터 데이터. 모든 수치는 노멀 난이도 기준. 데미지 공식: 피해량 = ATK - DEF/2 (최소 1).",
+  "_comment": "밸런싱 마스터 데이터. 모든 수치는 노멀 난이도 기준. 데미지 공식: max(1, ATK + weapon_bonus - floor(DEF/2)). weapon_bonus는 장착 무기 atk_bonus 값.",
 
   "player_growth": {
     "_comment": "레벨업 누적 EXP 공식: Math.round(50 * level^1.5). 레벨업 시 보너스: HP+15, MP+5, ATK+3, DEF+2.",
@@ -82,7 +82,7 @@
         "hp": 15, "atk": 6, "def": 1, "spd": 70,
         "detect_range": 120, "attack_range": 30,
         "attack_cooldown": 1.5,
-        "status_effect": { "type": "poison", "damage_per_sec": 3, "duration": 4 },
+        "status_effect": { "type": "poison", "poison_chance": 0.25, "damage_per_sec": 3, "duration": 4, "stackable": false },
         "exp": 8, "gold_drop": [1, 5],
         "item_drops": [
           { "id": "item_healing_herb", "rate": 0.20 }
@@ -467,6 +467,17 @@
     "special_attack_range_px": 80,
     "melee_attack_range_px":   60,
     "ranged_projectile_range_px": 300,
-    "enemy_return_distance_px": 400
+    "enemy_return_distance_px": 400,
+    "status_effects": {
+      "poison": {
+        "_comment": "독 상태이상. 거미(enemy_spider) 공격 명중 시 poison_chance 확률로 발동.",
+        "damage_per_sec": 3,
+        "duration_sec": 4,
+        "stackable": false,
+        "ui_icon": "icon_poison",
+        "ui_tint": "0x9900cc",
+        "cure_item": "item_antidote"
+      }
+    }
   }
 }

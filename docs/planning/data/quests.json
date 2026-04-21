@@ -95,7 +95,8 @@
           "hint_text": "어둠의 숲 최북단 나무 왕좌 구역"
         }
       ],
-      "reward": { "exp": 150, "gold": 100, "items": [{ "id": "armor_leather", "qty": 1 }] },
+      "reward": { "exp": 150, "gold": 200, "items": [] },
+      "_reward_note": "가죽 갑옷은 boss_goblin_king 드롭(100%)으로 이미 지급되므로 퀘스트 보상에서 제거. 골드 보상으로 대체.",
       "dialogue": { "start": "mq_04_start", "complete": "mq_04_end" }
     },
 
@@ -266,7 +267,7 @@
           "hint_text": "성의 왕좌의 방 최심부"
         }
       ],
-      "reward": { "exp": 1200, "gold": 0, "items": [] },
+      "reward": { "exp": 1200, "gold": 0, "items": [], "title": "에테리아의 영웅", "clear_record": true },
       "triggers_ending": true,
       "dialogue": { "start": "mq_11_start", "complete": "mq_11_end" }
     }
