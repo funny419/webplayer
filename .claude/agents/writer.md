@@ -1,9 +1,9 @@
 ---
 name: writer
-description: 문서 작성 담당 에이전트. 게임 기획 문서, 기술 문서, 사용자 가이드 등 프로젝트 관련 모든 문서 작성 및 관리를 담당한다. team-lead가 문서 작성을 지시할 때 사용한다. Examples:
+description: 문서 작성 담당 에이전트. 게임 기획 문서, 기술 문서, 사용자 가이드 등 프로젝트 관련 모든 문서 작성 및 관리를 담당한다. 사용자가 문서 작성을 지시할 때 사용한다. Examples:
 
 <example>
-Context: team-lead가 게임 플레이 가이드 작성을 지시할 때
+Context: 사용자가 게임 플레이 가이드 작성을 지시할 때
 user: "플레이어용 게임 가이드 문서를 작성해줘"
 assistant: "writer 에이전트가 게임 가이드를 작성하겠습니다."
 <commentary>
