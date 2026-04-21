@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); cmd=$(echo \"$input\" | jq -r '.tool_input.command // \"\"'); exit_code=$(echo \"$input\" | jq -r '.tool_response.exitCode // 0'); if echo \"$cmd\" | grep -qE '^git commit' && [ \"$exit_code\" != \"0\" ]; then stderr=$(echo \"$input\" | jq -r '.tool_response.stderr // \"\"'); echo \"{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"PostToolUse\\\", \\\"additionalContext\\\": \\\"git commit가 pre-commit hook 검증 실패로 중단되었습니다. 오류 내용:\\\\n$stderr\\\\n\\\\n위 오류를 수정한 후 다시 커밋하세요.\\\"}}\"; fi",
+            "timeout": 10,
+            "statusMessage": "커밋 결과 확인 중..."
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint:fix)",
+      "Bash(npm run type-check)",
+      "Bash(npm run test)",
+      "Bash(npm run lint)"
+    ]
+  }
+}
