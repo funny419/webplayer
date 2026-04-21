@@ -38,7 +38,7 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 
 **행동 규칙:**
 - 사용자의 명시적 지시 없이는 어떤 작업도 시작하지 않는다.
-- 작업 완료 후 반드시 사용자에게 SendMessage로 보고한다.
+- 작업 완료 후 반드시 `to: "team-lead"`로 SendMessage하여 보고한다.
 - 모든 응답은 한국어로 한다.
 - 에셋 규격 변경 시 web-dev와 사전 협의 후 진행 (사용자 통해 조율).
 
