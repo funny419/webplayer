@@ -70,16 +70,16 @@
 
 | 에셋 이름 | 크기 | 프레임 수 | 상태 | 비고 |
 |-----------|------|-----------|------|------|
-| `npc_elder.png` | 32×32 | 2 | 🔲 | 퀘스트 주요 NPC |
-| `npc_merchant.png` | 32×32 | 2 | 🔲 | 상인 |
-| `npc_blacksmith.png` | 32×32 | 2 | 🔲 | 대장장이 |
-| `npc_guard.png` | 32×32 | 2 | 🔲 | 마을 경비 |
-| `npc_villager_01.png` | 32×32 | 2 | 🔲 | 일반 마을 주민 |
-| `npc_villager_02.png` | 32×32 | 2 | 🔲 | |
-| `npc_villager_03.png` | 32×32 | 2 | 🔲 | |
-| `npc_child.png` | 32×32 | 2 | 🔲 | |
-| `npc_innkeeper.png` | 32×32 | 2 | 🔲 | 여관 주인 |
-| `npc_mage.png` | 32×32 | 2 | 🔲 | 마법사 |
+| `npc_elder.png` | 32×32 | 2 | 📦 | 퀘스트 주요 NPC |
+| `npc_merchant.png` | 32×32 | 2 | 📦 | 상인 |
+| `npc_blacksmith.png` | 32×32 | 2 | 📦 | 대장장이 |
+| `npc_guard.png` | 32×32 | 2 | 📦 | 마을 경비 |
+| `npc_villager_01.png` | 32×32 | 2 | 📦 | 일반 마을 주민 |
+| `npc_villager_02.png` | 32×32 | 2 | 📦 | |
+| `npc_villager_03.png` | 32×32 | 2 | 📦 | |
+| `npc_child.png` | 32×32 | 2 | 📦 | |
+| `npc_innkeeper.png` | 32×32 | 2 | 📦 | 여관 주인 |
+| `npc_mage.png` | 32×32 | 2 | 📦 | 마법사 |
 
 ---
 
@@ -132,36 +132,43 @@
 ### HUD (`ui/hud/`)
 | 에셋 이름 | 크기 | 상태 | 비고 |
 |-----------|------|------|------|
-| `hud_hp_bar.png` | 128×16 | 🔲 | HP 바 프레임 + 채우기 |
-| `hud_mp_bar.png` | 128×16 | 🔲 | MP 바 프레임 + 채우기 |
-| `hud_frame.png` | 200×60 | 🔲 | HUD 전체 프레임 |
-| `minimap_frame.png` | 128×128 | 🔲 | 미니맵 테두리 |
-| `boss_hp_bar.png` | 320×24 | 🔲 | 보스 HP 바 (화면 하단 중앙) |
-| `mobile_btn_attack.png` | 64×64 | 🔲 | 모바일 공격 버튼 |
-| `mobile_btn_dash.png` | 64×64 | 🔲 | 모바일 대시 버튼 |
-| `mobile_dpad.png` | 128×128 | 🔲 | 모바일 방향키 (D-Pad) |
+| `hud_hp_bar.png` | 128×16 | 📦 | HP 바 프레임 + 채우기 |
+| `hud_mp_bar.png` | 128×16 | 📦 | MP 바 프레임 + 채우기 |
+| `hud_frame.png` | 200×60 | 📦 | HUD 전체 프레임 |
+| `minimap_frame.png` | 128×128 | 📦 | 미니맵 테두리 |
+| `boss_hp_bar.png` | 320×24 | 📦 | 보스 HP 바 (화면 하단 중앙) |
+| `mobile_btn_attack.png` | 64×64 | 📦 | 모바일 공격 버튼 |
+| `mobile_btn_dash.png` | 64×64 | 📦 | 모바일 대시 버튼 |
+| `mobile_dpad.png` | 128×128 | 📦 | 모바일 방향키 (D-Pad) |
 
 ### 메뉴 패널 (`ui/menus/`)
 | 에셋 이름 | 크기 | 상태 | 비고 |
 |-----------|------|------|------|
-| `panel_inventory.png` | 320×240 | 🔲 | 인벤토리 배경 패널 |
-| `panel_quest.png` | 280×200 | 🔲 | 퀘스트 로그 패널 |
-| `panel_dialogue.png` | 480×100 | 🔲 | 대화창 패널 |
+| `panel_inventory.png` | 320×240 | 📦 | 인벤토리 배경 패널 |
+| `panel_quest.png` | 280×200 | 📦 | 퀘스트 로그 패널 |
+| `panel_dialogue.png` | 480×100 | 📦 | 대화창 패널 |
 | `panel_menu_main.png` | 240×160 | 🔲 | 타이틀 메뉴 |
-| `slot_item.png` | 36×36 | 🔲 | 인벤토리 슬롯 |
-| `slot_item_selected.png` | 36×36 | 🔲 | 선택된 슬롯 (골드 테두리) |
-| `btn_generic.png` | 120×32 | 🔲 | 범용 버튼 (3-slice) |
+| `popup_quest_accept.png` | — | 📦 | 퀘스트 수락 팝업 (M3 추가) |
+| `popup_quest_complete.png` | — | 📦 | 퀘스트 완료 팝업 (M3 추가) |
+| `slot_item.png` | 36×36 | 📦 | 인벤토리 슬롯 |
+| `slot_item_selected.png` | 36×36 | 📦 | 선택된 슬롯 (골드 테두리) |
+| `btn_generic.png` | 120×32 | 📦 | 범용 버튼 (3-slice) |
+| `btn_confirm.png` | — | 📦 | 확인 버튼 (M3 추가) |
+| `btn_cancel.png` | — | 📦 | 취소 버튼 (M3 추가) |
 
 ### 아이콘 (`ui/icons/`)
 | 에셋 이름 | 크기 | 상태 | 비고 |
 |-----------|------|------|------|
-| `icon_sword.png` | 32×32 | 🔲 | 검 아이콘 |
-| `icon_bow.png` | 32×32 | 🔲 | 활 아이콘 |
-| `icon_armor.png` | 32×32 | 🔲 | 방어구 아이콘 |
-| `icon_potion_hp.png` | 32×32 | 🔲 | HP 포션 |
-| `icon_potion_mp.png` | 32×32 | 🔲 | MP 포션 |
-| `icon_quest_active.png` | 16×16 | 🔲 | 퀘스트 마커 (활성) |
-| `icon_quest_complete.png` | 16×16 | 🔲 | 퀘스트 마커 (완료 가능) |
+| `icon_sword.png` | 32×32 | 📦 | 검 아이콘 |
+| `icon_bow.png` | 32×32 | 📦 | 활 아이콘 |
+| `icon_armor.png` | 32×32 | 📦 | 방어구 아이콘 |
+| `icon_potion_hp.png` | 32×32 | 📦 | HP 포션 |
+| `icon_potion_mp.png` | 32×32 | 📦 | MP 포션 |
+| `icon_quest_active.png` | 16×16 | 📦 | 퀘스트 마커 (활성) |
+| `icon_quest_complete.png` | 16×16 | 📦 | 퀘스트 마커 (완료 가능) |
+| `icon_compass.png` | — | 📦 | 숲의 나침반 키 아이템 아이콘 (M3 추가) |
+| `icon_hook.png` | — | 📦 | 고대 갈고리 키 아이템 아이콘 (M3 추가) |
+| `icon_flame_shield.png` | — | 📦 | 화염 방패 키 아이템 아이콘 (M3 추가) |
 
 ---
 

@@ -59,5 +59,6 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 **마일스톤 현황 (2026-04-21 기준):**
 - M1: 완료 (보드 Done)
 - M2: 완료 (보드 Done, Android 스파이크 #9는 M6 후 재개)
-- M3~M7: 대기 (보드 Todo)
+- M3: 완료 (보드 Done, 퀘스트·인벤토리·대화·저장 시스템 구현)
+- M4~M7: 대기 (보드 Todo)
 - Android(M7): 웹 게임 완성 후 진행

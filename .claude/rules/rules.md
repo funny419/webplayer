@@ -33,9 +33,9 @@
 - android-dev는 M6 완료 전까지 대기, **사용자 지시 시에만 재개**.
 
 ## 기획 변경 프로세스
-- GDD 확정 후 변경은 **사용자 승인** 필요. `docs/GDD.md`에 변경 이력 기록.
-- `docs/data/` JSON 수정 시 사용자에게 보고 후 web-dev에게 전달.
-- `docs/data/dialogues.json` 대사는 **M4 시작 전 확정**. 이후 변경 시 사용자 승인 필요.
+- GDD 확정 후 변경은 **사용자 승인** 필요. `docs/planning/GDD.md`에 변경 이력 기록.
+- `docs/planning/data/` JSON 수정 시 사용자에게 보고 후 web-dev에게 전달.
+- `docs/planning/data/dialogues.json` 대사는 **M4 시작 전 확정**. 이후 변경 시 사용자 승인 필요.
 
 ## 에셋 관리 규칙
 **네이밍**: `{캐릭터}_{동작}_{방향}.png` / `{지역}_{유형}.png`

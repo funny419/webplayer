@@ -67,7 +67,7 @@ tools: ["Read", "Grep", "Glob", "Bash"]
 - [ ] SaveData 스키마 준수
 
 **프로젝트 정보:**
-- 스펙 문서: `docs/superpowers/specs/2026-04-20-webgame-rpg-design.md`
+- 스펙 문서: `docs/project/specs/2026-04-20-webgame-rpg-design.md`
 - 기술 스택: Phaser.js 3.x, TypeScript (ES2020), Vite
 - 규칙: `.claude/rules/rules.md`
 
