@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Goblin } from '../entities/Goblin';
+import { BossBase } from '../entities/BossBase';
 
 const TILE = 32;
 const MAP_COLS = 30;
@@ -28,6 +29,7 @@ export class WorldScene extends Phaser.Scene {
   private walls!: Phaser.Physics.Arcade.StaticGroup;
   private enemies: Enemy[] = [];
   private projectiles!: Phaser.Physics.Arcade.Group;
+  private activeBosses: BossBase[] = [];
 
   // Combat input
   private attackKey!: Phaser.Input.Keyboard.Key;
@@ -57,6 +59,7 @@ export class WorldScene extends Phaser.Scene {
     this.setupCamera();
     this.setupInput();
     this.setupUI();
+    this.setupBossEventHandlers();
   }
 
   update(_time: number, delta: number): void {
@@ -68,6 +71,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.updateEnemies(delta);
     this.updateProjectiles();
+    this.updateBossProjectiles();
     this.checkEnemyPlayerContact();
 
     if (this.player.isDead && !this.gameOverTriggered) {
@@ -331,6 +335,102 @@ export class WorldScene extends Phaser.Scene {
       this.dashIndicator.setText('DASH: READY').setColor('#00ff88');
     } else {
       this.dashIndicator.setText('DASH: COOLDOWN').setColor('#ff4444');
+    }
+  }
+
+  // ── 보스 연동 ────────────────────────────────────────────────────────────
+
+  /** 보스를 씬에 등록. enemies 배열 + activeBosses 배열에 추가. */
+  registerBoss(boss: BossBase): void {
+    this.physics.add.collider(boss, this.walls);
+    this.enemies.push(boss);
+    this.activeBosses.push(boss);
+  }
+
+  private setupBossEventHandlers(): void {
+    // 근접 범위 데미지 (원형)
+    this.events.on('boss_melee_hit', (x: number, y: number, dmg: number, range: number) => {
+      if (!this.player.canBeHit) return;
+      if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) <= range) {
+        this.player.takeDamage(Math.round(dmg));
+      }
+    });
+
+    // 광역 원형 데미지
+    this.events.on('boss_aoe_hit', (x: number, y: number, dmg: number, range: number) => {
+      if (!this.player.canBeHit) return;
+      if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) <= range) {
+        this.player.takeDamage(Math.round(dmg));
+      }
+    });
+
+    // 원뿔형 브레스 데미지
+    this.events.on(
+      'boss_cone_hit',
+      (x: number, y: number, angle: number, halfAngle: number, range: number, dmg: number) => {
+        if (!this.player.canBeHit) return;
+        const dist = Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y);
+        if (dist > range) return;
+        const toPlayer = Phaser.Math.Angle.Between(x, y, this.player.x, this.player.y);
+        const diff = Math.abs(Phaser.Math.Angle.Wrap(toPlayer - angle));
+        if (diff <= halfAngle / 2) {
+          this.player.takeDamage(Math.round(dmg));
+        }
+      },
+    );
+
+    // 지속 장판 (초당 dmg, duration ms)
+    this.events.on(
+      'boss_zone',
+      (zx: number, zy: number, dmg: number, range: number, duration: number) => {
+        const endTime = this.time.now + duration;
+        const tick = this.time.addEvent({
+          delay: 1000,
+          callback: () => {
+            if (this.time.now > endTime) { tick.destroy(); return; }
+            if (!this.player.canBeHit) return;
+            if (Phaser.Math.Distance.Between(zx, zy, this.player.x, this.player.y) <= range) {
+              this.player.takeDamage(Math.round(dmg));
+            }
+          },
+          loop: true,
+        });
+      },
+    );
+
+    // 소환 요청
+    this.events.on('boss_summon', (type: string, x: number, y: number) => {
+      let enemy: Enemy | null = null;
+      if (type === 'goblin') {
+        enemy = new Goblin(this, x, y);
+      }
+      // skeleton, dark_knight 클래스는 M4 이후 추가
+      if (enemy) {
+        this.physics.add.collider(enemy, this.walls);
+        this.enemies.push(enemy);
+      }
+    });
+
+    // 키 아이템 드롭 (QuestSystem 연동 — 추후 통합)
+    this.events.on('boss_key_item', (itemId: string) => {
+      // TODO: Inventory 연동 시 this.inventory.addKeyItem(itemId) 호출
+      console.warn(`[Boss] Key item dropped (미연동): ${itemId}`);
+    });
+  }
+
+  /** 활성 보스의 발사체와 플레이어 충돌 처리 */
+  private updateBossProjectiles(): void {
+    this.activeBosses = this.activeBosses.filter(b => !b.isDead);
+    for (const boss of this.activeBosses) {
+      boss.projectiles.getChildren().forEach(child => {
+        const proj = child as Phaser.Physics.Arcade.Image;
+        if (!proj.active) return;
+        const dist = Phaser.Math.Distance.Between(proj.x, proj.y, this.player.x, this.player.y);
+        if (dist <= 12 && this.player.canBeHit) {
+          this.player.takeDamage(Math.round(boss.attackDamage * 0.8));
+          proj.destroy();
+        }
+      });
     }
   }
 }
