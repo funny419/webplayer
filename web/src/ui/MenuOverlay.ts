@@ -11,6 +11,7 @@ export class MenuOverlay {
   private isOpen = false;
   private activeTab: Tab = 'inventory';
   private selectedItemId: string | null = null;
+  private selectedQuestId: string | null = null;
   private detailPanel!: HTMLElement;
 
   constructor(
@@ -289,10 +290,170 @@ export class MenuOverlay {
   }
 
   private buildQuestLog(): HTMLElement {
-    return document.createElement('div'); // Task 6에서 구현
+    const root = document.createElement('div');
+    root.style.cssText = 'display:flex;gap:16px;height:100%;';
+
+    const allQuests = this.quest.getAllQuests();
+    const visible = allQuests.filter(q =>
+      ['active', 'completed'].includes(this.quest.getStatus(q.id))
+    );
+
+    const list = document.createElement('div');
+    list.style.cssText = 'width:200px;display:flex;flex-direction:column;gap:4px;overflow:auto;';
+
+    if (visible.length === 0) {
+      const empty = document.createElement('div');
+      empty.textContent = '진행 중인 퀘스트가 없습니다.';
+      empty.style.cssText = 'color:#444;font-size:12px;padding:8px;';
+      list.appendChild(empty);
+    }
+
+    for (const q of visible) {
+      const status = this.quest.getStatus(q.id);
+      const isActive = status === 'active';
+      const isSelected = this.selectedQuestId === q.id;
+
+      const item = document.createElement('div');
+      item.setAttribute('data-quest-id', q.id);
+      item.style.cssText = [
+        `background:${isSelected ? '#f1c40f22' : isActive ? '#f1c40f11' : '#1a1a2e'}`,
+        `border:1px solid ${isSelected ? '#f1c40f44' : '#333'}`,
+        'border-radius:4px', 'padding:8px', 'cursor:pointer', 'font-size:12px',
+        `color:${isActive ? '#f1c40f' : '#666'}`,
+      ].join(';');
+      item.textContent = (status === 'completed' ? '✓ ' : '▶ ') + q.title;
+      item.onclick = () => { this.selectedQuestId = q.id; this.render(); };
+      list.appendChild(item);
+    }
+
+    root.appendChild(list);
+
+    const detail = document.createElement('div');
+    detail.style.cssText = [
+      'flex:1', 'background:#1a1a2e', 'border-radius:6px',
+      'padding:12px', 'border:1px solid #333',
+    ].join(';');
+
+    const selected = visible.find(q => q.id === this.selectedQuestId)
+      ?? visible.find(q => this.quest.getStatus(q.id) === 'active')
+      ?? visible[0];
+
+    if (selected) {
+      this.selectedQuestId = selected.id;
+      const status = this.quest.getStatus(selected.id);
+
+      const title = document.createElement('div');
+      title.textContent = selected.title;
+      title.style.cssText = 'color:#f1c40f;font-size:14px;margin-bottom:4px;';
+      detail.appendChild(title);
+
+      const giver = document.createElement('div');
+      giver.textContent = `의뢰자: ${selected.giver_npc}`;
+      giver.style.cssText = 'color:#888;font-size:11px;margin-bottom:12px;';
+      detail.appendChild(giver);
+
+      if (status === 'active') {
+        const objTitle = document.createElement('div');
+        objTitle.textContent = '🎯 목표';
+        objTitle.style.cssText = 'color:#eee;font-size:12px;margin-bottom:6px;';
+        detail.appendChild(objTitle);
+
+        for (const obj of selected.objectives) {
+          const objEl = document.createElement('div');
+          objEl.textContent = `• ${obj.display_text}`;
+          objEl.style.cssText = 'color:#aaa;font-size:11px;margin-bottom:3px;';
+          detail.appendChild(objEl);
+        }
+      }
+
+      const rewardTitle = document.createElement('div');
+      rewardTitle.textContent = '보상';
+      rewardTitle.style.cssText = 'color:#eee;font-size:12px;margin-top:12px;margin-bottom:4px;';
+      detail.appendChild(rewardTitle);
+
+      const reward = selected.reward;
+      const rewardText = [`EXP +${reward.exp}`];
+      if (reward.gold > 0) rewardText.push(`골드 +${reward.gold}G`);
+      const rewardEl = document.createElement('div');
+      rewardEl.textContent = rewardText.join(', ');
+      rewardEl.style.cssText = 'color:#aaa;font-size:11px;';
+      detail.appendChild(rewardEl);
+    } else {
+      const hint = document.createElement('div');
+      hint.textContent = '퀘스트를 선택하세요';
+      hint.style.cssText = 'color:#444;font-size:12px;';
+      detail.appendChild(hint);
+    }
+
+    root.appendChild(detail);
+    return root;
   }
 
   private buildSave(): HTMLElement {
-    return document.createElement('div'); // Task 7에서 구현
+    const root = document.createElement('div');
+    root.style.cssText = 'display:flex;flex-direction:column;gap:16px;max-width:400px;';
+
+    const isHaven = this.scene.currentArea === 'scene_haven';
+
+    const existing = this.saveManager.load();
+    const infoBox = document.createElement('div');
+    infoBox.style.cssText = 'background:#1a1a2e;border-radius:6px;padding:16px;border:1px solid #333;';
+
+    if (existing) {
+      const savedAt = new Date(existing.timestamp).toLocaleString('ko-KR');
+      const playSec = Math.floor(existing.playtime / 1000);
+      const playMin = Math.floor(playSec / 60);
+      infoBox.innerHTML = `
+        <div style="color:#f1c40f;margin-bottom:8px;">저장된 데이터</div>
+        <div style="color:#aaa;font-size:12px;line-height:1.8;">
+          저장 일시: ${savedAt}<br>
+          레벨: ${existing.player.level}<br>
+          플레이 시간: ${playMin}분<br>
+          직업: ${existing.player.playerClass === 'class_swordsman' ? '검사' : '마도사'}
+        </div>
+      `;
+    } else {
+      infoBox.innerHTML = '<div style="color:#444;font-size:12px;">저장된 데이터 없음</div>';
+    }
+    root.appendChild(infoBox);
+
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = isHaven ? '저장하기' : '마을에서만 저장 가능';
+    saveBtn.disabled = !isHaven;
+    saveBtn.style.cssText = [
+      `background:${isHaven ? '#27ae60' : '#2c3e50'}`,
+      'border:none', 'border-radius:4px', 'padding:8px 16px',
+      'color:#fff', 'font-family:monospace', 'font-size:13px',
+      `cursor:${isHaven ? 'pointer' : 'not-allowed'}`,
+    ].join(';');
+    if (isHaven) {
+      saveBtn.onclick = () => {
+        this.saveManager.save(this.getSaveData());
+        this.render();
+      };
+    }
+    btnRow.appendChild(saveBtn);
+
+    if (existing) {
+      const loadBtn = document.createElement('button');
+      loadBtn.textContent = '불러오기';
+      loadBtn.style.cssText = [
+        'background:#2980b9', 'border:none', 'border-radius:4px',
+        'padding:8px 16px', 'color:#fff', 'font-family:monospace',
+        'font-size:13px', 'cursor:pointer',
+      ].join(';');
+      loadBtn.onclick = () => {
+        const data = this.saveManager.load();
+        if (data) this.scene.events.emit('load_save', data);
+        this.close();
+      };
+      btnRow.appendChild(loadBtn);
+    }
+
+    root.appendChild(btnRow);
+    return root;
   }
 }
