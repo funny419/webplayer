@@ -47,6 +47,8 @@ export class WorldScene extends Phaser.Scene {
   private dashIndicator!: Phaser.GameObjects.Text;
   private fpsText!: Phaser.GameObjects.Text;
 
+  currentArea = 'scene_haven';  // 현재 지역 ID — 세이브 탭 활성화 조건에 사용
+
   private gameOverTriggered = false;
 
   constructor() {
