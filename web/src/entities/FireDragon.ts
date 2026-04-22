@@ -17,6 +17,7 @@ export class FireDragon extends BossBase {
     super(
       scene, x, y,
       BossBase.ensureAndGetTexture(scene, 'boss_fire_dragon', 0xff4400),
+      'boss_fire_drake',
       {
         hp: 600,
         attackDamage: 40,

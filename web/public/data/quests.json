@@ -1,0 +1,492 @@
+{
+  "_comment": "목표 타입: kill(처치), collect(수집), location(장소 도달), talk(대화). 완전한 형태 대표 퀘스트: mq_02(kill), sq_02(collect), mq_03(location), sq_01(복합).",
+  "main_quests": [
+    {
+      "id": "mq_01",
+      "title": "시작의 부름",
+      "type": "main",
+      "giver_npc": "npc_elder",
+      "description": "마을 장로 에릭이 당신을 부르고 있다.",
+      "objectives": [
+        {
+          "id": "talk_elder",
+          "type": "talk",
+          "target": "npc_elder",
+          "display_text": "장로 에릭과 대화한다"
+        },
+        {
+          "id": "reach_plaza",
+          "type": "location",
+          "scene": "scene_haven",
+          "marker": "town_plaza",
+          "display_text": "마을 광장을 확인한다",
+          "hint_text": "마을 중앙 광장으로 이동하세요"
+        }
+      ],
+      "reward": { "exp": 30, "gold": 0, "items": [{ "id": "item_potion_small", "qty": 2 }] },
+      "dialogue": { "start": "mq_01_start", "complete": "mq_01_end" }
+    },
+
+    {
+      "id": "mq_02",
+      "title": "숲의 위협",
+      "type": "main",
+      "giver_npc": "npc_elder",
+      "description": "어둠의 숲에서 마을로 내려오는 고블린들을 처치해 위협을 줄여라.",
+      "requires": ["mq_01"],
+      "objectives": [
+        {
+          "id": "kill_goblins",
+          "type": "kill",
+          "target": "enemy_goblin",
+          "count": 3,
+          "display_text": "고블린 처치 ({current}/{total})",
+          "hint_text": "하벤 마을 북쪽 숲 입구 근처에 고블린이 출몰합니다"
+        }
+      ],
+      "reward": {
+        "exp": 50,
+        "gold": 30,
+        "items": [
+          { "id": "weapon_iron_sword", "qty": 1, "condition": "class_swordsman" },
+          { "id": "weapon_iron_staff", "qty": 1, "condition": "class_mage" }
+        ]
+      },
+      "dialogue": { "start": "mq_02_start", "complete": "mq_02_end" },
+      "_impl_note": "kill 타입: QuestSystem이 enemy_goblin 처치 이벤트 구독, count 누적 후 자동 완료 판정"
+    },
+
+    {
+      "id": "mq_03",
+      "title": "숲의 심장부로",
+      "type": "main",
+      "giver_npc": "npc_elder",
+      "description": "고블린 무리의 본거지인 숲 내부 캠프까지 진입하라.",
+      "requires": ["mq_02"],
+      "objectives": [
+        {
+          "id": "reach_forest_camp",
+          "type": "location",
+          "scene": "scene_forest",
+          "marker": "goblin_camp",
+          "display_text": "어둠의 숲 고블린 캠프에 도달한다",
+          "hint_text": "어둠의 숲 북동쪽 깊은 곳에 고블린 캠프가 있습니다"
+        }
+      ],
+      "reward": { "exp": 60, "gold": 20, "items": [] },
+      "dialogue": { "start": "mq_03_start", "complete": "mq_03_end" },
+      "_impl_note": "location 타입: 플레이어가 marker 좌표 반경 64px 내 진입 시 자동 완료. Tiled 오브젝트 레이어에서 marker ID로 좌표 참조"
+    },
+
+    {
+      "id": "mq_04",
+      "title": "고블린 왕의 처단",
+      "type": "main",
+      "giver_npc": "npc_guard_captain",
+      "description": "어둠의 숲을 지배하는 고블린 왕을 처치하라.",
+      "requires": ["mq_03"],
+      "objectives": [
+        {
+          "id": "kill_goblin_king",
+          "type": "kill",
+          "target": "boss_goblin_king",
+          "count": 1,
+          "display_text": "고블린 왕을 처치한다",
+          "hint_text": "어둠의 숲 최북단 나무 왕좌 구역"
+        }
+      ],
+      "reward": { "exp": 150, "gold": 200, "items": [] },
+      "_reward_note": "가죽 갑옷은 boss_goblin_king 드롭(100%)으로 이미 지급되므로 퀘스트 보상에서 제거. 골드 보상으로 대체.",
+      "dialogue": { "start": "mq_04_start", "complete": "mq_04_end" }
+    },
+
+    {
+      "id": "mq_05",
+      "title": "고대의 열쇠",
+      "type": "main",
+      "giver_npc": "npc_scholar",
+      "description": "학자 토마스가 언급한 고대 유적의 입구를 찾아라.",
+      "requires": ["mq_04"],
+      "objectives": [
+        {
+          "id": "reach_ruins_entrance",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "ruins_entrance",
+          "display_text": "고대 유적 입구에 도달한다",
+          "hint_text": "어둠의 숲 동쪽 경계를 넘으면 고대 유적이 나타납니다"
+        }
+      ],
+      "reward": { "exp": 80, "gold": 30, "items": [] },
+      "dialogue": { "start": "mq_05_start", "complete": "mq_05_end" }
+    },
+
+    {
+      "id": "mq_06",
+      "title": "봉인의 흔적",
+      "type": "main",
+      "giver_npc": "npc_ruins_ghost",
+      "description": "유적 내부 3곳의 봉인 제단을 조사해 마왕 부활의 단서를 찾아라.",
+      "requires": ["mq_05"],
+      "objectives": [
+        {
+          "id": "investigate_seal_1",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "seal_altar_1",
+          "display_text": "첫 번째 봉인 제단 조사",
+          "hint_text": "유적 서쪽 홀"
+        },
+        {
+          "id": "investigate_seal_2",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "seal_altar_2",
+          "display_text": "두 번째 봉인 제단 조사",
+          "hint_text": "유적 중앙 계단 아래"
+        },
+        {
+          "id": "investigate_seal_3",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "seal_altar_3",
+          "display_text": "세 번째 봉인 제단 조사",
+          "hint_text": "유적 동쪽 지하 방"
+        }
+      ],
+      "reward": { "exp": 120, "gold": 50, "items": [] },
+      "dialogue": { "start": "mq_06_start", "complete": "mq_06_end" }
+    },
+
+    {
+      "id": "mq_07",
+      "title": "리치의 처단",
+      "type": "main",
+      "giver_npc": "npc_elder",
+      "description": "봉인을 해제하고 부활한 리치를 처치하라.",
+      "requires": ["mq_06"],
+      "objectives": [
+        {
+          "id": "kill_lich",
+          "type": "kill",
+          "target": "boss_lich",
+          "count": 1,
+          "display_text": "리치를 처치한다",
+          "hint_text": "유적 최심부 영혼 제단 방"
+        }
+      ],
+      "reward": { "exp": 250, "gold": 200, "items": [{ "id": "armor_chain", "qty": 1 }] },
+      "dialogue": { "start": "mq_07_start", "complete": "mq_07_end" }
+    },
+
+    {
+      "id": "mq_08",
+      "title": "불의 관문",
+      "type": "main",
+      "giver_npc": "npc_survivor",
+      "description": "마왕의 전위대가 집결한 용암 동굴 입구에 도달하라.",
+      "requires": ["mq_07"],
+      "objectives": [
+        {
+          "id": "reach_cavern_entrance",
+          "type": "location",
+          "scene": "scene_cavern",
+          "marker": "cavern_entrance",
+          "display_text": "용암 동굴 입구에 도달한다",
+          "hint_text": "유적 남쪽 출구를 나오면 용암 동굴이 있습니다"
+        }
+      ],
+      "reward": { "exp": 100, "gold": 50, "items": [{ "id": "item_potion_medium", "qty": 1 }] },
+      "dialogue": { "start": "mq_08_start", "complete": "mq_08_end" }
+    },
+
+    {
+      "id": "mq_09",
+      "title": "화염 드래곤 사냥",
+      "type": "main",
+      "giver_npc": "npc_elder",
+      "description": "용암 동굴 심부에 둥지를 튼 화염 드래곤을 처치하라.",
+      "requires": ["mq_08"],
+      "objectives": [
+        {
+          "id": "kill_fire_drake",
+          "type": "kill",
+          "target": "boss_fire_drake",
+          "count": 1,
+          "display_text": "화염 드래곤을 처치한다",
+          "hint_text": "동굴 최하층 드래곤 둥지"
+        }
+      ],
+      "reward": { "exp": 400, "gold": 300, "items": [{ "id": "armor_dragon_scale", "qty": 1 }] },
+      "dialogue": { "start": "mq_09_start", "complete": "mq_09_end" }
+    },
+
+    {
+      "id": "mq_10",
+      "title": "마왕의 성을 향해",
+      "type": "main",
+      "giver_npc": "npc_elder",
+      "description": "에테리아의 위협, 마왕 발코르의 성에 도달하라.",
+      "requires": ["mq_09"],
+      "objectives": [
+        {
+          "id": "reach_fortress_entrance",
+          "type": "location",
+          "scene": "scene_fortress",
+          "marker": "fortress_gate",
+          "display_text": "마왕의 성 입구에 도달한다",
+          "hint_text": "용암 동굴 북쪽 출구 너머"
+        }
+      ],
+      "reward": { "exp": 150, "gold": 80, "items": [] },
+      "dialogue": { "start": "mq_10_start", "complete": "mq_10_end" }
+    },
+
+    {
+      "id": "mq_11",
+      "title": "최후의 결전",
+      "type": "main",
+      "giver_npc": "npc_elder",
+      "description": "어둠의 기사를 쓰러뜨리고 마왕 발코르를 처치해 에테리아를 구하라.",
+      "requires": ["mq_10"],
+      "objectives": [
+        {
+          "id": "kill_dark_knight",
+          "type": "kill",
+          "target": "boss_dark_knight",
+          "count": 1,
+          "display_text": "어둠의 기사를 처치한다",
+          "hint_text": "성의 왕좌 전실"
+        },
+        {
+          "id": "kill_valcor",
+          "type": "kill",
+          "target": "boss_valcor",
+          "count": 1,
+          "display_text": "마왕 발코르를 처치한다",
+          "hint_text": "성의 왕좌의 방 최심부"
+        }
+      ],
+      "reward": { "exp": 1200, "gold": 0, "items": [], "title": "에테리아의 영웅", "clear_record": true },
+      "triggers_ending": true,
+      "dialogue": { "start": "mq_11_start", "complete": "mq_11_end" }
+    }
+  ],
+
+  "side_quests": [
+    {
+      "id": "sq_01",
+      "title": "사라진 아이",
+      "type": "side",
+      "giver_npc": "npc_child",
+      "description": "소녀 리아의 오빠가 숲에 들어갔다가 연락이 끊겼다. 고블린을 처치하고 구출 지점에서 그를 찾아라.",
+      "available_after": "mq_02",
+      "objectives": [
+        {
+          "id": "kill_goblins_for_child",
+          "type": "kill",
+          "target": "enemy_goblin",
+          "count": 2,
+          "display_text": "아이를 위협하는 고블린 처치 ({current}/{total})",
+          "hint_text": "숲 입구 근처 고블린"
+        },
+        {
+          "id": "rescue_location",
+          "type": "location",
+          "scene": "scene_forest",
+          "marker": "child_rescue_point",
+          "display_text": "오빠가 숨어있는 장소에 도달한다",
+          "hint_text": "숲 서쪽 오래된 참나무 옆"
+        }
+      ],
+      "reward": { "exp": 60, "gold": 20, "items": [{ "id": "item_revival_herb", "qty": 1 }] },
+      "dialogue": { "start": "sq_01_start", "complete": "sq_01_end" },
+      "_impl_note": "복합 타입: kill 완료 후 location 목표 활성화. objectives 배열 순서대로 순차 처리"
+    },
+
+    {
+      "id": "sq_02",
+      "title": "대장장이의 부탁",
+      "type": "side",
+      "giver_npc": "npc_blacksmith",
+      "description": "대장장이 핸이 무기 제련에 필요한 철광석을 구해달라고 부탁한다. 숲 속 바위 군집에서 채취할 수 있다.",
+      "available_after": "mq_01",
+      "objectives": [
+        {
+          "id": "collect_iron_ore",
+          "type": "collect",
+          "target": "item_iron_ore",
+          "count": 3,
+          "display_text": "철광석 수집 ({current}/{total})",
+          "hint_text": "어둠의 숲 바위 군집 근처를 탐색하세요",
+          "drop_sources": [
+            { "source_type": "object", "source_id": "object_ore_vein", "scene": "scene_forest", "drop_rate": 1.0 },
+            { "source_type": "enemy", "source_id": "enemy_goblin", "scene": "scene_forest", "drop_rate": 0.3 }
+          ]
+        }
+      ],
+      "reward": { "exp": 80, "gold": 0, "items": [], "unlock": "blacksmith_upgrade" },
+      "dialogue": { "start": "sq_02_start", "complete": "sq_02_end" },
+      "_impl_note": "collect 타입: InventorySystem에서 item_iron_ore qty 변화 감지. drop_sources는 에셋/맵 배치 참고용. unlock은 대장간 강화 메뉴 해금"
+    },
+
+    {
+      "id": "sq_03",
+      "title": "치유사의 약초",
+      "type": "side",
+      "giver_npc": "npc_healer",
+      "description": "치유사 미아가 포션 재료인 치유초를 구해달라고 한다. 숲의 밝은 곳에 자라있다.",
+      "available_after": "mq_01",
+      "objectives": [
+        {
+          "id": "collect_herbs",
+          "type": "collect",
+          "target": "item_healing_herb",
+          "count": 5,
+          "display_text": "치유초 수집 ({current}/{total})",
+          "hint_text": "어둠의 숲 내 빛이 드는 공터 근처",
+          "drop_sources": [
+            { "source_type": "object", "source_id": "object_herb_plant", "scene": "scene_forest", "drop_rate": 1.0 },
+            { "source_type": "enemy", "source_id": "enemy_spider", "scene": "scene_forest", "drop_rate": 0.2 }
+          ]
+        }
+      ],
+      "reward": { "exp": 60, "gold": 0, "items": [{ "id": "item_potion_medium", "qty": 3 }] },
+      "dialogue": { "start": "sq_03_start", "complete": "sq_03_end" }
+    },
+
+    {
+      "id": "sq_04",
+      "title": "학자의 탁본",
+      "type": "side",
+      "giver_npc": "npc_scholar",
+      "description": "학자 토마스가 유적 내 고대 비문 3곳을 탁본해달라고 부탁한다.",
+      "available_after": "mq_05",
+      "objectives": [
+        {
+          "id": "investigate_inscription_1",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "inscription_1",
+          "display_text": "첫 번째 비문 탁본",
+          "hint_text": "유적 입구 외벽 좌측"
+        },
+        {
+          "id": "investigate_inscription_2",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "inscription_2",
+          "display_text": "두 번째 비문 탁본",
+          "hint_text": "유적 2층 복도 끝"
+        },
+        {
+          "id": "investigate_inscription_3",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "inscription_3",
+          "display_text": "세 번째 비문 탁본",
+          "hint_text": "유적 지하 저장고"
+        }
+      ],
+      "reward": { "exp": 100, "gold": 50, "items": [{ "id": "item_ether_shard", "qty": 2 }] },
+      "dialogue": { "start": "sq_04_start", "complete": "sq_04_end" }
+    },
+
+    {
+      "id": "sq_05",
+      "title": "생존자 구출",
+      "type": "side",
+      "giver_npc": "npc_survivor",
+      "description": "용암 동굴 탐험 중 고립된 생존자를 찾아라.",
+      "available_after": "mq_07",
+      "objectives": [
+        {
+          "id": "find_survivor",
+          "type": "location",
+          "scene": "scene_cavern",
+          "marker": "survivor_location",
+          "display_text": "생존자를 찾는다",
+          "hint_text": "용암 동굴 입구에서 서쪽 샛길"
+        }
+      ],
+      "reward": { "exp": 80, "gold": 30, "items": [{ "id": "item_potion_large", "qty": 1 }] },
+      "dialogue": { "start": "sq_05_start", "complete": "sq_05_end" }
+    },
+
+    {
+      "id": "sq_06",
+      "title": "전설의 무기 조각",
+      "type": "side",
+      "giver_npc": "npc_blacksmith",
+      "description": "전설의 불꽃 무기를 만들기 위해 드래곤 비늘이 필요하다.",
+      "available_after": "mq_08",
+      "objectives": [
+        {
+          "id": "collect_dragon_scale",
+          "type": "collect",
+          "target": "item_dragon_scale",
+          "count": 1,
+          "display_text": "드래곤 비늘 수집 ({current}/{total})",
+          "hint_text": "화염 드래곤을 처치하면 얻을 수 있습니다",
+          "drop_sources": [
+            { "source_type": "enemy", "source_id": "boss_fire_drake", "scene": "scene_cavern", "drop_rate": 1.0 }
+          ]
+        }
+      ],
+      "reward": {
+        "exp": 120,
+        "gold": 0,
+        "items": [
+          { "id": "weapon_flame_sword", "qty": 1, "condition": "class_swordsman" },
+          { "id": "weapon_fire_staff", "qty": 1, "condition": "class_mage" }
+        ]
+      },
+      "dialogue": { "start": "sq_06_start", "complete": "sq_06_end" }
+    },
+
+    {
+      "id": "sq_07",
+      "title": "숨겨진 보물",
+      "type": "side",
+      "giver_npc": "npc_guard_captain",
+      "description": "각 지역에 숨겨진 보물상자 4개를 모두 찾아라.",
+      "available_after": "mq_01",
+      "objectives": [
+        {
+          "id": "find_chest_forest",
+          "type": "location",
+          "scene": "scene_forest",
+          "marker": "hidden_chest_1",
+          "display_text": "어둠의 숲 숨겨진 보물상자",
+          "hint_text": "숲 남서쪽 외진 곳"
+        },
+        {
+          "id": "find_chest_ruins",
+          "type": "location",
+          "scene": "scene_ruins",
+          "marker": "hidden_chest_2",
+          "display_text": "고대 유적 숨겨진 보물상자",
+          "hint_text": "유적 지하 비밀 통로 끝"
+        },
+        {
+          "id": "find_chest_cavern",
+          "type": "location",
+          "scene": "scene_cavern",
+          "marker": "hidden_chest_3",
+          "display_text": "용암 동굴 숨겨진 보물상자",
+          "hint_text": "동굴 중층 용암 사이 섬"
+        },
+        {
+          "id": "find_chest_fortress",
+          "type": "location",
+          "scene": "scene_fortress",
+          "marker": "hidden_chest_4",
+          "display_text": "마왕의 성 숨겨진 보물상자",
+          "hint_text": "성 병영 창고"
+        }
+      ],
+      "reward": { "exp": 200, "gold": 100, "items": [{ "id": "item_recall_stone", "qty": 3 }] },
+      "dialogue": { "start": "sq_07_start", "complete": "sq_07_end" }
+    }
+  ]
+}

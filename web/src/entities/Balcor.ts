@@ -21,6 +21,7 @@ export class Balcor extends BossBase {
     super(
       scene, x, y,
       BossBase.ensureAndGetTexture(scene, 'boss_valcor', 0x1a0033),
+      'boss_valcor',
       {
         hp: 1000,
         attackDamage: 55,

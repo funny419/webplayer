@@ -18,6 +18,7 @@ export class DarkKnight extends BossBase {
     super(
       scene, x, y,
       BossBase.ensureAndGetTexture(scene, 'boss_dark_knight', 0x222244),
+      'boss_dark_knight',
       {
         hp: 500,
         attackDamage: 45,

@@ -30,10 +30,11 @@ export abstract class BossBase extends Enemy {
     x: number,
     y: number,
     texture: string,
+    enemyId: string,
     stats: EnemyStats,
     protected readonly keyItemId: string | null,
   ) {
-    super(scene, x, y, texture, stats);
+    super(scene, x, y, texture, enemyId, stats);
     this.projectiles = scene.physics.add.group();
     this.ensureProjTexture();
     this.createHpBar();

@@ -10,6 +10,7 @@ export interface EnemyStats {
 }
 
 export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
+  readonly enemyId: string;
   hp: number;
   readonly maxHp: number;
   readonly attackDamage: number;
@@ -26,12 +27,14 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     x: number,
     y: number,
     texture: string,
+    enemyId: string,
     stats: EnemyStats,
   ) {
     super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
+    this.enemyId = enemyId;
     this.hp = stats.hp;
     this.maxHp = stats.hp;
     this.attackDamage = stats.attackDamage;
@@ -83,6 +86,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     (this.body as Phaser.Physics.Arcade.Body).enable = false;
     this.clearTint();
+    this.scene.events.emit('enemy_killed', this.enemyId);
     this.onDeath();
   }
 

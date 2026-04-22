@@ -14,6 +14,7 @@ export class GoblinKing extends BossBase {
     super(
       scene, x, y,
       BossBase.ensureAndGetTexture(scene, 'boss_goblin_king', 0x8B4513),
+      'boss_goblin_king',
       {
         hp: 300,
         attackDamage: 20,

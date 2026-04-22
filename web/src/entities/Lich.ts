@@ -18,6 +18,7 @@ export class Lich extends BossBase {
     super(
       scene, x, y,
       BossBase.ensureAndGetTexture(scene, 'boss_lich', 0x6600cc),
+      'boss_lich',
       {
         hp: 400,
         attackDamage: 30,
