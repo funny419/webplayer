@@ -62,6 +62,8 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 - M3: 완료 (보드 Done, 퀘스트·인벤토리·대화·저장 시스템 구현)
 - M4: 완료 (보스 5종 구현 및 지역 맵 3개 제작)
 - M5: 완료 (메인 퀘스트 전체 연동 및 엔딩 씬 구현)
-- M6: 진행 중 (메뉴 UI 구현 완료 — MenuOverlay, itemEffects, I/Q 키 바인딩)
+- M6: 진행 중
+  - 완료: 메뉴 UI (MenuOverlay, itemEffects, I/Q 키 바인딩), 전투 UX 개선 (적 HP 바, 플로팅 데미지, HUD 개선), 공격 키 변경 (Z→O, X→P), 버그 수정 3건
+  - 대기: 그룹 A(게임 기반 7개) / B(콘텐츠 완성 10개) / C(폴리싱·문서 13개) — 총 30개 Todo (사용자 승인 후 그룹 A부터 진행 예정)
 - M7: 대기 (보드 Todo)
 - Android(M7): 웹 게임 완성 후 진행
