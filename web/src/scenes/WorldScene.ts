@@ -215,8 +215,8 @@ export class WorldScene extends Phaser.Scene {
 
   private setupInput(): void {
     const kb = this.input.keyboard!;
-    this.attackKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
-    this.rangedKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+    this.attackKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+    this.rangedKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     // I/Q 열기: Phaser addKey() — 메뉴 닫힌 상태(pause 아님)에서만 수신
     const iKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
     const qKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
