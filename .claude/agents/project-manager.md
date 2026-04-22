@@ -56,9 +56,12 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 - 규칙: `.claude/rules/rules.md`
 - 역량: `.claude/skills/skills.md`
 
-**마일스톤 현황 (2026-04-21 기준):**
+**마일스톤 현황 (2026-04-22 기준):**
 - M1: 완료 (보드 Done)
 - M2: 완료 (보드 Done, Android 스파이크 #9는 M6 후 재개)
 - M3: 완료 (보드 Done, 퀘스트·인벤토리·대화·저장 시스템 구현)
-- M4~M7: 대기 (보드 Todo)
+- M4: 완료 (보스 5종 구현 및 지역 맵 3개 제작)
+- M5: 완료 (메인 퀘스트 전체 연동 및 엔딩 씬 구현)
+- M6: 진행 중 (메뉴 UI 구현 완료 — MenuOverlay, itemEffects, I/Q 키 바인딩)
+- M7: 대기 (보드 Todo)
 - Android(M7): 웹 게임 완성 후 진행

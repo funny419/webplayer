@@ -100,6 +100,10 @@ export class QuestSystem extends Phaser.Events.EventEmitter {
     return [...this.quests.values()].filter(q => this.getStatus(q.id) === 'active');
   }
 
+  getAllQuests(): QuestData[] {
+    return [...this.quests.values()];
+  }
+
   getAvailableQuests(): QuestData[] {
     return [...this.quests.values()].filter(q => this.getStatus(q.id) === 'available');
   }

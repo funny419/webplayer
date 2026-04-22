@@ -33,8 +33,9 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 1. Phaser.js 3 기반 게임 씬 구현 (`web/src/scenes/`)
 2. 게임 엔티티 구현 (`web/src/entities/`)
 3. 게임 시스템 구현 (`web/src/systems/`, M3 이후 생성)
-4. 에셋 연동 (`web/public/assets/`)
-5. 빌드 관리 (`vite build`, `tsc --noEmit`)
+4. UI 오버레이 구현 (`web/src/ui/`, M6 이후 생성 — MenuOverlay, itemEffects 등)
+5. 에셋 연동 (`web/public/assets/`)
+6. 빌드 관리 (`vite build`, `tsc --noEmit`)
 
 **행동 규칙:**
 - 사용자의 명시적 지시 없이는 어떤 작업도 시작하지 않는다.

@@ -5,6 +5,9 @@ import { Goblin } from '../entities/Goblin';
 import { BossBase } from '../entities/BossBase';
 import { QuestSystem, QuestData } from '../systems/Quest';
 import { InventorySystem } from '../systems/Inventory';
+import { MenuOverlay } from '../ui/MenuOverlay';
+import { SaveManager } from '../systems/SaveManager';
+import type { SaveData } from '../systems/SaveManager';
 
 const TILE = 32;
 const MAP_COLS = 30;
@@ -34,6 +37,9 @@ export class WorldScene extends Phaser.Scene {
   private activeBosses: BossBase[] = [];
   private quest!: QuestSystem;
   private inventory!: InventorySystem;
+  private saveManager = new SaveManager();
+  private menuOverlay!: MenuOverlay;
+  private playtimeStart = 0;
 
   // Combat input
   private attackKey!: Phaser.Input.Keyboard.Key;
@@ -46,6 +52,8 @@ export class WorldScene extends Phaser.Scene {
   private mpFill!: Phaser.GameObjects.Rectangle;
   private dashIndicator!: Phaser.GameObjects.Text;
   private fpsText!: Phaser.GameObjects.Text;
+
+  currentArea = 'scene_haven';  // 현재 지역 ID — 세이브 탭 활성화 조건에 사용
 
   private gameOverTriggered = false;
 
@@ -66,6 +74,14 @@ export class WorldScene extends Phaser.Scene {
     this.setupUI();
     this.setupBossEventHandlers();
     this.setupQuestEventHandlers();
+    this.playtimeStart = this.time.now;
+    this.menuOverlay = new MenuOverlay(
+      this,
+      this.inventory,
+      this.quest,
+      this.saveManager,
+      () => this.buildSaveData(),
+    );
   }
 
   update(_time: number, delta: number): void {
@@ -201,6 +217,12 @@ export class WorldScene extends Phaser.Scene {
     const kb = this.input.keyboard!;
     this.attackKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
     this.rangedKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+    // I/Q 열기: Phaser addKey() — 메뉴 닫힌 상태(pause 아님)에서만 수신
+    const iKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+    const qKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    iKey.on('down', () => this.menuOverlay.open('inventory'));
+    qKey.on('down', () => this.menuOverlay.open('quest'));
+    // 닫기(I/Q 토글·ESC): MenuOverlay 생성자의 DOM 리스너가 처리
   }
 
   // ── 전투 ────────────────────────────────────────────────────────────────
@@ -461,6 +483,24 @@ export class WorldScene extends Phaser.Scene {
     this.events.on('boss_key_item', (itemId: string) => {
       this.inventory.addKeyItem(itemId);
     });
+  }
+
+  private buildSaveData(): Omit<SaveData, 'version' | 'timestamp'> {
+    return {
+      playtime: this.time.now - this.playtimeStart,
+      player: {
+        hp:          this.player.hp,
+        mp:          this.player.mp,
+        level:       (this.player as unknown as Record<string, number>)['level'] ?? 1,
+        exp:         (this.player as unknown as Record<string, number>)['exp'] ?? 0,
+        gold:        (this.player as unknown as Record<string, number>)['gold'] ?? 0,
+        playerClass: this.inventory.toJSON().equipment.weapon?.includes('staff')
+                       ? 'class_mage' : 'class_swordsman',
+      },
+      inventory: this.inventory.toJSON(),
+      quests:    this.quest.toJSON(),
+      puzzles:   {},
+    };
   }
 
   /** 활성 보스의 발사체와 플레이어 충돌 처리 */
