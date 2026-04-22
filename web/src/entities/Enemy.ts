@@ -21,6 +21,8 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   private _isDead = false;
   private readonly _attackCooldown: number;
   private attackCooldownRemaining = 0;
+  private _enemyHpBg!: Phaser.GameObjects.Rectangle;
+  private _enemyHpFill!: Phaser.GameObjects.Rectangle;
 
   constructor(
     scene: Phaser.Scene,
@@ -45,6 +47,20 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.setCollideWorldBounds(true);
     (this.body as Phaser.Physics.Arcade.Body).setSize(24, 24);
+    this._createEnemyHpBar();
+  }
+
+  private _createEnemyHpBar(): void {
+    this._enemyHpBg   = this.scene.add.rectangle(0, 0, 28, 4, 0x333333).setDepth(10);
+    this._enemyHpFill = this.scene.add.rectangle(0, 0, 28, 4, 0xff3344).setOrigin(0, 0.5).setDepth(11);
+  }
+
+  private _updateEnemyHpBar(): void {
+    const bx = this.x - 14;
+    const by = this.y - 22;
+    this._enemyHpBg.setPosition(this.x, by);
+    this._enemyHpFill.setPosition(bx, by);
+    this._enemyHpFill.width = 28 * (this.hp / this.maxHp);
   }
 
   get isDead(): boolean { return this._isDead; }
@@ -55,6 +71,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.hp = Math.max(0, this.hp - amount);
     this.setTint(0xff4444);
     this.scene.time.delayedCall(120, () => { if (!this._isDead) this.clearTint(); });
+    this._updateEnemyHpBar();
     if (this.hp === 0) this.die();
   }
 
@@ -64,6 +81,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   updateAI(playerX: number, playerY: number, delta: number): void {
     if (this._isDead) return;
+    this._updateEnemyHpBar();
 
     this.attackCooldownRemaining = Math.max(0, this.attackCooldownRemaining - delta);
 
@@ -86,6 +104,8 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     (this.body as Phaser.Physics.Arcade.Body).enable = false;
     this.clearTint();
+    this._enemyHpBg.destroy();
+    this._enemyHpFill.destroy();
     this.scene.events.emit('enemy_killed', this.enemyId);
     this.onDeath();
   }

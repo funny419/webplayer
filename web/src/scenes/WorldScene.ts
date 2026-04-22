@@ -332,25 +332,35 @@ export class WorldScene extends Phaser.Scene {
     const s = (obj: Phaser.GameObjects.GameObject) =>
       (obj as Phaser.GameObjects.Components.ScrollFactor & typeof obj).setScrollFactor(0);
 
+    const BAR_W = 120;
+    const BAR_H = 10;
+    const LX = 10; // label x
+    const BX = 36; // bar x
+
     // HP bar
-    s(this.add.text(10, 8, 'HP', { fontSize: '10px', color: '#ffffff' }));
-    s(this.add.rectangle(80, 13, 100, 10, 0x333333).setOrigin(0.5, 0.5));
-    this.hpFill = this.add.rectangle(30, 13, 100, 8, 0xff3344).setOrigin(0, 0.5) as Phaser.GameObjects.Rectangle;
+    s(this.add.text(LX, 10, 'HP', { fontSize: '11px', color: '#ff6666', fontStyle: 'bold' }));
+    s(this.add.rectangle(BX + BAR_W / 2, 16, BAR_W + 2, BAR_H + 2, 0x111111).setOrigin(0.5, 0.5));
+    s(this.add.rectangle(BX + BAR_W / 2, 16, BAR_W, BAR_H, 0x441111).setOrigin(0.5, 0.5));
+    this.hpFill = this.add.rectangle(BX, 16, BAR_W, BAR_H, 0xee2244).setOrigin(0, 0.5) as Phaser.GameObjects.Rectangle;
     s(this.hpFill);
 
     // MP bar
-    s(this.add.text(10, 22, 'MP', { fontSize: '10px', color: '#ffffff' }));
-    s(this.add.rectangle(80, 27, 100, 10, 0x333333).setOrigin(0.5, 0.5));
-    this.mpFill = this.add.rectangle(30, 27, 100, 8, 0x3388ff).setOrigin(0, 0.5) as Phaser.GameObjects.Rectangle;
+    s(this.add.text(LX, 24, 'MP', { fontSize: '11px', color: '#6699ff', fontStyle: 'bold' }));
+    s(this.add.rectangle(BX + BAR_W / 2, 30, BAR_W + 2, BAR_H + 2, 0x111111).setOrigin(0.5, 0.5));
+    s(this.add.rectangle(BX + BAR_W / 2, 30, BAR_W, BAR_H, 0x111144).setOrigin(0.5, 0.5));
+    this.mpFill = this.add.rectangle(BX, 30, BAR_W, BAR_H, 0x2266ee).setOrigin(0, 0.5) as Phaser.GameObjects.Rectangle;
     s(this.mpFill);
 
-    // Dash & controls
-    this.dashIndicator = this.add.text(10, 38, 'DASH: READY', { fontSize: '11px', color: '#00ff88' }) as Phaser.GameObjects.Text;
+    // Dash indicator
+    this.dashIndicator = this.add.text(LX, 42, '● DASH READY', { fontSize: '10px', color: '#00ff88' }) as Phaser.GameObjects.Text;
     s(this.dashIndicator);
-    s(this.add.text(10, 52, '[Z] Sword  [X] Magic  [Shift] Dash', { fontSize: '9px', color: '#888888' }));
+
+    // Key guide
+    s(this.add.text(LX, 56, '[O] 공격  [P] 마법  [Shift] 대시', { fontSize: '9px', color: '#666666' }));
+    s(this.add.text(LX, 66, '[I] 인벤토리  [Q] 퀘스트', { fontSize: '9px', color: '#666666' }));
 
     // FPS (dev only)
-    this.fpsText = this.add.text(10, 64, '', { fontSize: '10px', color: '#ffff00' }) as Phaser.GameObjects.Text;
+    this.fpsText = this.add.text(LX, 78, '', { fontSize: '10px', color: '#ffff00' }) as Phaser.GameObjects.Text;
     s(this.fpsText);
     this.fpsText.setVisible(import.meta.env.DEV);
   }
@@ -360,9 +370,9 @@ export class WorldScene extends Phaser.Scene {
     this.mpFill.width = 100 * (this.player.mp / this.player.maxMp);
 
     if (this.player.dashReady) {
-      this.dashIndicator.setText('DASH: READY').setColor('#00ff88');
+      this.dashIndicator.setText('● DASH READY').setColor('#00ff88');
     } else {
-      this.dashIndicator.setText('DASH: COOLDOWN').setColor('#ff4444');
+      this.dashIndicator.setText('○ DASH...').setColor('#ff4444');
     }
   }
 
