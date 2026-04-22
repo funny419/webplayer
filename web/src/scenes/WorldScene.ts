@@ -50,6 +50,8 @@ export class WorldScene extends Phaser.Scene {
   // HUD
   private hpFill!: Phaser.GameObjects.Rectangle;
   private mpFill!: Phaser.GameObjects.Rectangle;
+  private hpText!: Phaser.GameObjects.Text;
+  private mpText!: Phaser.GameObjects.Text;
   private dashIndicator!: Phaser.GameObjects.Text;
   private fpsText!: Phaser.GameObjects.Text;
 
@@ -266,6 +268,7 @@ export class WorldScene extends Phaser.Scene {
       if (enemy.isDead || !enemy.active) return;
       if (Phaser.Math.Distance.Between(hitX, hitY, enemy.x, enemy.y) <= MELEE_RANGE) {
         enemy.takeDamage(MELEE_DAMAGE);
+        this.spawnDamageNumber(enemy.x, enemy.y, MELEE_DAMAGE);
       }
     });
   }
@@ -299,6 +302,7 @@ export class WorldScene extends Phaser.Scene {
         if (enemy.isDead || !enemy.active) continue;
         if (Phaser.Math.Distance.Between(proj.x, proj.y, enemy.x, enemy.y) <= 16) {
           enemy.takeDamage(RANGED_DAMAGE);
+          this.spawnDamageNumber(enemy.x, enemy.y, RANGED_DAMAGE);
           proj.destroy();
           return;
         }
@@ -320,6 +324,7 @@ export class WorldScene extends Phaser.Scene {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
       if (dist <= enemy.attackRange) {
         this.player.takeDamage(enemy.attackDamage);
+        this.spawnDamageNumber(this.player.x, this.player.y, enemy.attackDamage, true);
         enemy.triggerAttackCooldown();
         break;
       }
@@ -343,6 +348,8 @@ export class WorldScene extends Phaser.Scene {
     s(this.add.rectangle(BX + BAR_W / 2, 16, BAR_W, BAR_H, 0x441111).setOrigin(0.5, 0.5));
     this.hpFill = this.add.rectangle(BX, 16, BAR_W, BAR_H, 0xee2244).setOrigin(0, 0.5) as Phaser.GameObjects.Rectangle;
     s(this.hpFill);
+    this.hpText = this.add.text(BX + BAR_W + 4, 16, '', { fontSize: '10px', color: '#ffaaaa' }).setOrigin(0, 0.5) as Phaser.GameObjects.Text;
+    s(this.hpText);
 
     // MP bar
     s(this.add.text(LX, 24, 'MP', { fontSize: '11px', color: '#6699ff', fontStyle: 'bold' }));
@@ -350,6 +357,8 @@ export class WorldScene extends Phaser.Scene {
     s(this.add.rectangle(BX + BAR_W / 2, 30, BAR_W, BAR_H, 0x111144).setOrigin(0.5, 0.5));
     this.mpFill = this.add.rectangle(BX, 30, BAR_W, BAR_H, 0x2266ee).setOrigin(0, 0.5) as Phaser.GameObjects.Rectangle;
     s(this.mpFill);
+    this.mpText = this.add.text(BX + BAR_W + 4, 30, '', { fontSize: '10px', color: '#aabbff' }).setOrigin(0, 0.5) as Phaser.GameObjects.Text;
+    s(this.mpText);
 
     // Dash indicator
     this.dashIndicator = this.add.text(LX, 42, '● DASH READY', { fontSize: '10px', color: '#00ff88' }) as Phaser.GameObjects.Text;
@@ -366,14 +375,39 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private updateUI(): void {
-    this.hpFill.width = 100 * (this.player.hp / this.player.maxHp);
-    this.mpFill.width = 100 * (this.player.mp / this.player.maxMp);
+    const BAR_W = 120;
+    this.hpFill.width = BAR_W * (this.player.hp / this.player.maxHp);
+    this.mpFill.width = BAR_W * (this.player.mp / this.player.maxMp);
+    this.hpText.setText(`${this.player.hp}/${this.player.maxHp}`);
+    this.mpText.setText(`${this.player.mp}/${this.player.maxMp}`);
 
     if (this.player.dashReady) {
       this.dashIndicator.setText('● DASH READY').setColor('#00ff88');
     } else {
       this.dashIndicator.setText('○ DASH...').setColor('#ff4444');
     }
+  }
+
+  // ── 플로팅 데미지 숫자 ───────────────────────────────────────────────────
+
+  private spawnDamageNumber(x: number, y: number, amount: number, isPlayer = false): void {
+    const color = isPlayer ? '#ff4444' : '#ffee44';
+    const txt = this.add.text(x, y - 8, `-${amount}`, {
+      fontSize: isPlayer ? '14px' : '12px',
+      color,
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5, 1).setDepth(20);
+
+    this.tweens.add({
+      targets: txt,
+      y: y - 36,
+      alpha: 0,
+      duration: 800,
+      ease: 'Cubic.Out',
+      onComplete: () => txt.destroy(),
+    });
   }
 
   // ── 시스템 초기화 ────────────────────────────────────────────────────────
@@ -430,7 +464,7 @@ export class WorldScene extends Phaser.Scene {
     this.events.on('boss_melee_hit', (x: number, y: number, dmg: number, range: number) => {
       if (!this.player.canBeHit) return;
       if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) <= range) {
-        this.player.takeDamage(Math.round(dmg));
+        this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
       }
     });
 
@@ -438,7 +472,7 @@ export class WorldScene extends Phaser.Scene {
     this.events.on('boss_aoe_hit', (x: number, y: number, dmg: number, range: number) => {
       if (!this.player.canBeHit) return;
       if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) <= range) {
-        this.player.takeDamage(Math.round(dmg));
+        this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
       }
     });
 
@@ -452,7 +486,7 @@ export class WorldScene extends Phaser.Scene {
         const toPlayer = Phaser.Math.Angle.Between(x, y, this.player.x, this.player.y);
         const diff = Math.abs(Phaser.Math.Angle.Wrap(toPlayer - angle));
         if (diff <= halfAngle / 2) {
-          this.player.takeDamage(Math.round(dmg));
+          this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
         }
       },
     );
@@ -468,7 +502,7 @@ export class WorldScene extends Phaser.Scene {
             if (this.time.now > endTime) { tick.destroy(); return; }
             if (!this.player.canBeHit) return;
             if (Phaser.Math.Distance.Between(zx, zy, this.player.x, this.player.y) <= range) {
-              this.player.takeDamage(Math.round(dmg));
+              this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
             }
           },
           loop: true,
@@ -522,7 +556,7 @@ export class WorldScene extends Phaser.Scene {
         if (!proj.active) return;
         const dist = Phaser.Math.Distance.Between(proj.x, proj.y, this.player.x, this.player.y);
         if (dist <= 12 && this.player.canBeHit) {
-          this.player.takeDamage(Math.round(boss.attackDamage * 0.8));
+          this.player.takeDamage(Math.round(boss.attackDamage * 0.8)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(boss.attackDamage * 0.8), true);
           proj.destroy();
         }
       });
