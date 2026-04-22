@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import type { InventorySystem } from '../systems/Inventory';
 import type { QuestSystem } from '../systems/Quest';
 import type { SaveManager, SaveData } from '../systems/SaveManager';
+import { getItemEffect, applyItemEffect } from './itemEffects';
 
 type Tab = 'inventory' | 'quest' | 'save';
 
@@ -9,6 +10,8 @@ export class MenuOverlay {
   private el: HTMLDivElement;
   private isOpen = false;
   private activeTab: Tab = 'inventory';
+  private selectedItemId: string | null = null;
+  private detailPanel!: HTMLElement;
 
   constructor(
     private scene: Phaser.Scene & { currentArea: string },
@@ -123,7 +126,166 @@ export class MenuOverlay {
   }
 
   private buildInventory(): HTMLElement {
-    return document.createElement('div'); // Task 5에서 구현
+    const snap = this.inventory.toJSON();
+    const root = document.createElement('div');
+    root.style.cssText = 'display:flex;gap:16px;height:100%;';
+
+    const left = document.createElement('div');
+    left.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:12px;';
+
+    const consumableIds = Object.keys(snap.items);
+    left.appendChild(this.buildSection('소비 아이템', consumableIds.map(id => ({
+      id, qty: snap.items[id], type: 'consumable' as const,
+    }))));
+
+    const equipIds = [snap.equipment.weapon, snap.equipment.armor].filter(Boolean) as string[];
+    left.appendChild(this.buildSection('장비', equipIds.map(id => ({
+      id, qty: 1, type: 'equipment' as const,
+    }))));
+
+    left.appendChild(this.buildSection('🗝 키 아이템', snap.keyItems.map(id => ({
+      id, qty: 1, type: 'keyitem' as const,
+    }))));
+
+    root.appendChild(left);
+    this.detailPanel = this.buildDetailPanel();
+    root.appendChild(this.detailPanel);
+
+    return root;
+  }
+
+  private buildSection(
+    title: string,
+    items: { id: string; qty: number; type: 'consumable' | 'equipment' | 'keyitem' }[],
+  ): HTMLElement {
+    const section = document.createElement('div');
+    const label = document.createElement('div');
+    label.textContent = title;
+    label.style.cssText = 'color:#aaa;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;';
+    section.appendChild(label);
+
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;';
+
+    if (items.length === 0) {
+      const empty = document.createElement('span');
+      empty.textContent = '없음';
+      empty.style.cssText = 'color:#444;font-size:12px;';
+      grid.appendChild(empty);
+    }
+
+    const colorMap: Record<string, string> = {
+      consumable: '#e74c3c', equipment: '#9b59b6', keyitem: '#f1c40f',
+    };
+
+    for (const item of items) {
+      const slot = document.createElement('div');
+      const isSelected = this.selectedItemId === item.id;
+      slot.style.cssText = [
+        'width:40px', 'height:40px', 'background:#2c3e50',
+        `border:${isSelected ? '2px solid #f1c40f' : '1px dashed ' + colorMap[item.type] + '66'}`,
+        'border-radius:4px', 'position:relative', 'cursor:pointer',
+        'display:flex', 'align-items:center', 'justify-content:center',
+        'font-size:10px', 'color:#eee',
+      ].join(';');
+
+      slot.textContent = item.id.split('_').slice(-1)[0].substring(0, 3).toUpperCase();
+
+      if (item.qty > 1) {
+        const badge = document.createElement('span');
+        badge.textContent = String(item.qty);
+        badge.style.cssText = 'position:absolute;bottom:1px;right:2px;font-size:9px;color:#eee;';
+        slot.appendChild(badge);
+      }
+
+      if (item.type === 'keyitem') {
+        slot.setAttribute('data-key-item-id', item.id);
+      } else {
+        slot.setAttribute('data-item-id', item.id);
+      }
+
+      slot.onclick = () => {
+        this.selectedItemId = item.id;
+        this.render();
+      };
+
+      grid.appendChild(slot);
+    }
+
+    section.appendChild(grid);
+    return section;
+  }
+
+  private buildDetailPanel(): HTMLElement {
+    const panel = document.createElement('div');
+    panel.style.cssText = [
+      'width:150px', 'background:#1a1a2e', 'border-radius:6px',
+      'padding:12px', 'border:1px solid #333', 'display:flex',
+      'flex-direction:column', 'gap:8px',
+    ].join(';');
+
+    if (!this.selectedItemId) {
+      const hint = document.createElement('span');
+      hint.textContent = '아이템을 선택하세요';
+      hint.style.cssText = 'color:#444;font-size:12px;';
+      panel.appendChild(hint);
+      return panel;
+    }
+
+    const id = this.selectedItemId;
+    const snap = this.inventory.toJSON();
+    const isEquipment = id === snap.equipment.weapon || id === snap.equipment.armor;
+    const isKeyItem = snap.keyItems.includes(id);
+    const qty = snap.items[id] ?? 1;
+
+    let itemColor: string;
+    if (isKeyItem) itemColor = '#f1c40f';
+    else if (isEquipment) itemColor = '#9b59b6';
+    else itemColor = '#e74c3c';
+
+    const name = document.createElement('div');
+    name.textContent = id;
+    name.style.cssText = `color:${itemColor};font-size:13px;font-weight:bold;word-break:break-all;`;
+    panel.appendChild(name);
+
+    if (!isEquipment && !isKeyItem) {
+      const qtyEl = document.createElement('div');
+      qtyEl.textContent = `보유: ${qty}개`;
+      qtyEl.style.cssText = 'color:#aaa;font-size:12px;';
+      panel.appendChild(qtyEl);
+
+      const effect = getItemEffect(id);
+      if (effect) {
+        const desc = document.createElement('div');
+        if (effect.type === 'heal_hp') desc.textContent = `HP +${effect.value === Infinity ? '전체' : effect.value} 회복`;
+        else if (effect.type === 'heal_mp') desc.textContent = `MP +${effect.value} 회복`;
+        desc.style.cssText = 'color:#aaa;font-size:11px;';
+        panel.appendChild(desc);
+      }
+
+      const useBtn = document.createElement('button');
+      useBtn.textContent = '사용 (Enter)';
+      useBtn.style.cssText = [
+        'background:#27ae60', 'border:none', 'border-radius:4px',
+        'padding:6px', 'color:#fff', 'font-family:monospace',
+        'cursor:pointer', 'margin-top:auto',
+      ].join(';');
+      useBtn.onclick = () => this.useSelectedItem();
+      panel.appendChild(useBtn);
+    }
+
+    return panel;
+  }
+
+  private useSelectedItem(): void {
+    if (!this.selectedItemId) return;
+    const effect = getItemEffect(this.selectedItemId);
+    if (!effect) return;
+    const removed = this.inventory.removeItem(this.selectedItemId, 1);
+    if (!removed) return;
+    applyItemEffect(effect, (this.scene as unknown as { player: Parameters<typeof applyItemEffect>[1] }).player);
+    this.selectedItemId = null;
+    this.render();
   }
 
   private buildQuestLog(): HTMLElement {
