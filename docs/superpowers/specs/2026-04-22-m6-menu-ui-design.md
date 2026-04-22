@@ -121,13 +121,20 @@ SaveManager.save() / load()    →  renderSavePanel()
 
 ### 4.1 QuestSystem 신규 메서드 추가
 
-퀘스트 일지에 진행 중·완료 퀘스트를 모두 표시하기 위해 `Quest.ts`에 다음 메서드를 추가한다:
+퀘스트 일지에는 `active`·`completed` 상태 퀘스트만 표시한다 (`locked`·`available`은 숨김). 이를 위해 `Quest.ts`에 다음 메서드를 추가한다:
 
 ```ts
 // Quest.ts에 추가
 getAllQuests(): QuestData[] {
   return [...this.quests.values()];
 }
+```
+
+`renderQuestLog()` 내부에서 반환값을 필터링한다:
+```ts
+const visible = quest.getAllQuests().filter(q =>
+  ['active', 'completed'].includes(quest.getStatus(q.id))
+);
 ```
 
 ### 4.2 세이브 데이터 조립 책임
@@ -161,7 +168,7 @@ web/src/
 ```
 
 `MenuOverlay` 클래스:
-- `constructor(scene, inventorySystem, questSystem, saveManager)`
+- `constructor(scene, inventorySystem, questSystem, saveManager, getSaveData)`
 - `open(tab: 'inventory' | 'quest' | 'save')` / `close()`
 - `renderInventory()` / `renderQuestLog()` / `renderSave()`
 
