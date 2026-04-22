@@ -438,9 +438,8 @@ export class WorldScene extends Phaser.Scene {
           playtime: this.time.now,
           level: 1,   // Player 레벨 시스템 미구현 — 기본값
           questsPct: Math.round(
-            ([...Array(11)].filter((_, i) =>
-              this.quest.getStatus(`mq_0${i + 1}`) === 'completed' ||
-              this.quest.getStatus(`mq_11`) === 'completed',
+            (this.quest.getAllQuests().filter(q =>
+              this.quest.getStatus(q.id) === 'completed',
             ).length / 18) * 100,
           ),
           date: new Date().toISOString(),
@@ -485,7 +484,7 @@ export class WorldScene extends Phaser.Scene {
         if (dist > range) return;
         const toPlayer = Phaser.Math.Angle.Between(x, y, this.player.x, this.player.y);
         const diff = Math.abs(Phaser.Math.Angle.Wrap(toPlayer - angle));
-        if (diff <= halfAngle / 2) {
+        if (diff <= halfAngle) {
           this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
         }
       },

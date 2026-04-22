@@ -13,6 +13,7 @@ export class MenuOverlay {
   private selectedItemId: string | null = null;
   private selectedQuestId: string | null = null;
   private detailPanel!: HTMLElement;
+  private readonly _keyHandler: (e: KeyboardEvent) => void;
 
   constructor(
     private scene: Phaser.Scene & { currentArea: string },
@@ -21,6 +22,12 @@ export class MenuOverlay {
     private saveManager: SaveManager,
     private getSaveData: () => Omit<SaveData, 'version' | 'timestamp'>,
   ) {
+    this._keyHandler = (e: KeyboardEvent) => {
+      if (!this.isOpen) return;
+      if (e.key === 'Escape' || e.key === 'i' || e.key === 'I' || e.key === 'q' || e.key === 'Q') {
+        this.close();
+      }
+    };
     this.el = this.createDOM();
     this.attachEscListener();
   }
@@ -59,18 +66,15 @@ export class MenuOverlay {
   }
 
   destroy(): void {
+    document.removeEventListener('keydown', this._keyHandler);
     this.el.remove();
   }
 
   private attachEscListener(): void {
     // I/Q 키도 DOM 레벨로 등록 — Phaser scene.pause() 중에는 Phaser Input Plugin이 중단되므로
     // Phaser addKey()로는 pause 상태에서 키 수신 불가. I/Q 토글·ESC 닫기 모두 DOM으로 처리.
-    document.addEventListener('keydown', (e) => {
-      if (!this.isOpen) return;
-      if (e.key === 'Escape') this.close();
-      if (e.key === 'i' || e.key === 'I') this.close();
-      if (e.key === 'q' || e.key === 'Q') this.close();
-    });
+    // named 핸들러로 저장해 destroy() 시 removeEventListener 가능하도록 함
+    document.addEventListener('keydown', this._keyHandler);
   }
 
   private render(): void {
