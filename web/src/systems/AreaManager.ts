@@ -79,8 +79,8 @@ export class AreaManager {
     // 타일셋 연결
     const floorTs = this.map.addTilesetImage('dungeon_floor', 'dungeon_floor');
     const wallTs  = this.map.addTilesetImage('dungeon_walls', 'dungeon_walls');
-
-    if (floorTs) this.map.createLayer('Ground', floorTs, 0, 0);
+    const groundLayer = floorTs ? this.map.createLayer('Ground', floorTs, 0, 0) : null;
+    if (groundLayer) groundLayer.setDepth(-1); // 플레이어(depth 0) 아래에 렌더링
 
     // 충돌 레이어
     let collLayer: Phaser.Tilemaps.TilemapLayer | null = null;
