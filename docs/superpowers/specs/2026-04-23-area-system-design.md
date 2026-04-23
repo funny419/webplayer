@@ -32,6 +32,17 @@ web/src/
 - 기존 `createPlaceholderMap()`, `spawnEnemies()` 제거
 - `create()` 내에서 `AreaManager` 초기화 후 `loadArea('scene_haven')` 호출
 - 지역별 콘텐츠 관리는 AreaManager에 위임
+- `setupInput()`에 Space 키 추가 — `npc_interact_ready` 이벤트 상태일 때 `DialogueSystem.start(npcId)` 호출
+
+### 2.3 NPC 상호작용 흐름
+
+```
+AreaManager.spawnNPC() → overlap 감지 → events.emit('npc_interact_ready', npcId)
+WorldScene(Space 키 수신) → DialogueSystem.start(npcId)
+DialogueSystem 완료 → quest.onTalkedToNpc(npcId)
+```
+
+dialogues.json의 최상위 키가 npcId와 동일하므로 별도 매핑 불필요.
 
 ### 2.3 AreaManager 인터페이스
 
@@ -92,8 +103,8 @@ class NPC extends Phaser.Physics.Arcade.Sprite {
 
 - NPC 스프라이트: `assets/sprites/npc/{npcId}.png` (2프레임 idle)
 - 플레이어 접근 시(overlap 감지): 말풍선 아이콘 표시
-- Space 키 → `DialogueSystem`으로 대화 시작
-- 대화 완료 → `QuestSystem` 트리거 연결 (`quest.onNpcTalked(npcId)`)
+- Space 키 → `DialogueSystem`으로 대화 시작 (WorldScene.setupInput()에서 처리)
+- 대화 완료 → `QuestSystem` 트리거 연결 (`quest.onTalkedToNpc(npcId)`)
 
 ### 4.2 AreaManager의 NPC 관리
 
@@ -152,7 +163,40 @@ MenuOverlay 세이브 탭 상태 갱신 // 하벤이면 활성화
 
 ---
 
-## 6. 지역별 맵 파일 경로
+## 6. PreloadScene 수정 사항
+
+AreaManager가 맵을 로드하려면 PreloadScene에서 사전 로드가 필요하다.
+
+```ts
+// PreloadScene.preload()에 추가
+this.load.tilemapTiledJSON('map_haven',    'assets/maps/haven-village.tmj');
+this.load.tilemapTiledJSON('map_forest',   'assets/maps/forest-dungeon.tmj');
+this.load.tilemapTiledJSON('map_ruins',    'assets/maps/ancient-ruins.tmj');
+this.load.tilemapTiledJSON('map_cavern',   'assets/maps/lava-cave.tmj');
+this.load.tilemapTiledJSON('map_fortress', 'assets/maps/dark-castle.tmj');
+
+// 타일셋 이미지 (맵에서 사용하는 것만)
+this.load.image('dungeon_floor', 'assets/tilesets/dungeon/dungeon_floor.png');
+this.load.image('dungeon_walls', 'assets/tilesets/dungeon/dungeon_walls.png');
+// haven 마을용 타일셋은 맵 완성 시 추가
+```
+
+**AreaManager의 맵 키 규칙:** `'map_' + areaId.replace('scene_', '')`
+예: `scene_forest` → `map_forest`
+
+---
+
+## 7. 구현 선행 조건
+
+구현 시작 전 반드시 완료:
+1. `design/` 디렉토리의 맵 파일 3개를 `web/public/assets/maps/`로 복사:
+   - `ancient-ruins.tmj`, `lava-cave.tmj`, `dark-castle.tmj`
+2. 하벤 마을 맵(`haven-village.tmj`) 미존재 → 임시로 `forest-dungeon.tmj`를 복사하여 사용, 추후 교체
+3. 각 맵의 `objects` 레이어에 `enemy_spawn`, `npc_spawn`, `exit_zone`, `player_start` 오브젝트 배치 (game-planner 또는 designer 담당)
+
+---
+
+## 8. 지역별 맵 파일 경로
 
 | 지역 ID | 맵 파일 |
 |---------|--------|
@@ -166,7 +210,7 @@ MenuOverlay 세이브 탭 상태 갱신 // 하벤이면 활성화
 
 ---
 
-## 7. 성공 기준
+## 9. 성공 기준
 
 1. `areaManager.loadArea('scene_haven')` 호출 시 Tiled 맵이 실제 렌더링됨
 2. 맵 내 NPC가 스폰되고 플레이어 접근 시 상호작용 UI 표시
