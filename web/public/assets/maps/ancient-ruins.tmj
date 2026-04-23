@@ -3244,9 +3244,9 @@
         {
           "height": 32,
           "id": 1,
-          "name": "player_spawn",
+          "name": "player_start",
           "rotation": 0,
-          "type": "spawn",
+          "type": "player_start",
           "visible": true,
           "width": 32,
           "x": 608.0,
@@ -3458,7 +3458,7 @@
         {
           "height": 32,
           "id": 9,
-          "name": "skeleton_spawn_1",
+          "name": "enemy_skeleton_1",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3486,7 +3486,7 @@
         {
           "height": 32,
           "id": 10,
-          "name": "skeleton_spawn_2",
+          "name": "enemy_skeleton_2",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3514,7 +3514,7 @@
         {
           "height": 32,
           "id": 11,
-          "name": "zombie_spawn_1",
+          "name": "enemy_zombie_1",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3542,7 +3542,7 @@
         {
           "height": 32,
           "id": 12,
-          "name": "demon_spawn_1",
+          "name": "enemy_dark_mage_1",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3570,7 +3570,7 @@
         {
           "height": 32,
           "id": 13,
-          "name": "demon_spawn_2",
+          "name": "enemy_dark_mage_2",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3670,9 +3670,9 @@
         {
           "height": 256,
           "id": 18,
-          "name": "boss_room_marker",
+          "name": "boss_lich",
           "rotation": 0,
-          "type": "boss_room",
+          "type": "boss_spawn",
           "visible": true,
           "width": 384,
           "x": 448.0,
@@ -3693,9 +3693,9 @@
         {
           "height": 32,
           "id": 19,
-          "name": "boss_spawn_lich",
+          "name": "boss_lich",
           "rotation": 0,
-          "type": "enemy_spawn",
+          "type": "boss_spawn",
           "visible": true,
           "width": 32,
           "x": 640.0,
@@ -3716,9 +3716,9 @@
         {
           "height": 64,
           "id": 20,
-          "name": "exit_portal",
+          "name": "scene_cavern",
           "rotation": 0,
-          "type": "portal",
+          "type": "exit_zone",
           "visible": true,
           "width": 64,
           "x": 608.0,

@@ -3244,9 +3244,9 @@
         {
           "height": 32,
           "id": 1,
-          "name": "player_spawn",
+          "name": "player_start",
           "rotation": 0,
-          "type": "spawn",
+          "type": "player_start",
           "visible": true,
           "width": 32,
           "x": 608.0,
@@ -3425,7 +3425,7 @@
         {
           "height": 32,
           "id": 8,
-          "name": "bat_spawn_1",
+          "name": "enemy_bat_1",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3453,7 +3453,7 @@
         {
           "height": 32,
           "id": 9,
-          "name": "fire_slime_spawn_1",
+          "name": "enemy_fire_slime_1",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3481,7 +3481,7 @@
         {
           "height": 32,
           "id": 10,
-          "name": "fire_slime_spawn_2",
+          "name": "enemy_fire_slime_2",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3509,7 +3509,7 @@
         {
           "height": 32,
           "id": 11,
-          "name": "gargoyle_spawn_1",
+          "name": "enemy_gargoyle_1",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3537,7 +3537,7 @@
         {
           "height": 32,
           "id": 12,
-          "name": "lava_golem_spawn_1",
+          "name": "enemy_lava_golem_1",
           "rotation": 0,
           "type": "enemy_spawn",
           "visible": true,
@@ -3637,9 +3637,9 @@
         {
           "height": 256,
           "id": 17,
-          "name": "boss_room_marker",
+          "name": "boss_fire_drake",
           "rotation": 0,
-          "type": "boss_room",
+          "type": "boss_spawn",
           "visible": true,
           "width": 384,
           "x": 448.0,
@@ -3660,9 +3660,9 @@
         {
           "height": 32,
           "id": 18,
-          "name": "boss_spawn_fire_drake",
+          "name": "boss_fire_drake",
           "rotation": 0,
-          "type": "enemy_spawn",
+          "type": "boss_spawn",
           "visible": true,
           "width": 32,
           "x": 608.0,
@@ -3683,9 +3683,9 @@
         {
           "height": 64,
           "id": 19,
-          "name": "exit_portal",
+          "name": "scene_fortress",
           "rotation": 0,
-          "type": "portal",
+          "type": "exit_zone",
           "visible": true,
           "width": 64,
           "x": 608.0,
