@@ -3245,13 +3245,7 @@
           "height": 32,
           "id": 1,
           "name": "player_start",
-          "properties": [
-            {
-              "name": "type",
-              "type": "string",
-              "value": "player_spawn"
-            }
-          ],
+          "properties": [],
           "rotation": 0,
           "type": "player_start",
           "visible": true,
@@ -3764,11 +3758,6 @@
           "id": 27,
           "name": "scene_ruins",
           "properties": [
-            {
-              "name": "type",
-              "type": "string",
-              "value": "portal"
-            },
             {
               "name": "destination",
               "type": "string",
