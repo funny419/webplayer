@@ -45,6 +45,19 @@ export class PreloadScene extends Phaser.Scene {
     this.load.json('quests',    'data/quests.json');
     this.load.json('balance',   'data/balance.json');
     this.load.json('dialogues', 'data/dialogues.json');
+
+    // NPC 스프라이트시트
+    const nf = { frameWidth: 32, frameHeight: 32 };
+    this.load.spritesheet('npc_elder',      'assets/sprites/npc/npc_elder.png',      nf);
+    this.load.spritesheet('npc_blacksmith', 'assets/sprites/npc/npc_blacksmith.png', nf);
+    this.load.spritesheet('npc_merchant',   'assets/sprites/npc/npc_merchant.png',   nf);
+
+    // Tiled 맵 파일
+    this.load.tilemapTiledJSON('map_haven',    'assets/maps/haven-village.tmj');
+    this.load.tilemapTiledJSON('map_forest',   'assets/maps/forest-dungeon.tmj');
+    this.load.tilemapTiledJSON('map_ruins',    'assets/maps/ancient-ruins.tmj');
+    this.load.tilemapTiledJSON('map_cavern',   'assets/maps/lava-cave.tmj');
+    this.load.tilemapTiledJSON('map_fortress', 'assets/maps/dark-castle.tmj');
   }
 
   create(): void {
