@@ -8,10 +8,8 @@ import { InventorySystem } from '../systems/Inventory';
 import { MenuOverlay } from '../ui/MenuOverlay';
 import { SaveManager } from '../systems/SaveManager';
 import type { SaveData } from '../systems/SaveManager';
-
-const TILE = 32;
-const MAP_COLS = 30;
-const MAP_ROWS = 17;
+import { AreaManager } from '../systems/AreaManager';
+import { DialogueSystem, type DialogueDataMap } from '../systems/Dialogue';
 
 const MELEE_DAMAGE = 20;
 const MELEE_REACH = 28;   // player center → hitbox center (px)
@@ -30,11 +28,18 @@ interface Projectile extends Phaser.Physics.Arcade.Image {
 }
 
 export class WorldScene extends Phaser.Scene {
-  private player!: Player;
-  private walls!: Phaser.Physics.Arcade.StaticGroup;
-  private enemies: Enemy[] = [];
+  player!: Player;
+  walls!: Phaser.Physics.Arcade.StaticGroup;
+  enemies: Enemy[] = [];
   private projectiles!: Phaser.Physics.Arcade.Group;
-  private activeBosses: BossBase[] = [];
+  activeBosses: BossBase[] = [];
+  areaManager!: AreaManager;
+  activeCollisionLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+  private dialogue!: DialogueSystem;
+  private dialogueBox!: Phaser.GameObjects.Container;
+  private dialogueText!: Phaser.GameObjects.Text;
+  private dialogueNameText!: Phaser.GameObjects.Text;
+  private spaceKey!: Phaser.Input.Keyboard.Key;
   private quest!: QuestSystem;
   private inventory!: InventorySystem;
   private saveManager = new SaveManager();
@@ -65,17 +70,28 @@ export class WorldScene extends Phaser.Scene {
 
   create(): void {
     this.projectiles = this.physics.add.group();
+    this.walls = this.physics.add.staticGroup();
     this.initSystems();
+
+    // DialogueSystem 초기화
+    const dialogueData = this.cache.json.get('dialogues') as DialogueDataMap;
+    this.dialogue = new DialogueSystem(dialogueData ?? {});
+    this.setupDialogueUI();
+
     this.createAnimations();
     this.createProjectileTexture();
-    this.createPlaceholderMap();
+
     this.spawnPlayer();
-    this.spawnEnemies();
     this.setupCamera();
     this.setupInput();
     this.setupUI();
     this.setupBossEventHandlers();
     this.setupQuestEventHandlers();
+
+    // AreaManager로 맵 로드
+    this.areaManager = new AreaManager(this as unknown as import('../systems/AreaManager').AreaScene);
+    this.areaManager.loadArea('scene_haven');
+
     this.playtimeStart = this.time.now;
     this.menuOverlay = new MenuOverlay(
       this,
@@ -104,6 +120,20 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.updateUI();
+
+    // NPC 말풍선 거리 기반 체크
+    if (this.areaManager) {
+      this.areaManager.checkNpcProximity(this.player.x, this.player.y);
+    }
+
+    // Space 키: 대화 진행 또는 NPC 대화 시작
+    if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+      if (this.dialogue?.isPlaying()) {
+        this.dialogue.next();
+      } else if (this.areaManager?.nearbyNpcId) {
+        this.dialogue.start(this.areaManager.nearbyNpcId);
+      }
+    }
 
     if (import.meta.env.DEV) {
       this.fpsText.setText(`FPS: ${Math.round(this.game.loop.actualFps)}`);
@@ -154,61 +184,18 @@ export class WorldScene extends Phaser.Scene {
     g.destroy();
   }
 
-  // ── 맵 ──────────────────────────────────────────────────────────────────
-
-  private createPlaceholderMap(): void {
-    const mapW = MAP_COLS * TILE;
-    const mapH = MAP_ROWS * TILE;
-
-    this.add.rectangle(mapW / 2, mapH / 2, mapW, mapH, 0x1a3a1a);
-    this.walls = this.physics.add.staticGroup();
-
-    // 외벽
-    this.addWall(0, 0, mapW, TILE);
-    this.addWall(0, mapH - TILE, mapW, TILE);
-    this.addWall(0, 0, TILE, mapH);
-    this.addWall(mapW - TILE, 0, TILE, mapH);
-
-    // 내부 장애물
-    this.addWall(5 * TILE, 4 * TILE, 4 * TILE, TILE);
-    this.addWall(12 * TILE, 8 * TILE, TILE, 4 * TILE);
-    this.addWall(20 * TILE, 3 * TILE, 3 * TILE, TILE);
-
-    this.physics.world.setBounds(0, 0, mapW, mapH);
-  }
-
-  private addWall(x: number, y: number, w: number, h: number): void {
-    const rect = this.add.rectangle(x + w / 2, y + h / 2, w, h, 0x555566);
-    this.physics.add.existing(rect, true);
-    this.walls.add(rect);
-  }
-
   // ── 스폰 ────────────────────────────────────────────────────────────────
 
   private spawnPlayer(): void {
-    this.player = new Player(this, (MAP_COLS * TILE) / 2, (MAP_ROWS * TILE) / 2);
-    this.physics.add.collider(this.player, this.walls);
-  }
-
-  private spawnEnemies(): void {
-    const positions: [number, number][] = [
-      [5 * TILE, 3 * TILE],
-      [22 * TILE, 5 * TILE],
-      [8 * TILE, 12 * TILE],
-      [20 * TILE, 12 * TILE],
-      [15 * TILE, 7 * TILE],
-    ];
-    positions.forEach(([x, y]) => {
-      const goblin = new Goblin(this, x, y);
-      this.physics.add.collider(goblin, this.walls);
-      this.enemies.push(goblin);
-    });
+    this.player = new Player(this, 320, 400);
+    // 충돌은 AreaManager.loadArea() 시 tilemap 레이어로 추가
   }
 
   // ── 카메라 ──────────────────────────────────────────────────────────────
 
   private setupCamera(): void {
-    this.cameras.main.setBounds(0, 0, MAP_COLS * TILE, MAP_ROWS * TILE);
+    // 초기 바운드 — AreaManager.loadArea()가 맵 크기에 맞게 재설정
+    this.cameras.main.setBounds(0, 0, 2000, 2000);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
     this.cameras.main.setZoom(2);
   }
@@ -225,6 +212,7 @@ export class WorldScene extends Phaser.Scene {
     iKey.on('down', () => this.menuOverlay.open('inventory'));
     qKey.on('down', () => this.menuOverlay.open('quest'));
     // 닫기(I/Q 토글·ESC): MenuOverlay 생성자의 DOM 리스너가 처리
+    this.spaceKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   }
 
   // ── 전투 ────────────────────────────────────────────────────────────────
@@ -421,6 +409,15 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private setupQuestEventHandlers(): void {
+    // 출구 요청 → 퀘스트 확인 후 전환 또는 잠금 메시지
+    this.events.on('area_exit_request', (nextAreaId: string, requiredQuest: string) => {
+      if (this.quest.getStatus(requiredQuest) === 'completed') {
+        this.areaManager.transitionToArea(nextAreaId);
+      } else {
+        this.areaManager.showMessage('아직 이곳으로 갈 수 없습니다.');
+      }
+    });
+
     // 세이브 불러오기 → 인벤토리·퀘스트 상태 복원
     this.events.on('load_save', (data: import('../systems/SaveManager').SaveData) => {
       this.inventory.fromJSON(data.inventory);
@@ -461,7 +458,9 @@ export class WorldScene extends Phaser.Scene {
 
   /** 보스를 씬에 등록. enemies 배열 + activeBosses 배열에 추가. */
   registerBoss(boss: BossBase): void {
-    this.physics.add.collider(boss, this.walls);
+    if (this.activeCollisionLayer) {
+      this.physics.add.collider(boss, this.activeCollisionLayer);
+    }
     this.enemies.push(boss);
     this.activeBosses.push(boss);
   }
@@ -520,12 +519,12 @@ export class WorldScene extends Phaser.Scene {
     // 소환 요청
     this.events.on('boss_summon', (type: string, x: number, y: number) => {
       let enemy: Enemy | null = null;
-      if (type === 'goblin') {
-        enemy = new Goblin(this, x, y);
-      }
+      if (type === 'goblin') enemy = new Goblin(this, x, y);
       // skeleton, dark_knight 클래스는 M4 이후 추가
       if (enemy) {
-        this.physics.add.collider(enemy, this.walls);
+        if (this.activeCollisionLayer) {
+          this.physics.add.collider(enemy, this.activeCollisionLayer);
+        }
         this.enemies.push(enemy);
       }
     });
@@ -533,6 +532,59 @@ export class WorldScene extends Phaser.Scene {
     // 키 아이템 드롭 → Inventory 연동
     this.events.on('boss_key_item', (itemId: string) => {
       this.inventory.addKeyItem(itemId);
+    });
+  }
+
+  private setupDialogueUI(): void {
+    const s = (obj: Phaser.GameObjects.GameObject) =>
+      (obj as unknown as Phaser.GameObjects.Components.ScrollFactor).setScrollFactor(0);
+
+    // 배경 패널
+    const bg = this.add.rectangle(480, 490, 920, 110, 0x111122, 0.9)
+      .setOrigin(0.5).setDepth(30);
+    s(bg);
+
+    // 화자 이름
+    this.dialogueNameText = this.add.text(40, 445, '', {
+      fontSize: '12px', color: '#f1c40f', fontStyle: 'bold',
+    }).setDepth(31) as Phaser.GameObjects.Text;
+    s(this.dialogueNameText);
+
+    // 대사 텍스트
+    this.dialogueText = this.add.text(40, 462, '', {
+      fontSize: '11px', color: '#eeeeee',
+      wordWrap: { width: 880 },
+    }).setDepth(31) as Phaser.GameObjects.Text;
+    s(this.dialogueText);
+
+    // 안내 텍스트
+    const hint = this.add.text(870, 532, '[SPACE] 다음', {
+      fontSize: '9px', color: '#666666',
+    }).setDepth(31);
+    s(hint);
+
+    this.dialogueBox = this.add.container(0, 0, [bg, this.dialogueNameText, this.dialogueText, hint]);
+    (this.dialogueBox as unknown as Phaser.GameObjects.Components.ScrollFactor).setScrollFactor(0);
+    this.dialogueBox.setDepth(30).setVisible(false);
+
+    // DialogueSystem 이벤트
+    this.dialogue.on('dialogue_start', () => {
+      this.dialogueBox.setVisible(true);
+      this.scene.pause();
+    });
+
+    this.dialogue.on('dialogue_line', (line: { speaker: string; text: string }) => {
+      this.dialogueNameText.setText(line.speaker);
+      this.dialogueText.setText(line.text);
+    });
+
+    this.dialogue.on('dialogue_end', () => {
+      this.dialogueBox.setVisible(false);
+      this.scene.resume();
+      if (this.areaManager?.nearbyNpcId) {
+        this.quest.onTalkedToNpc(this.areaManager.nearbyNpcId);
+      }
+      this.areaManager?.clearNpcBubbles();
     });
   }
 
