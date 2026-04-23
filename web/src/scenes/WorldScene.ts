@@ -421,6 +421,14 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private setupQuestEventHandlers(): void {
+    // 세이브 불러오기 → 인벤토리·퀘스트 상태 복원
+    this.events.on('load_save', (data: import('../systems/SaveManager').SaveData) => {
+      this.inventory.fromJSON(data.inventory);
+      this.quest.fromJSON(data.quests);
+      this.player.hp = Math.min(data.player.hp, this.player.maxHp);
+      this.player.mp = Math.min(data.player.mp, this.player.maxMp);
+    });
+
     // 적 처치 → QuestSystem 연동
     this.events.on('enemy_killed', (enemyId: string) => {
       this.quest.onEnemyKilled(enemyId);

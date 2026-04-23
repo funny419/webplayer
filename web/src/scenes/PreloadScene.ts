@@ -38,8 +38,13 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('dungeon_floor', 'assets/tilesets/dungeon/dungeon_floor.png');
     this.load.image('dungeon_walls', 'assets/tilesets/dungeon/dungeon_walls.png');
 
-    // 퀘스트 데이터
-    this.load.json('quests', 'data/quests.json');
+    // 플레이어 피격 스프라이트 (누락 수정)
+    this.load.spritesheet('player_hurt', 'assets/sprites/player/player_hurt.png', pf);
+
+    // 게임 데이터
+    this.load.json('quests',    'data/quests.json');
+    this.load.json('balance',   'data/balance.json');
+    this.load.json('dialogues', 'data/dialogues.json');
   }
 
   create(): void {

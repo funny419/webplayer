@@ -1,0 +1,483 @@
+{
+  "_comment": "밸런싱 마스터 데이터. 모든 수치는 노멀 난이도 기준. 데미지 공식: max(1, ATK + weapon_bonus - floor(DEF/2)). weapon_bonus는 장착 무기 atk_bonus 값.",
+
+  "player_growth": {
+    "_comment": "레벨업 누적 EXP 공식: Math.round(50 * level^1.5). 레벨업 시 보너스: HP+15, MP+5, ATK+3, DEF+2.",
+    "base": { "hp": 100, "mp": 50, "atk": 15, "def": 10, "spd": 150 },
+    "per_level": { "hp": 15, "mp": 5, "atk": 3, "def": 2, "spd": 0 },
+    "spd_breakpoints": [
+      { "level": 5,  "spd": 160 },
+      { "level": 10, "spd": 175 },
+      { "level": 15, "spd": 195 },
+      { "level": 20, "spd": 220 }
+    ],
+    "levels": [
+      { "level": 1,  "hp": 100, "mp": 50,  "atk": 15, "def": 10, "spd": 150, "exp_to_next": 71   },
+      { "level": 2,  "hp": 115, "mp": 55,  "atk": 18, "def": 12, "spd": 150, "exp_to_next": 130  },
+      { "level": 3,  "hp": 130, "mp": 60,  "atk": 21, "def": 14, "spd": 150, "exp_to_next": 200  },
+      { "level": 4,  "hp": 145, "mp": 65,  "atk": 24, "def": 16, "spd": 150, "exp_to_next": 280  },
+      { "level": 5,  "hp": 160, "mp": 70,  "atk": 27, "def": 18, "spd": 160, "exp_to_next": 371  },
+      { "level": 6,  "hp": 175, "mp": 75,  "atk": 30, "def": 20, "spd": 160, "exp_to_next": 471  },
+      { "level": 7,  "hp": 190, "mp": 80,  "atk": 33, "def": 22, "spd": 160, "exp_to_next": 580  },
+      { "level": 8,  "hp": 205, "mp": 85,  "atk": 36, "def": 24, "spd": 160, "exp_to_next": 698  },
+      { "level": 9,  "hp": 220, "mp": 90,  "atk": 39, "def": 26, "spd": 160, "exp_to_next": 825  },
+      { "level": 10, "hp": 235, "mp": 95,  "atk": 42, "def": 28, "spd": 175, "exp_to_next": 961  },
+      { "level": 11, "hp": 250, "mp": 100, "atk": 45, "def": 30, "spd": 175, "exp_to_next": 1104 },
+      { "level": 12, "hp": 265, "mp": 105, "atk": 48, "def": 32, "spd": 175, "exp_to_next": 1255 },
+      { "level": 13, "hp": 280, "mp": 110, "atk": 51, "def": 34, "spd": 175, "exp_to_next": 1413 },
+      { "level": 14, "hp": 295, "mp": 115, "atk": 54, "def": 36, "spd": 175, "exp_to_next": 1579 },
+      { "level": 15, "hp": 310, "mp": 120, "atk": 57, "def": 38, "spd": 195, "exp_to_next": 1752 },
+      { "level": 16, "hp": 325, "mp": 125, "atk": 60, "def": 40, "spd": 195, "exp_to_next": 1931 },
+      { "level": 17, "hp": 340, "mp": 130, "atk": 63, "def": 42, "spd": 195, "exp_to_next": 2117 },
+      { "level": 18, "hp": 355, "mp": 135, "atk": 66, "def": 44, "spd": 195, "exp_to_next": 2309 },
+      { "level": 19, "hp": 370, "mp": 140, "atk": 69, "def": 46, "spd": 195, "exp_to_next": 2507 },
+      { "level": 20, "hp": 385, "mp": 145, "atk": 72, "def": 48, "spd": 220, "exp_to_next": null }
+    ]
+  },
+
+  "enemies": {
+    "regular": [
+      {
+        "id": "enemy_goblin",
+        "name": "고블린",
+        "hp": 30, "atk": 8, "def": 3, "spd": 80,
+        "detect_range": 150, "attack_range": 40,
+        "attack_cooldown": 1.2,
+        "exp": 10, "gold_drop": [3, 8],
+        "item_drops": [
+          { "id": "item_potion_small", "rate": 0.05 },
+          { "id": "item_iron_ore",     "rate": 0.30 }
+        ],
+        "scenes": ["scene_forest"],
+        "recommended_level": [2, 4]
+      },
+      {
+        "id": "enemy_goblin_archer",
+        "name": "고블린 궁수",
+        "hp": 20, "atk": 12, "def": 2, "spd": 60,
+        "detect_range": 200, "attack_range": 180,
+        "attack_cooldown": 1.8,
+        "projectile_speed": 200,
+        "exp": 12, "gold_drop": [4, 10],
+        "item_drops": [
+          { "id": "item_potion_small", "rate": 0.05 }
+        ],
+        "scenes": ["scene_forest"],
+        "recommended_level": [2, 4]
+      },
+      {
+        "id": "enemy_wolf",
+        "name": "늑대",
+        "hp": 25, "atk": 10, "def": 2, "spd": 120,
+        "detect_range": 180, "attack_range": 35,
+        "attack_cooldown": 1.0,
+        "exp": 11, "gold_drop": [2, 6],
+        "item_drops": [],
+        "scenes": ["scene_forest"],
+        "recommended_level": [2, 5]
+      },
+      {
+        "id": "enemy_spider",
+        "name": "거미",
+        "hp": 15, "atk": 6, "def": 1, "spd": 70,
+        "detect_range": 120, "attack_range": 30,
+        "attack_cooldown": 1.5,
+        "status_effect": { "type": "poison", "poison_chance": 0.25, "damage_per_sec": 3, "duration": 4, "stackable": false },
+        "exp": 8, "gold_drop": [1, 5],
+        "item_drops": [
+          { "id": "item_healing_herb", "rate": 0.20 }
+        ],
+        "scenes": ["scene_forest"],
+        "recommended_level": [2, 4]
+      },
+      {
+        "id": "enemy_zombie",
+        "name": "좀비",
+        "hp": 60, "atk": 12, "def": 5, "spd": 50,
+        "detect_range": 100, "attack_range": 40,
+        "attack_cooldown": 2.0,
+        "exp": 15, "gold_drop": [5, 12],
+        "item_drops": [
+          { "id": "item_potion_small", "rate": 0.08 }
+        ],
+        "scenes": ["scene_ruins"],
+        "recommended_level": [6, 8]
+      },
+      {
+        "id": "enemy_skeleton",
+        "name": "스켈레톤",
+        "hp": 35, "atk": 15, "def": 8, "spd": 75,
+        "detect_range": 150, "attack_range": 45,
+        "attack_cooldown": 1.3,
+        "exp": 18, "gold_drop": [6, 14],
+        "item_drops": [
+          { "id": "item_potion_small", "rate": 0.06 }
+        ],
+        "scenes": ["scene_ruins"],
+        "recommended_level": [6, 9]
+      },
+      {
+        "id": "enemy_skeleton_archer",
+        "name": "스켈레톤 궁수",
+        "hp": 25, "atk": 18, "def": 4, "spd": 55,
+        "detect_range": 220, "attack_range": 200,
+        "attack_cooldown": 2.0,
+        "projectile_speed": 220,
+        "exp": 20, "gold_drop": [7, 15],
+        "item_drops": [],
+        "scenes": ["scene_ruins"],
+        "recommended_level": [7, 10]
+      },
+      {
+        "id": "enemy_dark_mage",
+        "name": "흑마법사",
+        "hp": 40, "atk": 22, "def": 5, "spd": 60,
+        "detect_range": 200, "attack_range": 180,
+        "attack_cooldown": 2.5,
+        "projectile_speed": 180,
+        "exp": 25, "gold_drop": [10, 20],
+        "item_drops": [
+          { "id": "item_mp_potion_small", "rate": 0.10 }
+        ],
+        "scenes": ["scene_ruins", "scene_fortress"],
+        "recommended_level": [8, 18]
+      },
+      {
+        "id": "enemy_bat",
+        "name": "박쥐",
+        "hp": 20, "atk": 8, "def": 1, "spd": 140,
+        "detect_range": 160, "attack_range": 30,
+        "attack_cooldown": 0.8,
+        "exp": 14, "gold_drop": [3, 8],
+        "item_drops": [],
+        "scenes": ["scene_cavern"],
+        "recommended_level": [11, 13]
+      },
+      {
+        "id": "enemy_fire_slime",
+        "name": "화염 슬라임",
+        "hp": 45, "atk": 18, "def": 6, "spd": 55,
+        "detect_range": 120, "attack_range": 35,
+        "attack_cooldown": 1.6,
+        "damage_type": "magic",
+        "exp": 20, "gold_drop": [6, 12],
+        "item_drops": [],
+        "scenes": ["scene_cavern"],
+        "recommended_level": [11, 14]
+      },
+      {
+        "id": "enemy_gargoyle",
+        "name": "가고일",
+        "hp": 55, "atk": 20, "def": 10, "spd": 90,
+        "detect_range": 180, "attack_range": 40,
+        "attack_cooldown": 1.4,
+        "exp": 28, "gold_drop": [10, 18],
+        "item_drops": [
+          { "id": "item_potion_medium", "rate": 0.05 }
+        ],
+        "scenes": ["scene_cavern"],
+        "recommended_level": [12, 15]
+      },
+      {
+        "id": "enemy_lava_golem",
+        "name": "용암 골렘",
+        "hp": 100, "atk": 25, "def": 15, "spd": 45,
+        "detect_range": 140, "attack_range": 50,
+        "attack_cooldown": 2.2,
+        "exp": 40, "gold_drop": [15, 30],
+        "item_drops": [
+          { "id": "item_potion_medium", "rate": 0.08 }
+        ],
+        "scenes": ["scene_cavern"],
+        "recommended_level": [13, 15]
+      },
+      {
+        "id": "enemy_orc",
+        "name": "오크",
+        "hp": 80, "atk": 22, "def": 12, "spd": 65,
+        "detect_range": 140, "attack_range": 45,
+        "attack_cooldown": 1.5,
+        "exp": 35, "gold_drop": [12, 22],
+        "item_drops": [
+          { "id": "item_potion_medium", "rate": 0.06 }
+        ],
+        "scenes": ["scene_fortress"],
+        "recommended_level": [16, 18]
+      },
+      {
+        "id": "enemy_troll",
+        "name": "트롤",
+        "hp": 120, "atk": 28, "def": 8, "spd": 40,
+        "detect_range": 120, "attack_range": 55,
+        "attack_cooldown": 2.5,
+        "exp": 45, "gold_drop": [18, 30],
+        "item_drops": [
+          { "id": "item_potion_large", "rate": 0.03 }
+        ],
+        "scenes": ["scene_fortress"],
+        "recommended_level": [16, 19]
+      },
+      {
+        "id": "enemy_dark_knight_grunt",
+        "name": "다크 나이트 (일반)",
+        "hp": 90, "atk": 30, "def": 18, "spd": 70,
+        "detect_range": 160, "attack_range": 45,
+        "attack_cooldown": 1.3,
+        "exp": 50, "gold_drop": [20, 35],
+        "item_drops": [
+          { "id": "item_recall_stone", "rate": 0.04 }
+        ],
+        "scenes": ["scene_fortress"],
+        "recommended_level": [17, 20]
+      }
+    ],
+
+    "bosses": [
+      {
+        "id": "boss_goblin_king",
+        "name": "고블린 왕",
+        "hp": 300, "atk": 20, "def": 8, "spd": 70,
+        "detect_range": 300, "attack_range": 50,
+        "exp": 150, "gold_drop": 100,
+        "item_drops": [
+          { "id": "armor_leather", "rate": 1.0 }
+        ],
+        "patterns": [
+          {
+            "id": "combo_slash",
+            "trigger": "always",
+            "cooldown": 2.0,
+            "description": "전방 3회 연타 (각 타당 ATK 80%)"
+          },
+          {
+            "id": "summon_goblins",
+            "trigger": "hp_below_percent",
+            "threshold": 50,
+            "cooldown": 15.0,
+            "description": "고블린 2마리 소환 (hp 50% 이하에서 활성화)"
+          }
+        ],
+        "scene": "scene_forest",
+        "recommended_level": 5
+      },
+      {
+        "id": "boss_lich",
+        "name": "리치",
+        "hp": 400, "atk": 30, "def": 12, "spd": 50,
+        "detect_range": 350, "attack_range": 220,
+        "exp": 250, "gold_drop": 200,
+        "item_drops": [
+          { "id": "armor_chain", "rate": 1.0 }
+        ],
+        "patterns": [
+          {
+            "id": "magic_burst",
+            "trigger": "always",
+            "cooldown": 2.5,
+            "description": "마법탄 3발 방사 (120도 간격, 각 ATK 90%)"
+          },
+          {
+            "id": "summon_skeletons",
+            "trigger": "always",
+            "cooldown": 12.0,
+            "description": "스켈레톤 2마리 소환"
+          },
+          {
+            "id": "curse_zone",
+            "trigger": "hp_below_percent",
+            "threshold": 30,
+            "cooldown": 10.0,
+            "description": "저주 장판 3초 유지, 장판 위 초당 ATK 30% 데미지"
+          }
+        ],
+        "scene": "scene_ruins",
+        "recommended_level": 10
+      },
+      {
+        "id": "boss_fire_drake",
+        "name": "화염 드래곤",
+        "hp": 600, "atk": 40, "def": 20, "spd": 80,
+        "detect_range": 400, "attack_range": 60,
+        "exp": 400, "gold_drop": 300,
+        "item_drops": [
+          { "id": "armor_dragon_scale", "rate": 1.0 },
+          { "id": "item_dragon_scale",  "rate": 1.0 }
+        ],
+        "patterns": [
+          {
+            "id": "flame_breath",
+            "trigger": "always",
+            "cooldown": 3.0,
+            "description": "전방 90도 부채꼴 240px 화염 브레스, ATK 120%"
+          },
+          {
+            "id": "charge",
+            "trigger": "always",
+            "cooldown": 5.0,
+            "description": "플레이어 방향 직선 돌진 300px, 충돌 시 ATK 100%"
+          },
+          {
+            "id": "fireball_explosion",
+            "trigger": "hp_below_percent",
+            "threshold": 40,
+            "cooldown": 8.0,
+            "description": "장판 화염구 3개 생성, 각 반경 60px, 3초 지속"
+          }
+        ],
+        "scene": "scene_cavern",
+        "recommended_level": 15
+      },
+      {
+        "id": "boss_dark_knight",
+        "name": "어둠의 기사",
+        "hp": 500, "atk": 45, "def": 25, "spd": 85,
+        "detect_range": 350, "attack_range": 55,
+        "exp": 350, "gold_drop": 250,
+        "item_drops": [],
+        "patterns": [
+          {
+            "id": "shield_block",
+            "trigger": "always",
+            "cooldown": 6.0,
+            "description": "2초간 정면 피해 무효 (방어 방향 전환 없음)"
+          },
+          {
+            "id": "heavy_strike",
+            "trigger": "always",
+            "cooldown": 3.0,
+            "description": "강력한 내리치기, ATK 150%, 히트 시 0.5초 넉백"
+          },
+          {
+            "id": "spin_slash",
+            "trigger": "always",
+            "cooldown": 8.0,
+            "description": "주위 180px 회전 베기, ATK 110%"
+          }
+        ],
+        "scene": "scene_fortress",
+        "recommended_level": 18
+      },
+      {
+        "id": "boss_valcor",
+        "name": "마왕 발코르",
+        "hp": 1000, "atk": 55, "def": 30, "spd": 90,
+        "detect_range": 500, "attack_range": 200,
+        "exp": 800, "gold_drop": 0,
+        "item_drops": [],
+        "patterns": [
+          {
+            "id": "dark_shot",
+            "trigger": "always",
+            "cooldown": 1.8,
+            "description": "암흑 마법탄 4방향 (십자형), 각 ATK 80%"
+          },
+          {
+            "id": "summon_dark_knights",
+            "trigger": "always",
+            "cooldown": 20.0,
+            "description": "다크 나이트 2마리 소환 (HP 절반 버전)"
+          },
+          {
+            "id": "dark_zone",
+            "trigger": "always",
+            "cooldown": 12.0,
+            "description": "화면 1/3 범위 암흑 장판, 4초 지속, 초당 ATK 40%"
+          },
+          {
+            "id": "rage_mode",
+            "trigger": "hp_below_percent",
+            "threshold": 25,
+            "cooldown": null,
+            "description": "분노 모드 돌입 (1회성), 모든 패턴 속도 1.5배, ATK +15"
+          }
+        ],
+        "scene": "scene_fortress",
+        "recommended_level": 20
+      }
+    ]
+  },
+
+  "items": {
+    "weapons": [
+      { "id": "weapon_wood_sword",  "name": "나무 검",      "atk_bonus": 0,  "type": "melee",   "buy": null,  "sell": 5   },
+      { "id": "weapon_iron_sword",  "name": "철 검",        "atk_bonus": 10, "type": "melee",   "buy": 200,  "sell": 60  },
+      { "id": "weapon_silver_sword","name": "은 검",        "atk_bonus": 20, "type": "melee",   "buy": null, "sell": 120 },
+      { "id": "weapon_flame_sword", "name": "화염 검",      "atk_bonus": 30, "type": "melee",   "buy": 800,  "sell": 240 },
+      { "id": "weapon_dark_blade",  "name": "어둠의 검",    "atk_bonus": 45, "type": "melee",   "buy": null, "sell": 400 },
+      { "id": "weapon_basic_staff", "name": "기본 지팡이",  "atk_bonus": 0,  "type": "ranged",  "buy": null, "sell": 5   },
+      { "id": "weapon_iron_staff",  "name": "철 지팡이",    "atk_bonus": 8,  "type": "ranged",  "buy": 200,  "sell": 50  },
+      { "id": "weapon_mana_staff",  "name": "마나 지팡이",  "atk_bonus": 18, "type": "ranged",  "buy": null, "sell": 100 },
+      { "id": "weapon_fire_staff",  "name": "화염 지팡이",  "atk_bonus": 28, "type": "ranged",  "buy": 800,  "sell": 200 },
+      { "id": "weapon_void_staff",  "name": "공허 지팡이",  "atk_bonus": 40, "type": "ranged",  "buy": null, "sell": 350 }
+    ],
+
+    "armors": [
+      { "id": "armor_cloth",          "name": "천 갑옷",        "def_bonus": 0,  "restriction": null,           "buy": null, "sell": 5   },
+      { "id": "armor_leather",        "name": "가죽 갑옷",      "def_bonus": 5,  "restriction": null,           "buy": 150,  "sell": 40  },
+      { "id": "armor_chain",          "name": "사슬 갑옷",      "def_bonus": 12, "restriction": "class_swordsman", "buy": null, "sell": 100 },
+      { "id": "armor_iron",           "name": "철 갑옷",        "def_bonus": 20, "restriction": "class_swordsman", "buy": null, "sell": 180 },
+      { "id": "armor_steel",          "name": "강철 갑옷",      "def_bonus": 30, "restriction": "class_swordsman", "buy": 600,  "sell": 280 },
+      { "id": "armor_rune_leather",   "name": "룬 가죽 갑옷",   "def_bonus": 8,  "restriction": "class_mage",   "buy": null, "sell": 60  },
+      { "id": "armor_mage_robe",      "name": "마법사 로브",    "def_bonus": 4,  "restriction": "class_mage",   "buy": 150,  "sell": 35  },
+      { "id": "armor_enchanted_robe", "name": "마법 로브",      "def_bonus": 15, "restriction": "class_mage",   "buy": null, "sell": 130 },
+      { "id": "armor_dragon_scale",   "name": "드래곤 비늘 갑옷","def_bonus": 35, "restriction": null,           "buy": null, "sell": 500 },
+      { "id": "armor_shadow",         "name": "어둠의 갑주",    "def_bonus": 45, "restriction": null,           "buy": null, "sell": 700 }
+    ],
+
+    "consumables": [
+      { "id": "item_potion_small",   "name": "소형 포션",     "effect": "hp+30",        "buy": 50,   "sell": 15  },
+      { "id": "item_potion_medium",  "name": "중형 포션",     "effect": "hp+80",        "buy": 150,  "sell": 45  },
+      { "id": "item_potion_large",   "name": "대형 포션",     "effect": "hp_full",      "buy": 500,  "sell": 150 },
+      { "id": "item_mp_potion_small","name": "소형 마나 포션","effect": "mp+20",        "buy": 50,   "sell": 15  },
+      { "id": "item_mp_potion_medium","name":"중형 마나 포션","effect": "mp+60",        "buy": 150,  "sell": 45  },
+      { "id": "item_antidote",       "name": "해독제",        "effect": "cure_poison",  "buy": 80,   "sell": 25  },
+      { "id": "item_ether_shard",    "name": "에테르 파편",   "effect": "exp+50",       "buy": null, "sell": 30  },
+      { "id": "item_recall_stone",   "name": "귀환석",        "effect": "teleport_haven","buy": 100, "sell": 30  },
+      { "id": "item_bomb",           "name": "폭탄",          "effect": "aoe_dmg_100px","buy": 120,  "sell": 35  },
+      { "id": "item_revival_herb",   "name": "부활초",        "effect": "revive_hp50pct","buy": null,"sell": 200 }
+    ],
+
+    "quest_items": [
+      { "id": "item_iron_ore",    "name": "철광석",     "stackable": true  },
+      { "id": "item_healing_herb","name": "치유초",     "stackable": true  },
+      { "id": "item_dragon_scale","name": "드래곤 비늘","stackable": false }
+    ]
+  },
+
+  "economy": {
+    "gold_drop": {
+      "_comment": "적 처치 시 [min, max] 범위에서 균등 분포 랜덤 지급",
+      "regular_enemy_range": [1, 35],
+      "boss_range":          [100, 300]
+    },
+    "shop_unlock_by_quest": {
+      "item_potion_medium":   "mq_04",
+      "item_mp_potion_medium":"mq_04",
+      "armor_steel":          "mq_08",
+      "weapon_flame_sword":   "sq_06",
+      "weapon_fire_staff":    "sq_06"
+    }
+  },
+
+  "combat": {
+    "damage_formula": "max(1, attacker.atk + weapon_bonus - floor(target.def / 2))",
+    "dash_invincibility_sec": 0.25,
+    "dash_cooldown_sec":      1.5,
+    "dash_distance_px":       120,
+    "special_attack_range_px": 80,
+    "melee_attack_range_px":   60,
+    "ranged_projectile_range_px": 300,
+    "enemy_return_distance_px": 400,
+    "status_effects": {
+      "poison": {
+        "_comment": "독 상태이상. 거미(enemy_spider) 공격 명중 시 poison_chance 확률로 발동.",
+        "damage_per_sec": 3,
+        "duration_sec": 4,
+        "stackable": false,
+        "ui_icon": "icon_poison",
+        "ui_tint": "0x9900cc",
+        "cure_item": "item_antidote"
+      }
+    }
+  }
+}
