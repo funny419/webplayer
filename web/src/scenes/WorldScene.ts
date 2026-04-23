@@ -8,7 +8,7 @@ import { InventorySystem } from '../systems/Inventory';
 import { MenuOverlay } from '../ui/MenuOverlay';
 import { SaveManager } from '../systems/SaveManager';
 import type { SaveData } from '../systems/SaveManager';
-import { AreaManager } from '../systems/AreaManager';
+import { AreaManager, type AreaScene } from '../systems/AreaManager';
 import { DialogueSystem, type DialogueDataMap } from '../systems/Dialogue';
 
 const MELEE_DAMAGE = 20;
@@ -89,7 +89,7 @@ export class WorldScene extends Phaser.Scene {
     this.setupQuestEventHandlers();
 
     // AreaManager로 맵 로드
-    this.areaManager = new AreaManager(this as unknown as import('../systems/AreaManager').AreaScene);
+    this.areaManager = new AreaManager(this as unknown as AreaScene);
     this.areaManager.loadArea('scene_haven');
 
     this.playtimeStart = this.time.now;
@@ -581,10 +581,11 @@ export class WorldScene extends Phaser.Scene {
     this.dialogue.on('dialogue_end', () => {
       this.dialogueBox.setVisible(false);
       this.scene.resume();
-      if (this.areaManager?.nearbyNpcId) {
-        this.quest.onTalkedToNpc(this.areaManager.nearbyNpcId);
+      const npcId = this.areaManager?.nearbyNpcId;
+      this.areaManager?.clearNpcBubbles(); // nearbyNpcId를 null로 초기화하기 전에
+      if (npcId) {
+        this.quest.onTalkedToNpc(npcId);
       }
-      this.areaManager?.clearNpcBubbles();
     });
   }
 

@@ -174,7 +174,7 @@ export class AreaManager {
       this.scene.player as unknown as Phaser.GameObjects.GameObject,
       npc as unknown as Phaser.GameObjects.GameObject,
       () => {
-        s.events.emit('npc_interact_ready', npcId);
+        // 근접 감지는 checkNpcProximity()로 처리
       },
     );
     this.overlaps.push(ov as unknown as Phaser.Physics.Arcade.Collider);
