@@ -11,12 +11,10 @@ import type { SaveData } from '../systems/SaveManager';
 import { AreaManager, type AreaScene } from '../systems/AreaManager';
 import { DialogueSystem, type DialogueDataMap } from '../systems/Dialogue';
 
-const MELEE_DAMAGE = 20;
 const MELEE_REACH = 28;   // player center → hitbox center (px)
 const MELEE_RANGE = 44;   // hitbox radius (px)
 const MELEE_COOLDOWN = 600;
 
-const RANGED_DAMAGE = 15;
 const RANGED_SPEED = 400;
 const RANGED_MAX_RANGE = 320;
 const RANGED_MP_COST = 10;
@@ -65,6 +63,7 @@ export class WorldScene extends Phaser.Scene {
   private gameOverTriggered = false;
   private dialogueActive = false;
   private enemyExpMap: Record<string, number> = {};
+  private enemyDropMap: Record<string, { goldMin: number; goldMax: number; drops: Array<{ id: string; rate: number }> }> = {};
   private levelText!: Phaser.GameObjects.Text;
 
   constructor() {
@@ -257,11 +256,12 @@ export class WorldScene extends Phaser.Scene {
     const hitX = this.player.x + ox;
     const hitY = this.player.y + oy;
 
+    const dmg = Math.max(1, this.player.atk + this.inventory.getWeaponBonus());
     this.enemies.forEach(enemy => {
       if (enemy.isDead || !enemy.active) return;
       if (Phaser.Math.Distance.Between(hitX, hitY, enemy.x, enemy.y) <= MELEE_RANGE) {
-        enemy.takeDamage(MELEE_DAMAGE);
-        this.spawnDamageNumber(enemy.x, enemy.y, MELEE_DAMAGE);
+        enemy.takeDamage(dmg);
+        this.spawnDamageNumber(enemy.x, enemy.y, dmg);
       }
     });
   }
@@ -291,11 +291,12 @@ export class WorldScene extends Phaser.Scene {
         return;
       }
 
+      const rdmg = Math.max(1, Math.floor((this.player.atk + this.inventory.getWeaponBonus()) * 0.75));
       for (const enemy of this.enemies) {
         if (enemy.isDead || !enemy.active) continue;
         if (Phaser.Math.Distance.Between(proj.x, proj.y, enemy.x, enemy.y) <= 16) {
-          enemy.takeDamage(RANGED_DAMAGE);
-          this.spawnDamageNumber(enemy.x, enemy.y, RANGED_DAMAGE);
+          enemy.takeDamage(rdmg);
+          this.spawnDamageNumber(enemy.x, enemy.y, rdmg);
           proj.destroy();
           return;
         }
@@ -316,8 +317,9 @@ export class WorldScene extends Phaser.Scene {
       if (enemy.isDead || !enemy.active || !enemy.canAttack) continue;
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
       if (dist <= enemy.attackRange) {
-        this.player.takeDamage(enemy.attackDamage);
-        this.spawnDamageNumber(this.player.x, this.player.y, enemy.attackDamage, true);
+        const incoming = this.reducedIncoming(enemy.attackDamage);
+        this.player.takeDamage(incoming);
+        this.spawnDamageNumber(this.player.x, this.player.y, incoming, true);
         enemy.triggerAttackCooldown();
         break;
       }
@@ -410,6 +412,48 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
+  /** 적 처치 시 골드·아이템 드롭 처리 */
+  private processDrops(enemyId: string, x: number, y: number): void {
+    const config = this.enemyDropMap[enemyId];
+    if (!config) return;
+
+    // 골드 드롭
+    if (config.goldMax > 0) {
+      const gold = Phaser.Math.Between(config.goldMin, config.goldMax);
+      this.player.gold += gold;
+      this.spawnPickupText(x, y, `+${gold}G`, '#ffdd00');
+    }
+
+    // 아이템 드롭 (확률)
+    for (const drop of config.drops) {
+      if (Math.random() < drop.rate) {
+        this.inventory.addItem(drop.id, 1);
+        this.spawnPickupText(x, y - 14, `+${drop.id}`, '#88ffaa');
+      }
+    }
+  }
+
+  private spawnPickupText(x: number, y: number, text: string, color: string): void {
+    const txt = this.add.text(x, y - 8, text, {
+      fontSize: '11px', color, fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 2,
+    }).setOrigin(0.5, 1).setDepth(20);
+
+    this.tweens.add({
+      targets: txt,
+      y: y - 40,
+      alpha: 0,
+      duration: 1000,
+      ease: 'Cubic.Out',
+      onComplete: () => txt.destroy(),
+    });
+  }
+
+  /** 플레이어 방어력(def + 장착 보너스)을 적용한 받는 피해량 */
+  private reducedIncoming(raw: number): number {
+    return Math.max(1, raw - Math.floor((this.player.def + this.inventory.getArmorBonus()) / 2));
+  }
+
   private showLevelUpNotification(level: number): void {
     const txt = this.add.text(
       this.scale.width / 2, this.scale.height / 2 - 60,
@@ -436,11 +480,17 @@ export class WorldScene extends Phaser.Scene {
     // mq_01은 게임 시작 시 즉시 수락
     this.quest.accept('mq_01');
 
-    // 적 처치 EXP 조회 테이블 빌드
-    const balance = this.cache.json.get('balance') as { enemies: { regular: Array<{ id: string; exp: number }> } };
+    // 적 처치 EXP·드롭 조회 테이블 빌드
+    type RegularEnemy = { id: string; exp: number; gold_drop: [number, number]; item_drops: Array<{ id: string; rate: number }> };
+    const balance = this.cache.json.get('balance') as { enemies: { regular: RegularEnemy[] } };
     if (balance?.enemies?.regular) {
       for (const e of balance.enemies.regular) {
         this.enemyExpMap[e.id] = e.exp;
+        this.enemyDropMap[e.id] = {
+          goldMin: e.gold_drop?.[0] ?? 0,
+          goldMax: e.gold_drop?.[1] ?? 0,
+          drops: e.item_drops ?? [],
+        };
       }
     }
   }
@@ -463,11 +513,12 @@ export class WorldScene extends Phaser.Scene {
       this.player.mp = Math.min(data.player.mp, this.player.maxMp);
     });
 
-    // 적 처치 → QuestSystem 연동 + EXP 획득
-    this.events.on('enemy_killed', (enemyId: string) => {
+    // 적 처치 → QuestSystem 연동 + EXP + 드롭
+    this.events.on('enemy_killed', (enemyId: string, ex: number, ey: number) => {
       this.quest.onEnemyKilled(enemyId);
       const exp = this.enemyExpMap[enemyId] ?? 0;
       if (exp > 0) this.player.gainExp(exp);
+      this.processDrops(enemyId, ex, ey);
     });
 
     // 레벨업 알림
@@ -514,7 +565,8 @@ export class WorldScene extends Phaser.Scene {
     this.events.on('boss_melee_hit', (x: number, y: number, dmg: number, range: number) => {
       if (!this.player.canBeHit) return;
       if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) <= range) {
-        this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
+        const d = this.reducedIncoming(Math.round(dmg));
+        this.player.takeDamage(d); this.spawnDamageNumber(this.player.x, this.player.y, d, true);
       }
     });
 
@@ -522,7 +574,8 @@ export class WorldScene extends Phaser.Scene {
     this.events.on('boss_aoe_hit', (x: number, y: number, dmg: number, range: number) => {
       if (!this.player.canBeHit) return;
       if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) <= range) {
-        this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
+        const d = this.reducedIncoming(Math.round(dmg));
+        this.player.takeDamage(d); this.spawnDamageNumber(this.player.x, this.player.y, d, true);
       }
     });
 
@@ -536,7 +589,8 @@ export class WorldScene extends Phaser.Scene {
         const toPlayer = Phaser.Math.Angle.Between(x, y, this.player.x, this.player.y);
         const diff = Math.abs(Phaser.Math.Angle.Wrap(toPlayer - angle));
         if (diff <= halfAngle) {
-          this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
+          const d = this.reducedIncoming(Math.round(dmg));
+          this.player.takeDamage(d); this.spawnDamageNumber(this.player.x, this.player.y, d, true);
         }
       },
     );
@@ -552,7 +606,8 @@ export class WorldScene extends Phaser.Scene {
             if (this.time.now > endTime) { tick.destroy(); return; }
             if (!this.player.canBeHit) return;
             if (Phaser.Math.Distance.Between(zx, zy, this.player.x, this.player.y) <= range) {
-              this.player.takeDamage(Math.round(dmg)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(dmg), true);
+              const d = this.reducedIncoming(Math.round(dmg));
+              this.player.takeDamage(d); this.spawnDamageNumber(this.player.x, this.player.y, d, true);
             }
           },
           loop: true,
@@ -639,9 +694,9 @@ export class WorldScene extends Phaser.Scene {
       player: {
         hp:          this.player.hp,
         mp:          this.player.mp,
-        level:       (this.player as unknown as Record<string, number>)['level'] ?? 1,
-        exp:         (this.player as unknown as Record<string, number>)['exp'] ?? 0,
-        gold:        (this.player as unknown as Record<string, number>)['gold'] ?? 0,
+        level:       this.player.level,
+        exp:         this.player.exp,
+        gold:        this.player.gold,
         playerClass: this.inventory.toJSON().equipment.weapon?.includes('staff')
                        ? 'class_mage' : 'class_swordsman',
       },
@@ -660,7 +715,8 @@ export class WorldScene extends Phaser.Scene {
         if (!proj.active) return;
         const dist = Phaser.Math.Distance.Between(proj.x, proj.y, this.player.x, this.player.y);
         if (dist <= 12 && this.player.canBeHit) {
-          this.player.takeDamage(Math.round(boss.attackDamage * 0.8)); this.spawnDamageNumber(this.player.x, this.player.y, Math.round(boss.attackDamage * 0.8), true);
+          const d = this.reducedIncoming(Math.round(boss.attackDamage * 0.8));
+          this.player.takeDamage(d); this.spawnDamageNumber(this.player.x, this.player.y, d, true);
           proj.destroy();
         }
       });

@@ -23,6 +23,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   exp = 0;
   atk = 15;
   def = 10;
+  gold = 0;
   private _expToNextLevel: number | null = EXP_THRESHOLDS[0];
 
   // State
