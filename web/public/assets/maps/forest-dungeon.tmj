@@ -3244,16 +3244,10 @@
         {
           "height": 32,
           "id": 1,
-          "name": "player_spawn",
-          "properties": [
-            {
-              "name": "type",
-              "type": "string",
-              "value": "player_spawn"
-            }
-          ],
+          "name": "player_start",
+          "properties": [],
           "rotation": 0,
-          "type": "spawn",
+          "type": "player_start",
           "visible": true,
           "width": 32,
           "x": 96.0,
@@ -3262,7 +3256,7 @@
         {
           "height": 32,
           "id": 2,
-          "name": "goblin_spawn_1",
+          "name": "enemy_goblin",
           "properties": [
             {
               "name": "enemy_type",
@@ -3362,7 +3356,7 @@
         {
           "height": 32,
           "id": 7,
-          "name": "goblin_spawn_2",
+          "name": "enemy_goblin",
           "properties": [
             {
               "name": "enemy_type",
@@ -3462,7 +3456,7 @@
         {
           "height": 32,
           "id": 12,
-          "name": "goblin_spawn_3",
+          "name": "enemy_goblin",
           "properties": [
             {
               "name": "enemy_type",
@@ -3562,7 +3556,7 @@
         {
           "height": 32,
           "id": 17,
-          "name": "goblin_spawn_4",
+          "name": "enemy_goblin",
           "properties": [
             {
               "name": "enemy_type",
@@ -3662,7 +3656,7 @@
         {
           "height": 32,
           "id": 22,
-          "name": "goblin_spawn_5",
+          "name": "enemy_goblin",
           "properties": [
             {
               "name": "enemy_type",
@@ -3762,13 +3756,8 @@
         {
           "height": 64,
           "id": 27,
-          "name": "exit_portal",
+          "name": "scene_ruins",
           "properties": [
-            {
-              "name": "type",
-              "type": "string",
-              "value": "portal"
-            },
             {
               "name": "destination",
               "type": "string",
@@ -3786,11 +3775,23 @@
             }
           ],
           "rotation": 0,
-          "type": "portal",
+          "type": "exit_zone",
           "visible": true,
           "width": 64,
           "x": 1120.0,
           "y": 1120.0
+        },
+        {
+          "id": 28,
+          "name": "boss_goblin_king",
+          "type": "boss_spawn",
+          "x": 640.0,
+          "y": 1100.0,
+          "width": 32,
+          "height": 32,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,

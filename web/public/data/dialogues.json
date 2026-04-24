@@ -1,0 +1,389 @@
+{
+  "_comment": "대화 구조: 선형(분기 없음). 각 대화 ID → lines 배열. lines는 순서대로 출력. speaker는 표시 이름. 퀘스트 대화 ID는 quests.json의 dialogue.start/complete와 일치.",
+
+  "npcs": {
+    "npc_elder": { "name": "장로 에릭", "portrait": "portrait_elder" },
+    "npc_blacksmith": { "name": "대장장이 핸", "portrait": "portrait_blacksmith" },
+    "npc_merchant": { "name": "상인 리나", "portrait": "portrait_merchant" },
+    "npc_healer": { "name": "치유사 미아", "portrait": "portrait_healer" },
+    "npc_scholar": { "name": "학자 토마스", "portrait": "portrait_scholar" },
+    "npc_guard_captain": { "name": "경비대장 레온", "portrait": "portrait_guard_captain" },
+    "npc_child": { "name": "소녀 리아", "portrait": "portrait_child" },
+    "npc_forest_hermit": { "name": "은둔자 올드맨", "portrait": "portrait_hermit" },
+    "npc_ruins_ghost": { "name": "고대 영혼 세이라", "portrait": "portrait_ghost" },
+    "npc_survivor": { "name": "생존자 카일", "portrait": "portrait_survivor" }
+  },
+
+  "dialogues": {
+
+    "npc_elder_idle": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "아이든, 마을이 점점 어수선해지고 있네. 북쪽 숲에서 이상한 소리가 들려." },
+        { "speaker": "장로 에릭", "text": "자네 같은 젊은이가 있어서 다행이야. 무슨 일이 생기면 바로 나를 찾아오게." }
+      ]
+    },
+
+    "mq_01_start": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "아이든, 잘 왔네. 마을에 심상치 않은 기운이 감돌고 있어." },
+        { "speaker": "장로 에릭", "text": "어젯밤부터 북쪽 숲에서 마물들이 내려왔다는 목격담이 이어지고 있네." },
+        { "speaker": "장로 에릭", "text": "우선 마을 광장에 모인 사람들에게 이 사실을 알리고, 상황을 파악해주겠나?" }
+      ]
+    },
+    "mq_01_end": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "광장을 확인했군. 주민들도 많이 불안해하고 있어." },
+        { "speaker": "장로 에릭", "text": "포션을 가져가게. 앞으로 더 험한 일이 기다리고 있을 테니." }
+      ]
+    },
+
+    "mq_02_start": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "숲 입구까지 고블린들이 내려왔네. 마을 사람들이 밭에도 못 나가고 있어." },
+        { "speaker": "장로 에릭", "text": "자네 실력이면 처리할 수 있을 거야. 고블린 세 마리만 처치해서 위협을 줄여주게." },
+        { "speaker": "장로 에릭", "text": "돌아오면 제대로 된 무기를 마련해 주겠네." }
+      ]
+    },
+    "mq_02_end": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "수고했네, 아이든. 역시 믿을 만해." },
+        { "speaker": "장로 에릭", "text": "하지만 숲 안쪽에 더 많은 놈들이 있는 것 같아. 더 깊이 들어가봐야 할 것 같네." },
+        { "speaker": "장로 에릭", "text": "약속한 대로 무기를 주겠네. 잘 써줘." }
+      ]
+    },
+
+    "mq_03_start": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "고블린들의 본거지를 찾아야 해. 그래야 근본적으로 해결이 되지." },
+        { "speaker": "장로 에릭", "text": "숲 안쪽 캠프까지 진입해서 규모를 파악해주게." }
+      ]
+    },
+    "mq_03_end": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "고블린 캠프를 확인했군. 생각보다 규모가 크네." },
+        { "speaker": "장로 에릭", "text": "경비대장 레온과 상의하게. 그쪽에서 지원해줄 수 있을 거야." }
+      ]
+    },
+
+    "mq_04_start": {
+      "npc": "npc_guard_captain",
+      "lines": [
+        { "speaker": "경비대장 레온", "text": "장로에게 들었네. 자네가 캠프까지 직접 들어갔다고?" },
+        { "speaker": "경비대장 레온", "text": "우리 병력으로는 역부족이야. 고블린 왕을 처치해야 무리가 흩어질 거네." },
+        { "speaker": "경비대장 레온", "text": "숲 최북단 나무 왕좌 구역에 있을 거야. 부탁하네." }
+      ]
+    },
+    "mq_04_end": {
+      "npc": "npc_guard_captain",
+      "lines": [
+        { "speaker": "경비대장 레온", "text": "해냈군! 고블린 왕이 죽으면 나머지는 뿔뿔이 흩어질 거야." },
+        { "speaker": "경비대장 레온", "text": "자네의 용기에 경의를 표하네. 가죽 갑옷은 앞으로도 도움이 될 거야." }
+      ]
+    },
+
+    "mq_05_start": {
+      "npc": "npc_scholar",
+      "lines": [
+        { "speaker": "학자 토마스", "text": "아이든, 이건 단순한 마물 소동이 아닐 수도 있어요." },
+        { "speaker": "학자 토마스", "text": "제가 연구한 고대 문서에 따르면, 숲 동쪽에 오래된 유적이 있습니다." },
+        { "speaker": "학자 토마스", "text": "그곳에 에테르 봉인 흔적이 남아있을 거예요. 직접 확인해 주시겠어요?" }
+      ]
+    },
+    "mq_05_end": {
+      "npc": "npc_scholar",
+      "lines": [
+        { "speaker": "학자 토마스", "text": "유적 입구를 찾았군요! 대단해요." },
+        { "speaker": "학자 토마스", "text": "그 안에서 세이라라는 고대 영혼을 만날 수 있을 거예요. 저와 교신한 적이 있는 존재입니다." }
+      ]
+    },
+
+    "mq_06_start": {
+      "npc": "npc_ruins_ghost",
+      "lines": [
+        { "speaker": "고대 영혼 세이라", "text": "...오랜만에 살아있는 자의 기척이구나." },
+        { "speaker": "고대 영혼 세이라", "text": "나는 세이라. 수백 년 전 마왕 발코르를 봉인하는 데 힘을 쏟은 마법사의 영혼이다." },
+        { "speaker": "고대 영혼 세이라", "text": "봉인이 약해지고 있다. 유적 내 세 곳의 봉인 제단을 확인해다오. 얼마나 손상되었는지 알아야 한다." }
+      ]
+    },
+    "mq_06_end": {
+      "npc": "npc_ruins_ghost",
+      "lines": [
+        { "speaker": "고대 영혼 세이라", "text": "...예상보다 빠르게 봉인이 해체되고 있구나." },
+        { "speaker": "고대 영혼 세이라", "text": "이 유적 최심부에 리치가 깨어났다. 봉인을 능동적으로 파괴하고 있는 거야." },
+        { "speaker": "고대 영혼 세이라", "text": "막을 방법은 하나다. 리치를 처치하는 것뿐이야." }
+      ]
+    },
+
+    "mq_07_start": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "세이라에게 들었네. 리치가 봉인을 파괴하고 있다고." },
+        { "speaker": "장로 에릭", "text": "자네밖에 없어, 아이든. 유적 최심부 영혼 제단 방에서 리치를 처치해줘." }
+      ]
+    },
+    "mq_07_end": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "리치를 처치했다고? 자네 정말 대단하네." },
+        { "speaker": "장로 에릭", "text": "하지만 우리가 늦었어. 봉인의 파괴는 이미 시작됐고, 발코르가 힘을 회복하고 있대." },
+        { "speaker": "장로 에릭", "text": "그의 전위대가 용암 동굴에 집결한다는 정보가 있어. 서둘러야 해." }
+      ]
+    },
+
+    "mq_08_start": {
+      "npc": "npc_survivor",
+      "lines": [
+        { "speaker": "생존자 카일", "text": "당신이... 아이든이군요. 마을에서 소문 들었어요." },
+        { "speaker": "생존자 카일", "text": "저는 카일이에요. 용암 동굴을 탐사하다가 마물들에게 쫓겨 겨우 빠져나왔어요." },
+        { "speaker": "생존자 카일", "text": "그 안에 마왕의 전위대가 있어요. 조심해서 가세요." }
+      ]
+    },
+    "mq_08_end": {
+      "npc": "npc_survivor",
+      "lines": [
+        { "speaker": "생존자 카일", "text": "동굴 입구까지 도달했군요. 대단한 용기예요." },
+        { "speaker": "생존자 카일", "text": "이 포션을 가져가세요. 안에서 꼭 필요할 거예요." }
+      ]
+    },
+
+    "mq_09_start": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "화염 드래곤... 발코르가 부린 가장 강력한 수하야." },
+        { "speaker": "장로 에릭", "text": "그놈을 처치해야 마왕의 성으로 가는 길이 열릴 거야. 할 수 있겠나?" }
+      ]
+    },
+    "mq_09_end": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "화염 드래곤까지 처치하다니... 자네는 진정한 영웅이야, 아이든." },
+        { "speaker": "장로 에릭", "text": "드래곤 비늘로 만든 갑옷이야. 마왕의 성에서 자네를 지켜줄 거야." },
+        { "speaker": "장로 에릭", "text": "이제 마왕의 성으로 가야 해. 에테리아의 운명이 자네 손에 달려 있어." }
+      ]
+    },
+
+    "mq_10_start": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "용암 동굴 북쪽에 마왕의 성이 있어. 수백 년간 봉인되어 있던 그 성이 다시 열린 거야." },
+        { "speaker": "장로 에릭", "text": "성 입구에 도달하면... 알아서 길이 열릴 거야. 이미 여기까지 온 자네라면." }
+      ]
+    },
+    "mq_10_end": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "마왕의 성... 실제로 보니 압도적이군." },
+        { "speaker": "장로 에릭", "text": "들어가기 전에 마음을 다잡게. 안에서는 자네 혼자야." }
+      ]
+    },
+
+    "mq_11_start": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "아이든, 이게 마지막이야." },
+        { "speaker": "장로 에릭", "text": "어둠의 기사가 왕좌 전실을 지키고 있고, 그 너머 왕좌의 방에 발코르가 있어." },
+        { "speaker": "장로 에릭", "text": "에테리아를 구할 수 있는 건 자네뿐이야. 꼭 살아서 돌아오게." }
+      ]
+    },
+    "mq_11_end": {
+      "npc": "npc_elder",
+      "lines": [
+        { "speaker": "장로 에릭", "text": "...해냈군. 정말 해냈어." },
+        { "speaker": "장로 에릭", "text": "봉인이 다시 안정되고 있어. 에테리아가 평화를 되찾았네." },
+        { "speaker": "장로 에릭", "text": "자네가 있어서 이 세계가 살았어. 진심으로 감사하네, 아이든." }
+      ]
+    },
+
+    "npc_blacksmith_idle": {
+      "npc": "npc_blacksmith",
+      "lines": [
+        { "speaker": "대장장이 핸", "text": "어서와. 무기나 방어구 필요하면 말해." },
+        { "speaker": "대장장이 핸", "text": "요즘 철광석이 부족해서 큰일이야. 숲에 있어도 가지러 가기가 무서워." }
+      ]
+    },
+
+    "sq_02_start": {
+      "npc": "npc_blacksmith",
+      "lines": [
+        { "speaker": "대장장이 핸", "text": "마침 잘 왔네. 철광석이 떨어져서 제대로 된 무기를 못 만들고 있어." },
+        { "speaker": "대장장이 핸", "text": "숲 안에 있는 광맥에서 철광석 3개만 가져다줄 수 있어? 그러면 내 솜씨를 보여줄게." }
+      ]
+    },
+    "sq_02_end": {
+      "npc": "npc_blacksmith",
+      "lines": [
+        { "speaker": "대장장이 핸", "text": "오, 이거 제법인데! 좋은 품질이야." },
+        { "speaker": "대장장이 핸", "text": "고마워. 이제 무기 강화도 해줄 수 있어. 필요하면 언제든 와." }
+      ]
+    },
+
+    "sq_06_start": {
+      "npc": "npc_blacksmith",
+      "lines": [
+        { "speaker": "대장장이 핸", "text": "드래곤 비늘로 전설의 무기를 만들 수 있다는 걸 알아?" },
+        { "speaker": "대장장이 핸", "text": "화염 드래곤을 처치하면 비늘을 얻을 수 있어. 하나만 가져다줘." }
+      ]
+    },
+    "sq_06_end": {
+      "npc": "npc_blacksmith",
+      "lines": [
+        { "speaker": "대장장이 핸", "text": "드래곤 비늘이라니! 정말 해냈구나." },
+        { "speaker": "대장장이 핸", "text": "내 최고의 솜씨를 담아서 만들었어. 마음껏 써줘." }
+      ]
+    },
+
+    "npc_merchant_idle": {
+      "npc": "npc_merchant",
+      "lines": [
+        { "speaker": "상인 리나", "text": "어서오세요! 포션, 귀환석, 폭탄 뭐든지 있어요." },
+        { "speaker": "상인 리나", "text": "마을이 어수선하지만 저는 장사를 멈출 수 없죠. 필요한 거 있으면 말씀하세요." }
+      ]
+    },
+
+    "npc_healer_idle": {
+      "npc": "npc_healer",
+      "lines": [
+        { "speaker": "치유사 미아", "text": "다친 곳은 없나요? 회복이 필요하면 언제든 오세요." },
+        { "speaker": "치유사 미아", "text": "포션 재료가 모자라서 걱정이에요. 숲에서 약초를 구하기가 너무 위험해졌어요." }
+      ]
+    },
+
+    "sq_03_start": {
+      "npc": "npc_healer",
+      "lines": [
+        { "speaker": "치유사 미아", "text": "아이든, 부탁이 있어요. 치유초가 거의 다 떨어졌거든요." },
+        { "speaker": "치유사 미아", "text": "숲의 빛이 드는 공터 근처에 자라고 있어요. 5개만 가져다주실 수 있나요?" }
+      ]
+    },
+    "sq_03_end": {
+      "npc": "npc_healer",
+      "lines": [
+        { "speaker": "치유사 미아", "text": "고마워요, 아이든! 덕분에 포션을 만들 수 있겠어요." },
+        { "speaker": "상인 리나", "text": "직접 만든 포션이에요. 시중 것보다 훨씬 효과가 좋아요." }
+      ]
+    },
+
+    "npc_scholar_idle": {
+      "npc": "npc_scholar",
+      "lines": [
+        { "speaker": "학자 토마스", "text": "아, 아이든. 마침 잘 왔네요. 에테르에 대한 새로운 사실을 발견했어요." },
+        { "speaker": "학자 토마스", "text": "고대의 봉인 기술은 에테르 결정체를 매개로 했대요. 그게 지금 고갈되고 있다는 게 문제죠." }
+      ]
+    },
+
+    "sq_04_start": {
+      "npc": "npc_scholar",
+      "lines": [
+        { "speaker": "학자 토마스", "text": "유적 내부에 고대 비문이 3곳 있어요. 제 연구에 꼭 필요한 자료예요." },
+        { "speaker": "학자 토마스", "text": "탁본을 떠올 수 있도록 이 종이를 가져가세요. 비문에 가까이 가면 자동으로 기록될 거예요." }
+      ]
+    },
+    "sq_04_end": {
+      "npc": "npc_scholar",
+      "lines": [
+        { "speaker": "학자 토마스", "text": "세 곳 모두! 정말 고마워요, 아이든." },
+        { "speaker": "학자 토마스", "text": "이 비문에 마왕 봉인의 핵심 공식이 적혀 있어요. 연구를 계속할게요." },
+        { "speaker": "학자 토마스", "text": "에테르 파편이에요. 경험치를 올리는 데 도움이 될 거예요." }
+      ]
+    },
+
+    "npc_guard_captain_idle": {
+      "npc": "npc_guard_captain",
+      "lines": [
+        { "speaker": "경비대장 레온", "text": "마을 경비를 강화했지만 병력이 부족해. 자네 같은 사람이 필요해." },
+        { "speaker": "경비대장 레온", "text": "숲 북쪽은 절대 혼자 가지 말게. 아직 고블린 무리가 남아있어." }
+      ]
+    },
+
+    "sq_07_start": {
+      "npc": "npc_guard_captain",
+      "lines": [
+        { "speaker": "경비대장 레온", "text": "아이든, 각 지역에 선배 탐험가들이 숨겨둔 보물상자가 있다는 이야기를 들어봤나?" },
+        { "speaker": "경비대장 레온", "text": "마을 기록에 4곳의 위치가 적혀 있는데, 내가 직접 갈 수가 없어. 찾아줄 수 있겠나?" }
+      ]
+    },
+    "sq_07_end": {
+      "npc": "npc_guard_captain",
+      "lines": [
+        { "speaker": "경비대장 레온", "text": "4곳을 모두 찾았군! 대단해." },
+        { "speaker": "경비대장 레온", "text": "선배들의 물건이니 자네가 써야 마땅해. 귀환석이야. 위기에서 도움이 될 거야." }
+      ]
+    },
+
+    "npc_child_idle": {
+      "npc": "npc_child",
+      "lines": [
+        { "speaker": "소녀 리아", "text": "아저씨, 혹시 우리 오빠 못 봤어요? 숲에 간다고 나갔는데 안 돌아와요..." }
+      ]
+    },
+
+    "sq_01_start": {
+      "npc": "npc_child",
+      "lines": [
+        { "speaker": "소녀 리아", "text": "흑흑... 아저씨, 오빠가 없어요." },
+        { "speaker": "소녀 리아", "text": "어제 숲으로 약초 캐러 간다고 했는데 오늘 아침에도 안 돌아왔어요." },
+        { "speaker": "소녀 리아", "text": "오빠를 찾아주세요... 제발요." }
+      ]
+    },
+    "sq_01_end": {
+      "npc": "npc_child",
+      "lines": [
+        { "speaker": "소녀 리아", "text": "오빠! 오빠다!!" },
+        { "speaker": "소녀 리아", "text": "고마워요 아저씨. 정말 고마워요. 우리 엄마가 드리라고 한 거예요." }
+      ]
+    },
+
+    "npc_forest_hermit_idle": {
+      "npc": "npc_forest_hermit",
+      "lines": [
+        { "speaker": "은둔자 올드맨", "text": "...흠. 오랜만에 사람 냄새가 나는구만." },
+        { "speaker": "은둔자 올드맨", "text": "이 숲에서 30년을 살았지. 요즘 분위기가 심상치 않아. 마물들이 들끓고 있어." }
+      ]
+    },
+    "npc_forest_hermit_info": {
+      "npc": "npc_forest_hermit",
+      "lines": [
+        { "speaker": "은둔자 올드맨", "text": "고블린 왕? 숲 최북단 커다란 나무 옆에 왕좌를 만들어놨더군. 교만한 놈들." },
+        { "speaker": "은둔자 올드맨", "text": "조심하게. 그 왕 놈은 부하를 소환하는 재주가 있어." }
+      ]
+    },
+
+    "npc_ruins_ghost_idle": {
+      "npc": "npc_ruins_ghost",
+      "lines": [
+        { "speaker": "고대 영혼 세이라", "text": "...이 유적에는 아직 남은 기운이 있다. 발코르의 어둠이 점점 짙어지고 있어." },
+        { "speaker": "고대 영혼 세이라", "text": "서둘러야 한다. 봉인이 완전히 무너지기 전에." }
+      ]
+    },
+
+    "npc_survivor_idle": {
+      "npc": "npc_survivor",
+      "lines": [
+        { "speaker": "생존자 카일", "text": "아직 동굴에 들어갈 엄두가 안 나요. 그 안에서 봤던 것들이..." },
+        { "speaker": "생존자 카일", "text": "용암 사이에 고립된 사람이 더 있을 거예요. 누군가 도와줘야 하는데." }
+      ]
+    },
+
+    "sq_05_start": {
+      "npc": "npc_survivor",
+      "lines": [
+        { "speaker": "생존자 카일", "text": "아이든, 부탁이 있어요. 동굴 안쪽에 제 동료가 고립되어 있어요." },
+        { "speaker": "생존자 카일", "text": "입구에서 서쪽 샛길로 들어가면 만날 수 있을 거예요. 저는... 다시는 못 들어가겠어요." }
+      ]
+    },
+    "sq_05_end": {
+      "npc": "npc_survivor",
+      "lines": [
+        { "speaker": "생존자 카일", "text": "동료를 찾았군요! 정말 고마워요." },
+        { "speaker": "생존자 카일", "text": "이걸 가져가세요. 제가 할 수 있는 최선이에요." }
+      ]
+    }
+  }
+}

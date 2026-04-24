@@ -12,16 +12,16 @@
 
 | 에셋 이름 | 크기 | 프레임 수 | 상태 | 비고 |
 |-----------|------|-----------|------|------|
-| `player_idle.png` | 64×32 | 2 | 📦 | 기본 대기 애니메이션 |
-| `player_walk_down.png` | 128×32 | 4 | 📦 | 하향 이동 |
-| `player_walk_up.png` | 128×32 | 4 | 📦 | 상향 이동 |
-| `player_walk_left.png` | 128×32 | 4 | 📦 | 좌향 이동 |
-| `player_walk_right.png` | 128×32 | 4 | 📦 | 우향 이동 |
-| `player_attack_melee.png` | 128×32 | 4 | 📦 | 근접 공격 (검) |
-| `player_attack_ranged.png` | 128×32 | 4 | 📦 | 원거리 공격 (활/마법) |
-| `player_dash.png` | 96×32 | 3 | 📦 | 대시 동작 |
-| `player_hurt.png` | 64×32 | 2 | 📦 | 피격 |
-| `player_death.png` | 128×32 | 4 | 📦 | 사망 |
+| `player_idle.png` | 64×32 | 2 | ✅ | 기본 대기 애니메이션 |
+| `player_walk_down.png` | 128×32 | 4 | ✅ | 하향 이동 |
+| `player_walk_up.png` | 128×32 | 4 | ✅ | 상향 이동 |
+| `player_walk_left.png` | 128×32 | 4 | ✅ | 좌향 이동 |
+| `player_walk_right.png` | 128×32 | 4 | ✅ | 우향 이동 |
+| `player_attack_melee.png` | 128×32 | 4 | ✅ | 근접 공격 (검) |
+| `player_attack_ranged.png` | 128×32 | 4 | ✅ | 원거리 공격 (활/마법) |
+| `player_dash.png` | 96×32 | 3 | ✅ | 대시 동작 |
+| `player_hurt.png` | 64×32 | 2 | ✅ | 피격 |
+| `player_death.png` | 128×32 | 4 | ✅ | 사망 |
 
 ---
 
@@ -30,12 +30,12 @@
 ### 일반 적 (Normal) — 목표: 10~15종
 | 에셋 이름 | 크기 | 프레임 수 | 상태 | 비고 |
 |-----------|------|-----------|------|------|
-| `goblin_walk_down.png` | 128×32 | 4 | 📦 | 기본 근접 적 (하향) |
-| `goblin_walk_up.png` | 128×32 | 4 | 📦 | (상향) |
-| `goblin_walk_left.png` | 128×32 | 4 | 📦 | (좌향) |
-| `goblin_walk_right.png` | 128×32 | 4 | 📦 | (우향) |
-| `goblin_attack.png` | 128×32 | 4 | 📦 | |
-| `goblin_death.png` | 96×32 | 3 | 📦 | |
+| `goblin_walk_down.png` | 128×32 | 4 | ✅ | 기본 근접 적 (하향) |
+| `goblin_walk_up.png` | 128×32 | 4 | ✅ | (상향) |
+| `goblin_walk_left.png` | 128×32 | 4 | ✅ | (좌향) |
+| `goblin_walk_right.png` | 128×32 | 4 | ✅ | (우향) |
+| `goblin_attack.png` | 128×32 | 4 | ✅ | |
+| `goblin_death.png` | 96×32 | 3 | ✅ | |
 | `slime_walk.png` | 128×32 | 4 | 📦 | 단방향 (대칭) |
 | `slime_attack.png` | 32×32 | 3 | 🔲 | |
 | `slime_death.png` | 128×32 | 4 | 📦 | |
@@ -52,15 +52,21 @@
 ### 보스 — 목표: 5종
 | 에셋 이름 | 크기 | 프레임 수 | 상태 | 비고 |
 |-----------|------|-----------|------|------|
-| `boss_01_idle.png` | 64×64 | 4 | 🔲 | 보스 1: 던전 수호자 |
-| `boss_01_attack.png` | 64×64 | 6 | 🔲 | |
-| `boss_01_death.png` | 64×64 | 6 | 🔲 | |
-| `boss_02_idle.png` | 64×64 | 4 | 🔲 | 보스 2: 스켈레톤 킹 |
-| `boss_02_attack.png` | 64×64 | 6 | 🔲 | |
-| `boss_02_death.png` | 64×64 | 6 | 🔲 | |
-| `boss_03_idle.png` | 64×64 | 4 | 🔲 | 보스 3 (미정) |
-| `boss_04_idle.png` | 64×64 | 4 | 🔲 | 보스 4 (미정) |
-| `boss_05_idle.png` | 64×64 | 4 | 🔲 | 보스 5 (미정) |
+| `boss_goblin_king_idle.png` | 64×64 | 4 | 🔲 | 고블린 왕 (어둠의 숲 보스) |
+| `boss_goblin_king_attack.png` | 64×64 | 6 | 🔲 | |
+| `boss_goblin_king_death.png` | 64×64 | 6 | 🔲 | |
+| `boss_lich_idle.png` | 64×64 | 4 | 🔲 | 리치 (고대 유적 보스) |
+| `boss_lich_attack.png` | 64×64 | 6 | 🔲 | |
+| `boss_lich_death.png` | 64×64 | 6 | 🔲 | |
+| `boss_fire_drake_idle.png` | 64×64 | 4 | 🔲 | 화염 드래곤 (용암 동굴 보스) |
+| `boss_fire_drake_attack.png` | 64×64 | 6 | 🔲 | |
+| `boss_fire_drake_death.png` | 64×64 | 6 | 🔲 | |
+| `boss_dark_knight_idle.png` | 64×64 | 4 | 🔲 | 어둠의 기사 (마왕의 성 중간 보스) |
+| `boss_dark_knight_attack.png` | 64×64 | 6 | 🔲 | |
+| `boss_dark_knight_death.png` | 64×64 | 6 | 🔲 | |
+| `boss_valcor_idle.png` | 64×64 | 4 | 🔲 | 마왕 발코르 (최종 보스) |
+| `boss_valcor_attack.png` | 64×64 | 6 | 🔲 | |
+| `boss_valcor_death.png` | 64×64 | 6 | 🔲 | |
 
 ---
 
@@ -70,7 +76,8 @@
 
 | 에셋 이름 | 크기 | 프레임 수 | 상태 | 비고 |
 |-----------|------|-----------|------|------|
-| `npc_elder.png` | 32×32 | 2 | 📦 | 퀘스트 주요 NPC |
+| `npc_elder.png` | 32×32 | 2 | ✅ | 장로 에릭 (픽셀 아트) |
+| `portrait_elder.png` | — | 1 | ✅ | 장로 에릭 초상화 (대화창용) |
 | `npc_merchant.png` | 32×32 | 2 | 📦 | 상인 |
 | `npc_blacksmith.png` | 32×32 | 2 | 📦 | 대장장이 |
 | `npc_guard.png` | 32×32 | 2 | 📦 | 마을 경비 |
@@ -105,7 +112,7 @@
 ### 마을 타일셋 (`tilesets/town/`)
 | 에셋 이름 | 크기 | 상태 | 비고 |
 |-----------|------|------|------|
-| `town_ground.png` | 32×32 타일셋 | 🔲 | 석조 길, 흙길, 잔디 |
+| `town_ground.png` | 32×32 타일셋 | 📦 | 석조 길, 흙길, 잔디 (haven-village 적용) |
 | `town_buildings.png` | 32×32 타일셋 | 🔲 | 건물 외벽, 지붕, 문 |
 | `town_props.png` | 32×32 타일셋 | 🔲 | 우물, 가로등, 간판, 나무 |
 | `town_interior.png` | 32×32 타일셋 | 🔲 | 건물 내부 바닥/가구 |

@@ -49,6 +49,16 @@ tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 - Arcade Physics (AABB 충돌)
 - 작업 디렉토리: `/Users/hmc7249607/IdeaProjects/webplayer/web/`
 
+**키 바인딩 (현재 확정):**
+- O: 근접 공격 / P: 원거리 공격
+- I: 인벤토리 패널 토글 / Q: 퀘스트 패널 토글
+- ESC: 메뉴 닫기
+
+**알려진 미연결 사항 (M6 작업 대상):**
+- 보스 스폰 미연결
+- 지역 맵 전환 미연결
+- NPC 연결 미완료
+
 **프로젝트 정보:**
 - 스펙 문서: `docs/project/specs/2026-04-20-webgame-rpg-design.md`
 - GDD: `docs/planning/GDD.md`
