@@ -1,13 +1,34 @@
 import Phaser from 'phaser';
 import { NPC } from '../entities/NPC';
 import { Goblin } from '../entities/Goblin';
+import { GenericEnemy } from '../entities/GenericEnemy';
 import { GoblinKing } from '../entities/GoblinKing';
 import { Lich } from '../entities/Lich';
 import { FireDragon } from '../entities/FireDragon';
 import { DarkKnight } from '../entities/DarkKnight';
 import { Balcor } from '../entities/Balcor';
-import type { Enemy } from '../entities/Enemy';
+import type { Enemy, EnemyStats } from '../entities/Enemy';
 import type { BossBase } from '../entities/BossBase';
+
+/** 각 적 ID별 스탯 및 placeholder tint 색상 (balance.json 기준) */
+type EnemyConfig = { stats: EnemyStats; tint: number };
+const ENEMY_CONFIGS: Record<string, EnemyConfig> = {
+  enemy_goblin:            { stats: { hp: 30,  attackDamage: 8,  detectRange: 150, attackRange: 40, moveSpeed: 80,  attackCooldown: 1200 }, tint: 0xffffff },
+  enemy_goblin_archer:     { stats: { hp: 20,  attackDamage: 12, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 1800 }, tint: 0xaaddaa },
+  enemy_wolf:              { stats: { hp: 25,  attackDamage: 10, detectRange: 180, attackRange: 35, moveSpeed: 120, attackCooldown: 1000 }, tint: 0x888866 },
+  enemy_spider:            { stats: { hp: 15,  attackDamage: 6,  detectRange: 120, attackRange: 30, moveSpeed: 70,  attackCooldown: 1500 }, tint: 0x442200 },
+  enemy_zombie:            { stats: { hp: 60,  attackDamage: 12, detectRange: 100, attackRange: 40, moveSpeed: 50,  attackCooldown: 2000 }, tint: 0x44aa44 },
+  enemy_skeleton:          { stats: { hp: 35,  attackDamage: 15, detectRange: 150, attackRange: 45, moveSpeed: 75,  attackCooldown: 1300 }, tint: 0xdddddd },
+  enemy_skeleton_archer:   { stats: { hp: 25,  attackDamage: 18, detectRange: 220, attackRange: 200,moveSpeed: 55,  attackCooldown: 2000 }, tint: 0xaaaaaa },
+  enemy_dark_mage:         { stats: { hp: 40,  attackDamage: 22, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 2500 }, tint: 0x4422aa },
+  enemy_bat:               { stats: { hp: 20,  attackDamage: 8,  detectRange: 160, attackRange: 30, moveSpeed: 140, attackCooldown: 800  }, tint: 0x662266 },
+  enemy_fire_slime:        { stats: { hp: 45,  attackDamage: 18, detectRange: 120, attackRange: 35, moveSpeed: 55,  attackCooldown: 1600 }, tint: 0xff4400 },
+  enemy_gargoyle:          { stats: { hp: 55,  attackDamage: 20, detectRange: 180, attackRange: 40, moveSpeed: 90,  attackCooldown: 1400 }, tint: 0x888899 },
+  enemy_lava_golem:        { stats: { hp: 100, attackDamage: 25, detectRange: 140, attackRange: 50, moveSpeed: 45,  attackCooldown: 2200 }, tint: 0xff2200 },
+  enemy_orc:               { stats: { hp: 80,  attackDamage: 22, detectRange: 140, attackRange: 45, moveSpeed: 65,  attackCooldown: 1500 }, tint: 0x226622 },
+  enemy_troll:             { stats: { hp: 120, attackDamage: 28, detectRange: 120, attackRange: 55, moveSpeed: 40,  attackCooldown: 2500 }, tint: 0x885500 },
+  enemy_dark_knight_grunt: { stats: { hp: 90,  attackDamage: 30, detectRange: 160, attackRange: 45, moveSpeed: 70,  attackCooldown: 1300 }, tint: 0x224488 },
+};
 
 // WorldScene의 최소 타입 정의 (순환 import 방지)
 export interface AreaScene extends Phaser.Scene {
@@ -145,8 +166,20 @@ export class AreaManager {
     collLayer: Phaser.Tilemaps.TilemapLayer | null,
   ): void {
     const s = this.scene as unknown as Phaser.Scene;
-    // 현재 구현된 적은 Goblin뿐 — 향후 적 추가 시 switch 확장
-    const enemy: Enemy = new Goblin(s, x, y);
+    // TMJ name에서 _숫자 suffix 제거 ('enemy_skeleton_1' → 'enemy_skeleton')
+    const baseId = enemyId.replace(/_\d+$/, '');
+
+    let enemy: Enemy;
+    if (baseId === 'enemy_goblin') {
+      enemy = new Goblin(s, x, y);
+    } else {
+      const config = ENEMY_CONFIGS[baseId];
+      if (!config) {
+        console.warn(`[AreaManager] 알 수 없는 적 ID: ${baseId}`);
+        return;
+      }
+      enemy = new GenericEnemy(s, x, y, baseId, config.stats, config.tint);
+    }
     if (collLayer) s.physics.add.collider(enemy, collLayer);
     this.scene.enemies.push(enemy);
   }

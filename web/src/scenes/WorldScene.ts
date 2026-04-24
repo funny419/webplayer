@@ -64,6 +64,8 @@ export class WorldScene extends Phaser.Scene {
 
   private gameOverTriggered = false;
   private dialogueActive = false;
+  private enemyExpMap: Record<string, number> = {};
+  private levelText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'WorldScene' });
@@ -363,6 +365,10 @@ export class WorldScene extends Phaser.Scene {
     this.fpsText = this.add.text(LX, 78, '', { fontSize: '10px', color: '#ffff00' }) as Phaser.GameObjects.Text;
     s(this.fpsText);
     this.fpsText.setVisible(import.meta.env.DEV);
+
+    // 레벨 / EXP
+    this.levelText = this.add.text(LX, 90, 'Lv.1', { fontSize: '10px', color: '#ffee66' }) as Phaser.GameObjects.Text;
+    s(this.levelText);
   }
 
   private updateUI(): void {
@@ -377,6 +383,9 @@ export class WorldScene extends Phaser.Scene {
     } else {
       this.dashIndicator.setText('○ DASH...').setColor('#ff4444');
     }
+
+    const expNext = this.player.expToNextLevel;
+    this.levelText.setText(`Lv.${this.player.level}  EXP ${this.player.exp}/${expNext ?? 'MAX'}`);
   }
 
   // ── 플로팅 데미지 숫자 ───────────────────────────────────────────────────
@@ -401,6 +410,23 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
+  private showLevelUpNotification(level: number): void {
+    const txt = this.add.text(
+      this.scale.width / 2, this.scale.height / 2 - 60,
+      `LEVEL UP!  Lv.${level}`,
+      { fontSize: '22px', color: '#ffee00', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 },
+    ).setScrollFactor(0).setOrigin(0.5).setDepth(25);
+
+    this.tweens.add({
+      targets: txt,
+      y: txt.y - 50,
+      alpha: 0,
+      duration: 2000,
+      ease: 'Cubic.Out',
+      onComplete: () => txt.destroy(),
+    });
+  }
+
   // ── 시스템 초기화 ────────────────────────────────────────────────────────
 
   private initSystems(): void {
@@ -409,6 +435,14 @@ export class WorldScene extends Phaser.Scene {
     this.quest = new QuestSystem(questData, this.inventory);
     // mq_01은 게임 시작 시 즉시 수락
     this.quest.accept('mq_01');
+
+    // 적 처치 EXP 조회 테이블 빌드
+    const balance = this.cache.json.get('balance') as { enemies: { regular: Array<{ id: string; exp: number }> } };
+    if (balance?.enemies?.regular) {
+      for (const e of balance.enemies.regular) {
+        this.enemyExpMap[e.id] = e.exp;
+      }
+    }
   }
 
   private setupQuestEventHandlers(): void {
@@ -429,9 +463,16 @@ export class WorldScene extends Phaser.Scene {
       this.player.mp = Math.min(data.player.mp, this.player.maxMp);
     });
 
-    // 적 처치 → QuestSystem 연동
+    // 적 처치 → QuestSystem 연동 + EXP 획득
     this.events.on('enemy_killed', (enemyId: string) => {
       this.quest.onEnemyKilled(enemyId);
+      const exp = this.enemyExpMap[enemyId] ?? 0;
+      if (exp > 0) this.player.gainExp(exp);
+    });
+
+    // 레벨업 알림
+    this.events.on('player_levelup', (newLevel: number) => {
+      this.showLevelUpNotification(newLevel);
     });
 
     // 아이템 획득 → QuestSystem 연동
@@ -444,7 +485,7 @@ export class WorldScene extends Phaser.Scene {
       this.time.delayedCall(2000, () => {
         const clearData = {
           playtime: this.time.now,
-          level: 1,   // Player 레벨 시스템 미구현 — 기본값
+          level: this.player.level,
           questsPct: Math.round(
             (this.quest.getAllQuests().filter(q =>
               this.quest.getStatus(q.id) === 'completed',
