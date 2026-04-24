@@ -3635,29 +3635,6 @@
           ]
         },
         {
-          "height": 256,
-          "id": 17,
-          "name": "boss_fire_drake",
-          "rotation": 0,
-          "type": "boss_spawn",
-          "visible": true,
-          "width": 384,
-          "x": 448.0,
-          "y": 64.0,
-          "properties": [
-            {
-              "name": "boss",
-              "type": "string",
-              "value": "fire_drake"
-            },
-            {
-              "name": "music",
-              "type": "string",
-              "value": "boss_theme_lava"
-            }
-          ]
-        },
-        {
           "height": 32,
           "id": 18,
           "name": "boss_fire_drake",
@@ -3688,8 +3665,8 @@
           "type": "exit_zone",
           "visible": true,
           "width": 64,
-          "x": 608.0,
-          "y": 1152.0,
+          "x": 640.0,
+          "y": 32.0,
           "properties": [
             {
               "name": "type",
