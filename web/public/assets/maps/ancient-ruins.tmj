@@ -3346,7 +3346,7 @@
         {
           "height": 32,
           "id": 5,
-          "name": "pressure_switch_1",
+          "name": "block_1",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3357,15 +3357,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "1"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "1"
             }
@@ -3374,7 +3369,7 @@
         {
           "height": 32,
           "id": 6,
-          "name": "pressure_switch_2",
+          "name": "block_2",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3385,15 +3380,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "2"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "2"
             }
@@ -3402,7 +3392,7 @@
         {
           "height": 32,
           "id": 7,
-          "name": "pressure_switch_3",
+          "name": "block_3",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3413,15 +3403,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "3"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "3"
             }
@@ -3430,7 +3415,7 @@
         {
           "height": 32,
           "id": 8,
-          "name": "pressure_switch_4",
+          "name": "block_4",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3441,15 +3426,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "4"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "4"
             }
