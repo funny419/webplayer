@@ -37,6 +37,7 @@ export class PreloadScene extends Phaser.Scene {
     // 타일셋
     this.load.image('dungeon_floor', 'assets/tilesets/dungeon/dungeon_floor.png');
     this.load.image('dungeon_walls', 'assets/tilesets/dungeon/dungeon_walls.png');
+    this.load.image('town_ground',   'assets/tilesets/town/town_ground.png');
 
     // 플레이어 피격 스프라이트 (누락 수정)
     this.load.spritesheet('player_hurt', 'assets/sprites/player/player_hurt.png', pf);

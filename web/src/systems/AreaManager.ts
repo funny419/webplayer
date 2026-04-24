@@ -76,8 +76,9 @@ export class AreaManager {
 
     this.map = s.make.tilemap({ key: s.cache.tilemap.has(key) ? key : 'map_forest' });
 
-    // 타일셋 연결
-    const floorTs = this.map.addTilesetImage('dungeon_floor', 'dungeon_floor');
+    // 타일셋 연결 (맵에 있는 타일셋 이름으로 자동 선택)
+    const floorTs = this.map.addTilesetImage('dungeon_floor', 'dungeon_floor')
+                 ?? this.map.addTilesetImage('town_ground', 'town_ground');
     const wallTs  = this.map.addTilesetImage('dungeon_walls', 'dungeon_walls');
     const groundLayer = floorTs ? this.map.createLayer('Ground', floorTs, 0, 0) : null;
     if (groundLayer) groundLayer.setDepth(-1); // 플레이어(depth 0) 아래에 렌더링

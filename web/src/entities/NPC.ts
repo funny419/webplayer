@@ -16,8 +16,8 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
   private _interactable = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, npcId: string) {
-    // npc_{npcId} 텍스처가 로드되어 있으면 사용, 없으면 placeholder 색상
-    const textureKey = `npc_${npcId}`;
+    // npcId 자체가 텍스처 키 (예: 'npc_elder') — 로드되어 있으면 사용, 없으면 placeholder 색상
+    const textureKey = npcId;
     const texture = scene.textures.exists(textureKey) ? textureKey : '__DEFAULT';
 
     super(scene, x, y, texture);
