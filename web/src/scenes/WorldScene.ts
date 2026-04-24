@@ -63,6 +63,7 @@ export class WorldScene extends Phaser.Scene {
   currentArea = 'scene_haven';  // 현재 지역 ID — 세이브 탭 활성화 조건에 사용
 
   private gameOverTriggered = false;
+  private dialogueActive = false;
 
   constructor() {
     super({ key: 'WorldScene' });
@@ -105,14 +106,16 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.player.update(delta);
 
-    if (!this.player.isDead) {
+    if (!this.player.isDead && !this.dialogueActive) {
       this.handleCombatInput(delta);
     }
 
-    this.updateEnemies(delta);
-    this.updateProjectiles();
-    this.updateBossProjectiles();
-    this.checkEnemyPlayerContact();
+    if (!this.dialogueActive) {
+      this.updateEnemies(delta);
+      this.updateProjectiles();
+      this.updateBossProjectiles();
+      this.checkEnemyPlayerContact();
+    }
 
     if (this.player.isDead && !this.gameOverTriggered) {
       this.gameOverTriggered = true;
@@ -570,7 +573,7 @@ export class WorldScene extends Phaser.Scene {
     // DialogueSystem 이벤트
     this.dialogue.on('dialogue_start', () => {
       this.dialogueBox.setVisible(true);
-      this.scene.pause();
+      this.dialogueActive = true;
     });
 
     this.dialogue.on('dialogue_line', (line: { speaker: string; text: string }) => {
@@ -580,9 +583,9 @@ export class WorldScene extends Phaser.Scene {
 
     this.dialogue.on('dialogue_end', () => {
       this.dialogueBox.setVisible(false);
-      this.scene.resume();
+      this.dialogueActive = false;
       const npcId = this.areaManager?.nearbyNpcId;
-      this.areaManager?.clearNpcBubbles(); // nearbyNpcId를 null로 초기화하기 전에
+      this.areaManager?.clearNpcBubbles();
       if (npcId) {
         this.quest.onTalkedToNpc(npcId);
       }
