@@ -267,6 +267,7 @@ export class MenuOverlay {
         else if (effect.type === 'exp') desc.textContent = `EXP +${effect.value}`;
         else if (effect.type === 'heal_hp_pct') desc.textContent = `HP ${effect.value * 100}% 회복`;
         else if (effect.type === 'aoe_damage') desc.textContent = `주위 100px AOE ${effect.value} 데미지`;
+        else if (effect.type === 'cure_poison') desc.textContent = '독 상태를 즉시 해제한다';
         desc.style.cssText = 'color:#aaa;font-size:11px;';
         panel.appendChild(desc);
       }
