@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { SaveManager } from '../systems/SaveManager';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -62,6 +63,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.scene.start('WorldScene');
+    const hasSave = new SaveManager().hasSave();
+    this.scene.start(hasSave ? 'WorldScene' : 'CharSelectScene');
   }
 }

@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
 
-const SPEED = 200;
+
+// 레벨별 다음 레벨까지 필요 EXP (index 0 = Lv1→2, ..., index 18 = Lv19→20)
+const EXP_THRESHOLDS = [71, 130, 200, 280, 371, 471, 580, 698, 825, 961, 1104, 1255, 1413, 1579, 1752, 1931, 2117, 2309, 2507];
 const DASH_SPEED = 600;
 const DASH_DURATION = 180;
-const DASH_COOLDOWN = 800;
+const DASH_COOLDOWN = 1500;
 const DASH_INVINCIBLE = DASH_DURATION + 50;
 const HURT_INVINCIBLE = 1000;
 const MP_REGEN_INTERVAL = 200; // ms per +1 MP
@@ -13,9 +15,16 @@ type Dir4 = 'down' | 'up' | 'left' | 'right';
 export class Player extends Phaser.Physics.Arcade.Sprite {
   // Stats
   hp = 100;
-  readonly maxHp = 100;
+  maxHp = 100;
+  heartPieces = 0;
   mp = 50;
-  readonly maxMp = 50;
+  maxMp = 50;
+  level = 1;
+  exp = 0;
+  atk = 15;
+  def = 10;
+  gold = 0;
+  private _expToNextLevel: number | null = EXP_THRESHOLDS[0];
 
   // State
   private _isDead = false;
@@ -63,6 +72,29 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   get facing(): Dir4 { return this._facing; }
   get dashReady(): boolean { return this.dashCooldownRemaining === 0 && !this._isDashing; }
   get canBeHit(): boolean { return !this.isInvincible && !this._isDead; }
+  get expToNextLevel(): number | null { return this._expToNextLevel; }
+  get moveSpeed(): number { return Math.round(150 + (this.level - 1) * (70 / 19)); }
+
+  gainExp(amount: number): void {
+    if (this.level >= 20 || this._expToNextLevel === null) return;
+    this.exp += amount;
+    while (this._expToNextLevel !== null && this.exp >= this._expToNextLevel) {
+      this.exp -= this._expToNextLevel;
+      this._levelUp();
+    }
+  }
+
+  private _levelUp(): void {
+    this.level += 1;
+    this.maxHp += 15;
+    this.maxMp += 5;
+    this.atk += 3;
+    this.def += 2;
+    this.hp = Math.min(this.hp + 15, this.maxHp);
+    this.mp = Math.min(this.mp + 5, this.maxMp);
+    this._expToNextLevel = this.level < 20 ? (EXP_THRESHOLDS[this.level - 1] ?? null) : null;
+    this.scene.events.emit('player_levelup', this.level);
+  }
 
   update(delta: number): void {
     if (this._isDead) return;
@@ -88,7 +120,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (dx !== 0 || dy !== 0) {
       this._facing = this.toDir4(dx, dy);
       const len = Math.sqrt(dx * dx + dy * dy);
-      this.setVelocity((dx / len) * SPEED, (dy / len) * SPEED);
+      this.setVelocity((dx / len) * this.moveSpeed, (dy / len) * this.moveSpeed);
       this.playWalkAnim();
     } else {
       this.setVelocity(0, 0);
@@ -108,6 +140,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     });
     if (this.hp === 0) this.die();
+  }
+
+  collectHeartPiece(): void {
+    this.heartPieces++;
+    if (this.heartPieces % 4 === 0) {
+      this.maxHp += 100;
+      this.hp = Math.min(this.hp + 100, this.maxHp);
+      this.scene.events.emit('max_hp_up');
+    }
+    this.scene.events.emit('heart_piece_collected', this.heartPieces);
   }
 
   spendMp(amount: number): boolean {

@@ -3792,6 +3792,172 @@
           "visible": true,
           "rotation": 0,
           "properties": []
+        },
+        {
+          "height": 32,
+          "width": 32,
+          "id": 28,
+          "name": "pressure_switch_1",
+          "type": "puzzle_trigger",
+          "rotation": 0,
+          "visible": true,
+          "x": 192.0,
+          "y": 256.0,
+          "properties": [
+            {
+              "name": "type",
+              "type": "string",
+              "value": "pressure_switch"
+            },
+            {
+              "name": "switch_id",
+              "type": "string",
+              "value": "1"
+            },
+            {
+              "name": "sequence",
+              "type": "string",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "height": 32,
+          "width": 32,
+          "id": 29,
+          "name": "pressure_switch_2",
+          "type": "puzzle_trigger",
+          "rotation": 0,
+          "visible": true,
+          "x": 960.0,
+          "y": 256.0,
+          "properties": [
+            {
+              "name": "type",
+              "type": "string",
+              "value": "pressure_switch"
+            },
+            {
+              "name": "switch_id",
+              "type": "string",
+              "value": "2"
+            },
+            {
+              "name": "sequence",
+              "type": "string",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "height": 32,
+          "width": 32,
+          "id": 30,
+          "name": "pressure_switch_3",
+          "type": "puzzle_trigger",
+          "rotation": 0,
+          "visible": true,
+          "x": 192.0,
+          "y": 832.0,
+          "properties": [
+            {
+              "name": "type",
+              "type": "string",
+              "value": "pressure_switch"
+            },
+            {
+              "name": "switch_id",
+              "type": "string",
+              "value": "3"
+            },
+            {
+              "name": "sequence",
+              "type": "string",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "height": 32,
+          "width": 32,
+          "id": 31,
+          "name": "pressure_switch_4",
+          "type": "puzzle_trigger",
+          "rotation": 0,
+          "visible": true,
+          "x": 960.0,
+          "y": 832.0,
+          "properties": [
+            {
+              "name": "type",
+              "type": "string",
+              "value": "pressure_switch"
+            },
+            {
+              "name": "switch_id",
+              "type": "string",
+              "value": "4"
+            },
+            {
+              "name": "sequence",
+              "type": "string",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "height": 32,
+          "id": 32,
+          "name": "gate_compass",
+          "properties": [
+            {
+              "name": "requires",
+              "type": "string",
+              "value": "key_compass"
+            }
+          ],
+          "rotation": 0,
+          "type": "gate",
+          "visible": true,
+          "width": 64,
+          "x": 608.0,
+          "y": 800.0
+        },
+        {
+          "height": 64,
+          "id": 33,
+          "name": "scene_haven",
+          "properties": [],
+          "rotation": 0,
+          "type": "exit_zone",
+          "visible": true,
+          "width": 64,
+          "x": 32.0,
+          "y": 96.0
+        },
+        {
+          "id": 34,
+          "name": "heart_piece_forest_1",
+          "type": "heart_piece",
+          "x": 256,
+          "y": 256,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 35,
+          "name": "heart_piece_forest_2",
+          "type": "heart_piece",
+          "x": 992,
+          "y": 992,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -3802,7 +3968,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 28,
+  "nextobjectid": 36,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

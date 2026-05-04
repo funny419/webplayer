@@ -70,7 +70,7 @@ export abstract class BossBase extends Enemy {
 
   private createHpBar(): void {
     const cx = this.scene.scale.width / 2;
-    const cy = this.scene.scale.height - 24;
+    const cy = 20; // 화면 상단 중앙
     this.hpBarBg = this.scene.add
       .rectangle(cx, cy, 200, 14, 0x222222)
       .setScrollFactor(0)

@@ -16,7 +16,7 @@ export class FireDragon extends BossBase {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(
       scene, x, y,
-      BossBase.ensureAndGetTexture(scene, 'boss_fire_dragon', 0xff4400),
+      BossBase.ensureAndGetTexture(scene, 'boss_fire_drake', 0xff4400),
       'boss_fire_drake',
       {
         hp: 600,
@@ -25,6 +25,7 @@ export class FireDragon extends BossBase {
         attackRange: 60,
         moveSpeed: 80,
         attackCooldown: 3000,
+        def: 0,
       },
       'key_flameshield',
     );

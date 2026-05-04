@@ -1,13 +1,34 @@
 import Phaser from 'phaser';
 import { NPC } from '../entities/NPC';
 import { Goblin } from '../entities/Goblin';
+import { GenericEnemy } from '../entities/GenericEnemy';
 import { GoblinKing } from '../entities/GoblinKing';
 import { Lich } from '../entities/Lich';
 import { FireDragon } from '../entities/FireDragon';
 import { DarkKnight } from '../entities/DarkKnight';
 import { Balcor } from '../entities/Balcor';
-import type { Enemy } from '../entities/Enemy';
+import type { Enemy, EnemyStats } from '../entities/Enemy';
 import type { BossBase } from '../entities/BossBase';
+
+/** 각 적 ID별 스탯 및 placeholder tint 색상 (balance.json 기준) */
+type EnemyConfig = { stats: EnemyStats; tint: number };
+const ENEMY_CONFIGS: Record<string, EnemyConfig> = {
+  enemy_goblin:            { stats: { hp: 30,  attackDamage: 8,  detectRange: 150, attackRange: 40, moveSpeed: 80,  attackCooldown: 1200, def: 3  }, tint: 0xffffff },
+  enemy_goblin_archer:     { stats: { hp: 20,  attackDamage: 12, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 1800, def: 2  }, tint: 0xaaddaa },
+  enemy_wolf:              { stats: { hp: 25,  attackDamage: 10, detectRange: 180, attackRange: 35, moveSpeed: 120, attackCooldown: 1000, def: 2  }, tint: 0x888866 },
+  enemy_spider:            { stats: { hp: 15,  attackDamage: 6,  detectRange: 120, attackRange: 30, moveSpeed: 70,  attackCooldown: 1500, def: 1  }, tint: 0x442200 },
+  enemy_zombie:            { stats: { hp: 60,  attackDamage: 12, detectRange: 100, attackRange: 40, moveSpeed: 50,  attackCooldown: 2000, def: 5  }, tint: 0x44aa44 },
+  enemy_skeleton:          { stats: { hp: 35,  attackDamage: 15, detectRange: 150, attackRange: 45, moveSpeed: 75,  attackCooldown: 1300, def: 8  }, tint: 0xdddddd },
+  enemy_skeleton_archer:   { stats: { hp: 25,  attackDamage: 18, detectRange: 220, attackRange: 200,moveSpeed: 55,  attackCooldown: 2000, def: 4  }, tint: 0xaaaaaa },
+  enemy_dark_mage:         { stats: { hp: 40,  attackDamage: 22, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 2500, def: 5  }, tint: 0x4422aa },
+  enemy_bat:               { stats: { hp: 20,  attackDamage: 8,  detectRange: 160, attackRange: 30, moveSpeed: 140, attackCooldown: 800,  def: 0  }, tint: 0x662266 },
+  enemy_fire_slime:        { stats: { hp: 45,  attackDamage: 18, detectRange: 120, attackRange: 35, moveSpeed: 55,  attackCooldown: 1600, def: 6  }, tint: 0xff4400 },
+  enemy_gargoyle:          { stats: { hp: 55,  attackDamage: 20, detectRange: 180, attackRange: 40, moveSpeed: 90,  attackCooldown: 1400, def: 10 }, tint: 0x888899 },
+  enemy_lava_golem:        { stats: { hp: 100, attackDamage: 25, detectRange: 140, attackRange: 50, moveSpeed: 45,  attackCooldown: 2200, def: 15 }, tint: 0xff2200 },
+  enemy_orc:               { stats: { hp: 80,  attackDamage: 22, detectRange: 140, attackRange: 45, moveSpeed: 65,  attackCooldown: 1500, def: 12 }, tint: 0x226622 },
+  enemy_troll:             { stats: { hp: 120, attackDamage: 28, detectRange: 120, attackRange: 55, moveSpeed: 40,  attackCooldown: 2500, def: 18 }, tint: 0x885500 },
+  enemy_dark_knight_grunt: { stats: { hp: 90,  attackDamage: 30, detectRange: 160, attackRange: 45, moveSpeed: 70,  attackCooldown: 1300, def: 20 }, tint: 0x224488 },
+};
 
 // WorldScene의 최소 타입 정의 (순환 import 방지)
 export interface AreaScene extends Phaser.Scene {
@@ -18,6 +39,7 @@ export interface AreaScene extends Phaser.Scene {
   currentArea: string;
   activeCollisionLayer: Phaser.Tilemaps.TilemapLayer | null;
   registerBoss(boss: BossBase): void;
+  isHeartPieceCollected(id: string): boolean;
 }
 
 /** 출구(exit_zone) 잠금 해제에 필요한 퀘스트 ID 매핑 */
@@ -38,6 +60,7 @@ export class AreaManager {
   private map!: Phaser.Tilemaps.Tilemap;
   private npcs: NPC[] = [];
   private overlaps: Phaser.Physics.Arcade.Collider[] = [];
+  private heartVisuals: Phaser.GameObjects.GameObject[] = [];
   private msgText!: Phaser.GameObjects.Text;
   private nearNpcId: string | null = null;
   private _transitioning = false;
@@ -114,8 +137,12 @@ export class AreaManager {
         case 'boss_spawn':   this.spawnBoss(obj.name, x, y); break;
         case 'npc_spawn':    this.spawnNPC(obj.name, x, y); break;
         case 'exit_zone':    this.createExitZone(obj); break;
+        case 'gate':         this.emitGate(obj, s); break;
+        case 'heart_piece':  this.spawnHeartPiece(obj); break;
       }
     });
+
+    s.events.emit('area_loaded', areaId);
   }
 
   // ── 지역 정리 ──────────────────────────────────────────────────────────
@@ -126,6 +153,9 @@ export class AreaManager {
     this.npcs.forEach(n => n.destroy());
     this.npcs = [];
     this.nearNpcId = null;
+
+    this.heartVisuals.forEach(v => { if ((v as Phaser.GameObjects.GameObject).active) v.destroy(); });
+    this.heartVisuals = [];
 
     const s = this.scene as unknown as Phaser.Scene;
     this.overlaps.forEach(ov => s.physics.world.removeCollider(ov));
@@ -145,8 +175,20 @@ export class AreaManager {
     collLayer: Phaser.Tilemaps.TilemapLayer | null,
   ): void {
     const s = this.scene as unknown as Phaser.Scene;
-    // 현재 구현된 적은 Goblin뿐 — 향후 적 추가 시 switch 확장
-    const enemy: Enemy = new Goblin(s, x, y);
+    // TMJ name에서 _숫자 suffix 제거 ('enemy_skeleton_1' → 'enemy_skeleton')
+    const baseId = enemyId.replace(/_\d+$/, '');
+
+    let enemy: Enemy;
+    if (baseId === 'enemy_goblin') {
+      enemy = new Goblin(s, x, y);
+    } else {
+      const config = ENEMY_CONFIGS[baseId];
+      if (!config) {
+        console.warn(`[AreaManager] 알 수 없는 적 ID: ${baseId}`);
+        return;
+      }
+      enemy = new GenericEnemy(s, x, y, baseId, config.stats, config.tint);
+    }
     if (collLayer) s.physics.add.collider(enemy, collLayer);
     this.scene.enemies.push(enemy);
   }
@@ -180,6 +222,49 @@ export class AreaManager {
     );
     this.overlaps.push(ov as unknown as Phaser.Physics.Arcade.Collider);
     this.npcs.push(npc);
+  }
+
+  private spawnHeartPiece(obj: Phaser.Types.Tilemaps.TiledObject): void {
+    const pieceId = obj.name;
+    if (this.scene.isHeartPieceCollected(pieceId)) return;
+
+    const s = this.scene as unknown as Phaser.Scene;
+    const w = Math.max(obj.width ?? 16, 24);
+    const h = Math.max(obj.height ?? 16, 24);
+    const x = (obj.x ?? 0) + (obj.width ?? 16) / 2;
+    const y = (obj.y ?? 0) + (obj.height ?? 16) / 2;
+
+    const visual = s.add.text(x, y, '💗', { fontSize: '14px' }).setOrigin(0.5).setDepth(5);
+    this.heartVisuals.push(visual);
+
+    const zone = s.add.zone(x, y, w, h);
+    s.physics.world.enable(zone);
+    (zone.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
+    this.heartVisuals.push(zone);
+
+    const ov = s.physics.add.overlap(
+      this.scene.player as unknown as Phaser.GameObjects.GameObject,
+      zone,
+      () => {
+        if (!visual.active) return;
+        visual.destroy();
+        s.events.emit('heart_piece_found', pieceId);
+      },
+    );
+    this.overlaps.push(ov as unknown as Phaser.Physics.Arcade.Collider);
+  }
+
+  private emitGate(obj: Phaser.Types.Tilemaps.TiledObject, s: Phaser.Scene): void {
+    const requires = obj.properties?.find((p: { name: string }) => p.name === 'requires')?.value as string | undefined;
+    if (!requires) return;
+    s.events.emit('gate_found', {
+      gateId:   obj.name,
+      requires,
+      x: obj.x ?? 0,
+      y: obj.y ?? 0,
+      w: obj.width  ?? 64,
+      h: obj.height ?? 32,
+    });
   }
 
   private createExitZone(obj: Phaser.Types.Tilemaps.TiledObject): void {

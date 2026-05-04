@@ -3346,7 +3346,7 @@
         {
           "height": 32,
           "id": 5,
-          "name": "pressure_switch_1",
+          "name": "block_1",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3357,15 +3357,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "1"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "1"
             }
@@ -3374,7 +3369,7 @@
         {
           "height": 32,
           "id": 6,
-          "name": "pressure_switch_2",
+          "name": "block_2",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3385,15 +3380,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "2"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "2"
             }
@@ -3402,7 +3392,7 @@
         {
           "height": 32,
           "id": 7,
-          "name": "pressure_switch_3",
+          "name": "block_3",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3413,15 +3403,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "3"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "3"
             }
@@ -3430,7 +3415,7 @@
         {
           "height": 32,
           "id": 8,
-          "name": "pressure_switch_4",
+          "name": "block_4",
           "rotation": 0,
           "type": "puzzle_trigger",
           "visible": true,
@@ -3441,15 +3426,10 @@
             {
               "name": "type",
               "type": "string",
-              "value": "pressure_switch"
+              "value": "block_push"
             },
             {
-              "name": "switch_id",
-              "type": "string",
-              "value": "4"
-            },
-            {
-              "name": "sequence",
+              "name": "block_id",
               "type": "string",
               "value": "4"
             }
@@ -3722,6 +3702,60 @@
               "value": "320"
             }
           ]
+        },
+        {
+          "height": 32,
+          "id": 21,
+          "name": "gate_hookshot",
+          "properties": [
+            {
+              "name": "requires",
+              "type": "string",
+              "value": "key_hookshot"
+            }
+          ],
+          "rotation": 0,
+          "type": "gate",
+          "visible": true,
+          "width": 64,
+          "x": 608.0,
+          "y": 576.0
+        },
+        {
+          "height": 64,
+          "id": 22,
+          "name": "scene_forest",
+          "properties": [],
+          "rotation": 0,
+          "type": "exit_zone",
+          "visible": true,
+          "width": 64,
+          "x": 576.0,
+          "y": 1216.0
+        },
+        {
+          "id": 23,
+          "name": "heart_piece_ruins_1",
+          "type": "heart_piece",
+          "x": 256,
+          "y": 992,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 24,
+          "name": "heart_piece_ruins_2",
+          "type": "heart_piece",
+          "x": 992,
+          "y": 256,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -3732,7 +3766,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 21,
+  "nextobjectid": 25,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

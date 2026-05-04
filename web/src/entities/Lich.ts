@@ -26,6 +26,7 @@ export class Lich extends BossBase {
         attackRange: 220,
         moveSpeed: 50,
         attackCooldown: 2500,
+        def: 0,
       },
       'key_hookshot',
     );

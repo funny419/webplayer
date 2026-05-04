@@ -1,17 +1,21 @@
 import Phaser from 'phaser';
-import { Enemy } from './Enemy';
+import { Enemy, EnemyStats } from './Enemy';
 
-export class Goblin extends Enemy {
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'goblin_walk_down', 'enemy_goblin', {
-      hp: 30,
-      attackDamage: 10,
-      detectRange: 160,
-      attackRange: 36,
-      moveSpeed: 80,
-      attackCooldown: 1500,
-      def: 3,
-    });
+/**
+ * 전용 스프라이트가 없는 적에 사용하는 범용 구현체.
+ * 고블린 스프라이트에 tint 색상을 적용해 적을 시각적으로 구분한다.
+ */
+export class GenericEnemy extends Enemy {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    enemyId: string,
+    stats: EnemyStats,
+    tint = 0xffffff,
+  ) {
+    super(scene, x, y, 'goblin_walk_down', enemyId, stats);
+    if (tint !== 0xffffff) this.setTint(tint);
     this.onIdle();
   }
 
