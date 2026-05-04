@@ -609,7 +609,7 @@ export class WorldScene extends Phaser.Scene {
       .setOrigin(0.5).setDepth(15));
     s(this.add.text(kgRight - 4, kgBottom - KG_H + 4,
       '[O] 근접공격  [P] 원거리\n[K] 특수공격  [Shift] 대시\n[I] 인벤토리  [Q] 퀘스트\n[R] 귀환  [U] 해독제\n[E] 화염방패  [Space] 상호작용',
-      { fontSize: '9px', color: '#4d4d6e', align: 'right' },
+      { fontSize: '9px', color: '#ccccdd', align: 'right' },
     ).setOrigin(1, 0).setDepth(16));
   }
 
