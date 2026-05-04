@@ -205,9 +205,9 @@ export class EndingScene extends Phaser.Scene {
 
     btn.on('pointerover', () => btn.setColor('#ffffff'));
     btn.on('pointerout', () => btn.setColor('#00ff88'));
-    btn.on('pointerdown', () => this.scene.start('BootScene'));
+    btn.on('pointerdown', () => this.scene.start('TitleScene'));
 
-    this.input.keyboard!.once('keydown-ENTER', () => this.scene.start('BootScene'));
-    this.input.keyboard!.once('keydown-SPACE', () => this.scene.start('BootScene'));
+    this.input.keyboard!.once('keydown-ENTER', () => this.scene.start('TitleScene'));
+    this.input.keyboard!.once('keydown-SPACE', () => this.scene.start('TitleScene'));
   }
 }

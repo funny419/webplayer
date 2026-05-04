@@ -44,6 +44,6 @@ export class GameOverScene extends Phaser.Scene {
 
     this.input.keyboard!
       .addKey(Phaser.Input.Keyboard.KeyCodes.N)
-      .once('down', () => this.scene.start('CharSelectScene'));
+      .once('down', () => this.scene.start('TitleScene'));
   }
 }
