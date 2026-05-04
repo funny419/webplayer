@@ -74,6 +74,10 @@ export class InventorySystem extends Phaser.Events.EventEmitter {
     this.playerClass = cls;
   }
 
+  getPlayerClass(): PlayerClass {
+    return this.playerClass;
+  }
+
   // ── 일반 아이템 ─────────────────────────────────────────────────────────
 
   addItem(id: string, qty: number): void {

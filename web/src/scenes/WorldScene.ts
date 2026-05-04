@@ -436,9 +436,7 @@ export class WorldScene extends Phaser.Scene {
   private handleSpecialAttack(): void {
     const SPECIAL_RANGE = 80;
     const SPECIAL_COOLDOWN = 2000;
-    const playerClass = this.inventory.toJSON().equipment.weapon?.includes('staff')
-      ? 'class_mage'
-      : 'class_swordsman';
+    const playerClass = this.inventory.getPlayerClass();
 
     if (playerClass === 'class_swordsman') {
       if (!this.player.spendMp(10)) return;
@@ -1243,8 +1241,7 @@ export class WorldScene extends Phaser.Scene {
         level:       this.player.level,
         exp:         this.player.exp,
         gold:        this.player.gold,
-        playerClass: this.inventory.toJSON().equipment.weapon?.includes('staff')
-                       ? 'class_mage' : 'class_swordsman',
+        playerClass: this.inventory.getPlayerClass(),
       },
       inventory:   this.inventory.toJSON(),
       quests:      this.quest.toJSON(),
