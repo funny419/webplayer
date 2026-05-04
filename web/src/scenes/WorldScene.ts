@@ -650,9 +650,13 @@ export class WorldScene extends Phaser.Scene {
         fontSize: '12px', color, fontStyle: 'bold',
         stroke: '#000000', strokeThickness: 3,
       }).setOrigin(0.5, 1).setDepth(20);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (txt as any)._tweenToken = 0;
       this.damageTextPool.push(txt);
     }
     this.tweens.killTweensOf(txt);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const token = ++((txt as any)._tweenToken);
     txt.setText(`-${amount}`)
       .setColor(color)
       .setFontSize(isPlayer ? 14 : 12)
@@ -667,7 +671,12 @@ export class WorldScene extends Phaser.Scene {
       alpha: 0,
       duration: 800,
       ease: 'Cubic.Out',
-      onComplete: () => { txt!.setActive(false).setVisible(false); },
+      onComplete: () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((txt as any)._tweenToken === token) {
+          txt!.setActive(false).setVisible(false);
+        }
+      },
     });
   }
 
