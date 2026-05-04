@@ -34,6 +34,7 @@ export class WorldScene extends Phaser.Scene {
   walls!: Phaser.Physics.Arcade.StaticGroup;
   enemies: Enemy[] = [];
   private projectiles!: Phaser.Physics.Arcade.Group;
+  private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   activeBosses: BossBase[] = [];
   areaManager!: AreaManager;
   activeCollisionLayer: Phaser.Tilemaps.TilemapLayer | null = null;
@@ -110,6 +111,7 @@ export class WorldScene extends Phaser.Scene {
 
   create(): void {
     this.projectiles = this.physics.add.group();
+    this.enemyProjectiles = this.physics.add.group();
     this.walls = this.physics.add.staticGroup();
     this.initSystems();
 
@@ -120,8 +122,17 @@ export class WorldScene extends Phaser.Scene {
 
     this.createAnimations();
     this.createProjectileTexture();
+    this.createEnemyProjectileTexture();
 
     this.spawnPlayer();
+    this.physics.add.overlap(this.enemyProjectiles, this.player, (_, proj) => {
+      const p = proj as Phaser.Physics.Arcade.Image & { attackDamage: number };
+      if (!this.player.canBeHit) return;
+      const d = this.reducedIncoming(p.attackDamage);
+      this.player.takeDamage(d);
+      this.spawnDamageNumber(this.player.x, this.player.y, d, true);
+      proj.destroy();
+    });
     this.statusEffectSystem = new StatusEffectSystem(this.player);
     this.setupCamera();
     this.setupInput();
@@ -163,6 +174,7 @@ export class WorldScene extends Phaser.Scene {
       this.updateEnemies(delta);
       this.updateProjectiles();
       this.updateBossProjectiles();
+      this.updateEnemyProjectiles();
       this.checkEnemyPlayerContact();
     }
 
@@ -263,6 +275,14 @@ export class WorldScene extends Phaser.Scene {
     g.fillStyle(0x00e5ff);
     g.fillCircle(4, 4, 4);
     g.generateTexture('projectile', 8, 8);
+    g.destroy();
+  }
+
+  private createEnemyProjectileTexture(): void {
+    const g = this.make.graphics({ x: 0, y: 0 });
+    g.fillStyle(0xff8800);
+    g.fillCircle(2, 2, 2);
+    g.generateTexture('enemy_projectile', 4, 4);
     g.destroy();
   }
 
@@ -437,7 +457,15 @@ export class WorldScene extends Phaser.Scene {
 
   private updateEnemies(delta: number): void {
     this.enemies.forEach(enemy => {
-      if (enemy.active) enemy.updateAI(this.player.x, this.player.y, delta);
+      if (!enemy.active) return;
+      enemy.updateAI(this.player.x, this.player.y, delta);
+      if (enemy.isRanged && enemy.canAttack && !enemy.isDead) {
+        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+        if (dist <= enemy.attackRange) {
+          this.handleEnemyRangedAttack(enemy);
+          enemy.triggerAttackCooldown();
+        }
+      }
     });
     this.enemies = this.enemies.filter(e => e.active);
   }
@@ -445,7 +473,7 @@ export class WorldScene extends Phaser.Scene {
   private checkEnemyPlayerContact(): void {
     if (!this.player.canBeHit) return;
     for (const enemy of this.enemies) {
-      if (enemy.isDead || !enemy.active || !enemy.canAttack) continue;
+      if (enemy.isDead || !enemy.active || !enemy.canAttack || enemy.isRanged) continue;
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
       if (dist <= enemy.attackRange) {
         const incoming = this.reducedIncoming(enemy.attackDamage);
@@ -1164,6 +1192,28 @@ export class WorldScene extends Phaser.Scene {
       gates:       this.gateSystem?.toJSON()   ?? {},
       heartPieces: Object.fromEntries([...this.collectedHeartPieceIds].map(id => [id, true])),
     };
+  }
+
+  private handleEnemyRangedAttack(enemy: import('../entities/Enemy').Enemy): void {
+    const PROJ_SPEED = 250;
+    const proj = this.enemyProjectiles.create(enemy.x, enemy.y, 'enemy_projectile') as Phaser.Physics.Arcade.Image & { attackDamage: number; startX: number; startY: number };
+    proj.attackDamage = enemy.attackDamage;
+    proj.startX = enemy.x;
+    proj.startY = enemy.y;
+    const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+    proj.setVelocity(Math.cos(angle) * PROJ_SPEED, Math.sin(angle) * PROJ_SPEED);
+    proj.setDepth(5);
+  }
+
+  private updateEnemyProjectiles(): void {
+    const MAX_RANGE = 300;
+    this.enemyProjectiles.getChildren().forEach(child => {
+      const proj = child as Phaser.Physics.Arcade.Image & { startX: number; startY: number };
+      if (!proj.active) return;
+      if (Phaser.Math.Distance.Between(proj.startX, proj.startY, proj.x, proj.y) > MAX_RANGE) {
+        proj.destroy();
+      }
+    });
   }
 
   /** 활성 보스의 발사체와 플레이어 충돌 처리 */

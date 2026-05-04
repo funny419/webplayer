@@ -8,6 +8,7 @@ export interface EnemyStats {
   moveSpeed: number;
   attackCooldown: number;
   def: number;
+  isRanged?: boolean;
 }
 
 export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
@@ -19,6 +20,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   readonly attackRange: number;
   readonly moveSpeed: number;
   readonly def: number;
+  readonly isRanged: boolean;
 
   private _isDead = false;
   private readonly _attackCooldown: number;
@@ -47,6 +49,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.moveSpeed = stats.moveSpeed;
     this._attackCooldown = stats.attackCooldown;
     this.def = stats.def;
+    this.isRanged = stats.isRanged ?? false;
 
     this.setCollideWorldBounds(true);
     (this.body as Phaser.Physics.Arcade.Body).setSize(24, 24);

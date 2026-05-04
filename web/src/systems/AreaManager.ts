@@ -14,13 +14,13 @@ import type { BossBase } from '../entities/BossBase';
 type EnemyConfig = { stats: EnemyStats; tint: number };
 const ENEMY_CONFIGS: Record<string, EnemyConfig> = {
   enemy_goblin:            { stats: { hp: 30,  attackDamage: 8,  detectRange: 150, attackRange: 40, moveSpeed: 80,  attackCooldown: 1200, def: 3  }, tint: 0xffffff },
-  enemy_goblin_archer:     { stats: { hp: 20,  attackDamage: 12, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 1800, def: 2  }, tint: 0xaaddaa },
+  enemy_goblin_archer:     { stats: { hp: 20,  attackDamage: 12, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 1800, def: 2,  isRanged: true }, tint: 0xaaddaa },
   enemy_wolf:              { stats: { hp: 25,  attackDamage: 10, detectRange: 180, attackRange: 35, moveSpeed: 120, attackCooldown: 1000, def: 2  }, tint: 0x888866 },
   enemy_spider:            { stats: { hp: 15,  attackDamage: 6,  detectRange: 120, attackRange: 30, moveSpeed: 70,  attackCooldown: 1500, def: 1  }, tint: 0x442200 },
   enemy_zombie:            { stats: { hp: 60,  attackDamage: 12, detectRange: 100, attackRange: 40, moveSpeed: 50,  attackCooldown: 2000, def: 5  }, tint: 0x44aa44 },
   enemy_skeleton:          { stats: { hp: 35,  attackDamage: 15, detectRange: 150, attackRange: 45, moveSpeed: 75,  attackCooldown: 1300, def: 8  }, tint: 0xdddddd },
-  enemy_skeleton_archer:   { stats: { hp: 25,  attackDamage: 18, detectRange: 220, attackRange: 200,moveSpeed: 55,  attackCooldown: 2000, def: 4  }, tint: 0xaaaaaa },
-  enemy_dark_mage:         { stats: { hp: 40,  attackDamage: 22, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 2500, def: 5  }, tint: 0x4422aa },
+  enemy_skeleton_archer:   { stats: { hp: 25,  attackDamage: 18, detectRange: 220, attackRange: 200,moveSpeed: 55,  attackCooldown: 2000, def: 4,  isRanged: true }, tint: 0xaaaaaa },
+  enemy_dark_mage:         { stats: { hp: 40,  attackDamage: 22, detectRange: 200, attackRange: 180,moveSpeed: 60,  attackCooldown: 2500, def: 5,  isRanged: true }, tint: 0x4422aa },
   enemy_bat:               { stats: { hp: 20,  attackDamage: 8,  detectRange: 160, attackRange: 30, moveSpeed: 140, attackCooldown: 800,  def: 0  }, tint: 0x662266 },
   enemy_fire_slime:        { stats: { hp: 45,  attackDamage: 18, detectRange: 120, attackRange: 35, moveSpeed: 55,  attackCooldown: 1600, def: 6  }, tint: 0xff4400 },
   enemy_gargoyle:          { stats: { hp: 55,  attackDamage: 20, detectRange: 180, attackRange: 40, moveSpeed: 90,  attackCooldown: 1400, def: 10 }, tint: 0x888899 },
