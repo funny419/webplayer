@@ -111,6 +111,8 @@ export class WorldScene extends Phaser.Scene {
   init(data?: { playerClass?: PlayerClass; fromSave?: boolean }): void {
     this.startPlayerClass = data?.playerClass ?? 'class_swordsman';
     this._initFromSave = data?.fromSave ?? false;
+    this.dialogueActive = false;
+    this.gameOverTriggered = false;
   }
 
   create(): void {
