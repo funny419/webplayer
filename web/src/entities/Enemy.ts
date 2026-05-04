@@ -27,6 +27,8 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   private attackCooldownRemaining = 0;
   private _enemyHpBg!: Phaser.GameObjects.Rectangle;
   private _enemyHpFill!: Phaser.GameObjects.Rectangle;
+  private _prevX = NaN;
+  private _prevY = NaN;
 
   constructor(
     scene: Phaser.Scene,
@@ -62,11 +64,14 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   private _updateEnemyHpBar(): void {
-    const bx = this.x - 14;
-    const by = this.y - 22;
-    this._enemyHpBg.setPosition(this.x, by);
-    this._enemyHpFill.setPosition(bx, by);
-    this._enemyHpFill.width = 28 * (this.hp / this.maxHp);
+    if (this.x !== this._prevX || this.y !== this._prevY) {
+      const bx = this.x - 14;
+      const by = this.y - 22;
+      this._enemyHpBg.setPosition(this.x, by);
+      this._enemyHpFill.setPosition(bx, by);
+      this._prevX = this.x;
+      this._prevY = this.y;
+    }
   }
 
   get isDead(): boolean { return this._isDead; }
@@ -78,6 +83,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setTint(0xff4444);
     this.scene.time.delayedCall(120, () => { if (!this._isDead) this.clearTint(); });
     this._updateEnemyHpBar();
+    this._enemyHpFill.width = 28 * (this.hp / this.maxHp);
     if (this.hp === 0) this.die();
   }
 

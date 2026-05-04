@@ -101,6 +101,7 @@ export class WorldScene extends Phaser.Scene {
   private levelText!: Phaser.GameObjects.Text;
   private goldText!: Phaser.GameObjects.Text;
   private shortcutLabels: Phaser.GameObjects.Text[] = [];
+  private damageTextPool: Phaser.GameObjects.Text[] = [];
 
   constructor() {
     super({ key: 'WorldScene' });
@@ -135,6 +136,22 @@ export class WorldScene extends Phaser.Scene {
       this.spawnDamageNumber(this.player.x, this.player.y, d, true);
       proj.destroy();
     });
+    // PERF 1: Phaser broadphase overlap으로 발사체↔적 충돌 처리
+    this.physics.add.overlap(
+      this.projectiles,
+      this.enemies as unknown as Phaser.Types.Physics.Arcade.ArcadeColliderType,
+      (projObj, enemyObj) => {
+        const proj = projObj as Projectile;
+        const enemy = enemyObj as Enemy;
+        if (!proj.active || enemy.isDead || !enemy.active) return;
+        const rdmg = Math.max(1,
+          Math.floor((this.player.atk + this.inventory.getWeaponBonus()) * 0.75)
+          - Math.floor(enemy.def / 2));
+        enemy.takeDamage(rdmg);
+        this.spawnDamageNumber(enemy.x, enemy.y, rdmg);
+        proj.destroy();
+      },
+    );
     this.statusEffectSystem = new StatusEffectSystem(this.player);
     this.setupCamera();
     this.setupInput();
@@ -163,6 +180,8 @@ export class WorldScene extends Phaser.Scene {
       () => this.player,
       this.cache.json.get('balance'),
     );
+
+    this.initDamageTextPool();
 
     // 게임오버 후 세이브 복원
     if (this._initFromSave) {
@@ -375,10 +394,11 @@ export class WorldScene extends Phaser.Scene {
     const hitX = this.player.x + ox;
     const hitY = this.player.y + oy;
 
+    const weaponBonus = this.inventory.getWeaponBonus();
     this.enemies.forEach(enemy => {
       if (enemy.isDead || !enemy.active) return;
       if (Phaser.Math.Distance.Between(hitX, hitY, enemy.x, enemy.y) <= MELEE_RANGE) {
-        const dmg = Math.max(1, this.player.atk + this.inventory.getWeaponBonus() - Math.floor(enemy.def / 2));
+        const dmg = Math.max(1, this.player.atk + weaponBonus - Math.floor(enemy.def / 2));
         enemy.takeDamage(dmg);
         this.spawnDamageNumber(enemy.x, enemy.y, dmg);
       }
@@ -403,22 +423,8 @@ export class WorldScene extends Phaser.Scene {
   private updateProjectiles(): void {
     this.projectiles.getChildren().forEach(child => {
       const proj = child as Projectile;
-      if (!proj.active) return;
-
-      if (Phaser.Math.Distance.Between(proj.startX, proj.startY, proj.x, proj.y) > RANGED_MAX_RANGE) {
+      if (proj.active && Phaser.Math.Distance.Between(proj.startX, proj.startY, proj.x, proj.y) > RANGED_MAX_RANGE) {
         proj.destroy();
-        return;
-      }
-
-      for (const enemy of this.enemies) {
-        if (enemy.isDead || !enemy.active) continue;
-        if (Phaser.Math.Distance.Between(proj.x, proj.y, enemy.x, enemy.y) <= 16) {
-          const rdmg = Math.max(1, Math.floor((this.player.atk + this.inventory.getWeaponBonus()) * 0.75) - Math.floor(enemy.def / 2));
-          enemy.takeDamage(rdmg);
-          this.spawnDamageNumber(enemy.x, enemy.y, rdmg);
-          proj.destroy();
-          return;
-        }
       }
     });
   }
@@ -475,7 +481,9 @@ export class WorldScene extends Phaser.Scene {
         }
       }
     });
-    this.enemies = this.enemies.filter(e => e.active);
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      if (!this.enemies[i].active) this.enemies.splice(i, 1);
+    }
   }
 
   private checkEnemyPlayerContact(): void {
@@ -619,17 +627,37 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
-  // ── 플로팅 데미지 숫자 ───────────────────────────────────────────────────
+  // ── 플로팅 데미지 숫자 (오브젝트 풀) ─────────────────────────────────────
+
+  private initDamageTextPool(): void {
+    for (let i = 0; i < 10; i++) {
+      this.damageTextPool.push(
+        this.add.text(0, 0, '', {
+          fontSize: '12px', color: '#ffee44', fontStyle: 'bold',
+          stroke: '#000000', strokeThickness: 3,
+        }).setOrigin(0.5, 1).setDepth(20).setActive(false).setVisible(false),
+      );
+    }
+  }
 
   private spawnDamageNumber(x: number, y: number, amount: number, isPlayer = false): void {
     const color = isPlayer ? '#ff4444' : '#ffee44';
-    const txt = this.add.text(x, y - 8, `-${amount}`, {
-      fontSize: isPlayer ? '14px' : '12px',
-      color,
-      fontStyle: 'bold',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5, 1).setDepth(20);
+    let txt = this.damageTextPool.find(t => !t.active);
+    if (!txt) {
+      txt = this.add.text(0, 0, '', {
+        fontSize: '12px', color, fontStyle: 'bold',
+        stroke: '#000000', strokeThickness: 3,
+      }).setOrigin(0.5, 1).setDepth(20);
+      this.damageTextPool.push(txt);
+    }
+    this.tweens.killTweensOf(txt);
+    txt.setText(`-${amount}`)
+      .setColor(color)
+      .setFontSize(isPlayer ? 14 : 12)
+      .setPosition(x, y - 8)
+      .setAlpha(1)
+      .setActive(true)
+      .setVisible(true);
 
     this.tweens.add({
       targets: txt,
@@ -637,7 +665,7 @@ export class WorldScene extends Phaser.Scene {
       alpha: 0,
       duration: 800,
       ease: 'Cubic.Out',
-      onComplete: () => txt.destroy(),
+      onComplete: () => { txt!.setActive(false).setVisible(false); },
     });
   }
 

@@ -51,7 +51,6 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
   showBubble(show: boolean): void {
     this._interactable = show;
     this.bubble.setVisible(show);
-    this.bubble.setPosition(this.x, this.y - 28);
   }
 
   get isInteractable(): boolean {
