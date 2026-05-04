@@ -132,11 +132,13 @@ export class WorldScene extends Phaser.Scene {
     this.spawnPlayer();
     this.physics.add.overlap(this.enemyProjectiles, this.player, (_, proj) => {
       const p = proj as Phaser.Physics.Arcade.Image & { attackDamage: number };
+      if (!p.active) return;
       if (!this.player.canBeHit) return;
+      p.setActive(false).setVisible(false);
       const d = this.reducedIncoming(p.attackDamage);
       this.player.takeDamage(d);
       this.spawnDamageNumber(this.player.x, this.player.y, d, true);
-      proj.destroy();
+      p.destroy();
     });
     // PERF 1: Phaser broadphase overlap으로 발사체↔적 충돌 처리
     this.physics.add.overlap(
