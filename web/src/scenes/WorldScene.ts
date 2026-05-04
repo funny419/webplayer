@@ -802,6 +802,8 @@ export class WorldScene extends Phaser.Scene {
         );
         this.player.heartPieces = this.collectedHeartPieceIds.size;
       }
+      // 저장된 지역으로 이동 (GDD 9.3: 마지막 세이브 포인트에서 재개)
+      this.areaManager.loadArea(data.currentArea ?? 'scene_haven');
     });
 
     // 퀘스트 보상 지급
@@ -1233,6 +1235,7 @@ export class WorldScene extends Phaser.Scene {
   private buildSaveData(): Omit<SaveData, 'version' | 'timestamp'> {
     return {
       playtime: this.time.now - this.playtimeStart,
+      currentArea: this.areaManager?.currentAreaId ?? 'scene_haven',
       player: {
         hp:          this.player.hp,
         maxHp:       this.player.maxHp,

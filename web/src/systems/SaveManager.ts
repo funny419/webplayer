@@ -16,12 +16,13 @@ export interface PlayerStats {
 }
 
 export interface SaveData {
-  version:   number;
-  timestamp: number;
-  playtime:  number;
-  player:    PlayerStats;
-  inventory: InventorySnapshot;
-  quests:    QuestSnapshot;
+  version:     number;
+  timestamp:   number;
+  playtime:    number;
+  currentArea?: string;            // 저장 시 지역 ID (없으면 'scene_haven')
+  player:      PlayerStats;
+  inventory:   InventorySnapshot;
+  quests:      QuestSnapshot;
   puzzles:      Record<string, boolean>; // puzzleId → solved
   gates:        Record<string, boolean>; // gateId → opened
   heartPieces:  Record<string, boolean>; // pieceId → collected
