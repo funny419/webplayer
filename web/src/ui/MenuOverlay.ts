@@ -264,6 +264,9 @@ export class MenuOverlay {
         const desc = document.createElement('div');
         if (effect.type === 'heal_hp') desc.textContent = `HP +${effect.value === Infinity ? '전체' : effect.value} 회복`;
         else if (effect.type === 'heal_mp') desc.textContent = `MP +${effect.value} 회복`;
+        else if (effect.type === 'exp') desc.textContent = `EXP +${effect.value}`;
+        else if (effect.type === 'heal_hp_pct') desc.textContent = `HP ${effect.value * 100}% 회복`;
+        else if (effect.type === 'aoe_damage') desc.textContent = `주위 100px AOE ${effect.value} 데미지`;
         desc.style.cssText = 'color:#aaa;font-size:11px;';
         panel.appendChild(desc);
       }
@@ -288,7 +291,9 @@ export class MenuOverlay {
     if (!effect) return;
     const removed = this.inventory.removeItem(this.selectedItemId, 1);
     if (!removed) return;
-    applyItemEffect(effect, (this.scene as unknown as { player: Parameters<typeof applyItemEffect>[1] }).player);
+    const player = (this.scene as unknown as { player: Parameters<typeof applyItemEffect>[1] }).player;
+    applyItemEffect(effect, player);
+    this.scene.events.emit('item_used', this.selectedItemId);
     this.selectedItemId = null;
     this.render();
   }

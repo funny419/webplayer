@@ -788,6 +788,21 @@ export class WorldScene extends Phaser.Scene {
       this.quest.onItemCollected(id, qty);
     });
 
+    // 아이템 사용 → 폭탄 AOE 처리
+    this.events.on('item_used', (itemId: string) => {
+      if (itemId !== 'item_bomb') return;
+      const AOE_RANGE = 100;
+      this.enemies.forEach(enemy => {
+        if (enemy.isDead || !enemy.active) return;
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) <= AOE_RANGE) {
+          enemy.takeDamage(50);
+          this.spawnDamageNumber(enemy.x, enemy.y, 50);
+        }
+      });
+      const flash = this.add.circle(this.player.x, this.player.y, AOE_RANGE, 0xffff00, 0.4).setDepth(15);
+      this.tweens.add({ targets: flash, alpha: 0, duration: 400, onComplete: () => flash.destroy() });
+    });
+
     // 하트 조각 수집
     this.events.on('heart_piece_found', (pieceId: string) => {
       if (this.collectedHeartPieceIds.has(pieceId)) return;
