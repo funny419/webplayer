@@ -30,5 +30,5 @@ npm run dev
 
 ## 문서
 
-- [게임 설계 문서 (GDD)](docs/GDD.md)
-- [설계 스펙](docs/superpowers/specs/2026-04-20-webgame-rpg-design.md)
+- [게임 설계 문서 (GDD)](docs/planning/GDD.md)
+- [설계 스펙](docs/project/specs/2026-04-20-webgame-rpg-design.md)
