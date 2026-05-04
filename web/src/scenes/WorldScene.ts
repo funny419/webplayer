@@ -93,6 +93,7 @@ export class WorldScene extends Phaser.Scene {
   currentArea = 'scene_haven';  // 현재 지역 ID — 세이브 탭 활성화 조건에 사용
 
   private startPlayerClass: PlayerClass = 'class_swordsman';
+  private _initFromSave = false;
   private gameOverTriggered = false;
   private dialogueActive = false;
   private enemyExpMap: Record<string, number> = {};
@@ -105,8 +106,9 @@ export class WorldScene extends Phaser.Scene {
     super({ key: 'WorldScene' });
   }
 
-  init(data?: { playerClass?: PlayerClass }): void {
+  init(data?: { playerClass?: PlayerClass; fromSave?: boolean }): void {
     this.startPlayerClass = data?.playerClass ?? 'class_swordsman';
+    this._initFromSave = data?.fromSave ?? false;
   }
 
   create(): void {
@@ -161,6 +163,12 @@ export class WorldScene extends Phaser.Scene {
       () => this.player,
       this.cache.json.get('balance'),
     );
+
+    // 게임오버 후 세이브 복원
+    if (this._initFromSave) {
+      const saveData = this.saveManager.load();
+      if (saveData) this.events.emit('load_save', saveData);
+    }
   }
 
   update(_time: number, delta: number): void {
