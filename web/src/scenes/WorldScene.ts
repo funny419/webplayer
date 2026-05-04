@@ -68,8 +68,10 @@ export class WorldScene extends Phaser.Scene {
   // Combat input
   private attackKey!: Phaser.Input.Keyboard.Key;
   private rangedKey!: Phaser.Input.Keyboard.Key;
+  private specialKey!: Phaser.Input.Keyboard.Key;
   private meleeCooldownRemaining = 0;
   private rangedCooldownRemaining = 0;
+  private specialCooldownRemaining = 0;
 
   // HUD 오브젝트 추적 (미니맵 카메라 ignore용)
   private hudObjects: Phaser.GameObjects.GameObject[] = [];
@@ -296,6 +298,7 @@ export class WorldScene extends Phaser.Scene {
     this.flameshieldKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.antidoteKey    = kb.addKey(Phaser.Input.Keyboard.KeyCodes.U);
     this.recallKey      = kb.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+    this.specialKey     = kb.addKey(Phaser.Input.Keyboard.KeyCodes.K);
   }
 
   // ── 전투 ────────────────────────────────────────────────────────────────
@@ -303,6 +306,7 @@ export class WorldScene extends Phaser.Scene {
   private handleCombatInput(delta: number): void {
     this.meleeCooldownRemaining = Math.max(0, this.meleeCooldownRemaining - delta);
     this.rangedCooldownRemaining = Math.max(0, this.rangedCooldownRemaining - delta);
+    this.specialCooldownRemaining = Math.max(0, this.specialCooldownRemaining - delta);
 
     if (
       Phaser.Input.Keyboard.JustDown(this.attackKey) &&
@@ -320,6 +324,14 @@ export class WorldScene extends Phaser.Scene {
       !this.player.isAttacking
     ) {
       this.doRangedAttack();
+    }
+
+    if (
+      Phaser.Input.Keyboard.JustDown(this.specialKey) &&
+      this.specialCooldownRemaining === 0 &&
+      !this.player.isDashing
+    ) {
+      this.handleSpecialAttack();
     }
   }
 
@@ -381,6 +393,46 @@ export class WorldScene extends Phaser.Scene {
         }
       }
     });
+  }
+
+  private handleSpecialAttack(): void {
+    const SPECIAL_RANGE = 80;
+    const SPECIAL_COOLDOWN = 2000;
+    const playerClass = this.inventory.toJSON().equipment.weapon?.includes('staff')
+      ? 'class_mage'
+      : 'class_swordsman';
+
+    if (playerClass === 'class_swordsman') {
+      if (!this.player.spendMp(10)) return;
+      const weaponBonus = this.inventory.getWeaponBonus();
+      this.enemies.forEach(enemy => {
+        if (enemy.isDead || !enemy.active) return;
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) <= SPECIAL_RANGE) {
+          const dmg = Math.max(1, this.player.atk + weaponBonus - Math.floor(enemy.def / 2));
+          enemy.takeDamage(dmg);
+          this.spawnDamageNumber(enemy.x, enemy.y, dmg);
+        }
+      });
+      // 흰색 원형 flash
+      const flash = this.add.circle(this.player.x, this.player.y, SPECIAL_RANGE, 0xffffff, 0.35).setDepth(15);
+      this.tweens.add({ targets: flash, alpha: 0, duration: 300, onComplete: () => flash.destroy() });
+    } else {
+      if (!this.player.spendMp(20)) return;
+      const weaponBonus = this.inventory.getWeaponBonus();
+      this.enemies.forEach(enemy => {
+        if (enemy.isDead || !enemy.active) return;
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) <= SPECIAL_RANGE) {
+          const dmg = Math.max(1, Math.floor((this.player.atk + weaponBonus) * 0.7) - Math.floor(enemy.def / 2));
+          enemy.takeDamage(dmg);
+          this.spawnDamageNumber(enemy.x, enemy.y, dmg);
+        }
+      });
+      // 보라색 원형 flash
+      const flash = this.add.circle(this.player.x, this.player.y, SPECIAL_RANGE, 0x9b59b6, 0.45).setDepth(15);
+      this.tweens.add({ targets: flash, alpha: 0, duration: 300, onComplete: () => flash.destroy() });
+    }
+
+    this.specialCooldownRemaining = SPECIAL_COOLDOWN;
   }
 
   private updateEnemies(delta: number): void {
