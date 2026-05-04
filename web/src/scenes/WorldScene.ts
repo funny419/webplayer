@@ -839,8 +839,15 @@ export class WorldScene extends Phaser.Scene {
       this.quest.onItemCollected(id, qty);
     });
 
-    // 아이템 사용 → 폭탄 AOE 처리
+    // 아이템 사용 → 해독제 / 폭탄 AOE 처리
     this.events.on('item_used', (itemId: string) => {
+      if (itemId === 'item_antidote') {
+        this.statusEffectSystem?.clearPoison();
+        this.player.clearTint();
+        this.poisonTweenActive = false;
+        this.poisonText.setVisible(false);
+        return;
+      }
       if (itemId !== 'item_bomb') return;
       const AOE_RANGE = 100;
       this.enemies.forEach(enemy => {

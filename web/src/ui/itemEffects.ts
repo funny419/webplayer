@@ -5,7 +5,8 @@ export type ItemEffect =
   | { type: 'heal_mp'; value: number }
   | { type: 'exp'; value: number }
   | { type: 'heal_hp_pct'; value: number }
-  | { type: 'aoe_damage'; value: number };
+  | { type: 'aoe_damage'; value: number }
+  | { type: 'cure_poison' };
 
 const EFFECTS: Record<string, ItemEffect> = {
   item_potion_small:     { type: 'heal_hp', value: 30 },
@@ -16,6 +17,7 @@ const EFFECTS: Record<string, ItemEffect> = {
   item_ether_shard:      { type: 'exp', value: 50 },
   item_revival_herb:     { type: 'heal_hp_pct', value: 0.5 },
   item_bomb:             { type: 'aoe_damage', value: 50 },
+  item_antidote:         { type: 'cure_poison' },
 };
 
 export function getItemEffect(id: string): ItemEffect | null {
