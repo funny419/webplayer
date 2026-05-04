@@ -1105,6 +1105,25 @@ export class WorldScene extends Phaser.Scene {
     this.enemies.push(boss);
     this.enemiesGroup.add(boss);
     this.activeBosses.push(boss);
+
+    // 보스 발사체↔플레이어 overlap (Phaser broadphase)
+    const bossOverlap = this.physics.add.overlap(
+      boss.projectiles,
+      this.player,
+      (_, proj) => {
+        const p = proj as Phaser.Physics.Arcade.Image;
+        if (!p.active || !this.player.canBeHit) return;
+        p.setActive(false).setVisible(false);
+        const d = this.reducedIncoming(Math.round(boss.attackDamage * 0.8));
+        this.player.takeDamage(d);
+        this.spawnDamageNumber(this.player.x, this.player.y, d, true);
+        p.destroy();
+      },
+    );
+    // 보스 사망 시 projectiles.destroy(true) → collider 자동 정리
+    boss.projectiles.once('destroy', () => {
+      this.physics.world.removeCollider(bossOverlap);
+    });
   }
 
   private setupBossEventHandlers(): void {
@@ -1282,18 +1301,16 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  /** 활성 보스의 발사체와 플레이어 충돌 처리 */
+  /** 활성 보스 발사체 범위 초과 정리 (충돌은 registerBoss overlap이 처리) */
   private updateBossProjectiles(): void {
     this.activeBosses = this.activeBosses.filter(b => !b.isDead);
     for (const boss of this.activeBosses) {
       boss.projectiles.getChildren().forEach(child => {
-        const proj = child as Phaser.Physics.Arcade.Image;
-        if (!proj.active) return;
-        const dist = Phaser.Math.Distance.Between(proj.x, proj.y, this.player.x, this.player.y);
-        if (dist <= 12 && this.player.canBeHit) {
-          const d = this.reducedIncoming(Math.round(boss.attackDamage * 0.8));
-          this.player.takeDamage(d); this.spawnDamageNumber(this.player.x, this.player.y, d, true);
-          proj.destroy();
+        const proj = child as Phaser.Physics.Arcade.Image & { startX?: number; startY?: number };
+        if (proj.active && proj.startX !== undefined) {
+          if (Phaser.Math.Distance.Between(proj.startX, proj.startY!, proj.x, proj.y) > 400) {
+            proj.destroy();
+          }
         }
       });
     }
