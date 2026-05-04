@@ -107,6 +107,7 @@ export class WorldScene extends Phaser.Scene {
   private questMarkers: Array<{ scene: string; marker: string; x: number; y: number }> = [];
   private _pendingQuestMarkers: Array<{ scene: string; marker: string; x: number; y: number }> = [];
   private _reachedQuestMarkers = new Set<string>();
+  private itemNameMap: Record<string, string> = {};
 
   constructor() {
     super({ key: 'WorldScene' });
@@ -594,11 +595,22 @@ export class WorldScene extends Phaser.Scene {
       const cx = slotStartX + i * (SLOT_SIZE + SLOT_GAP) + SLOT_SIZE / 2;
       const cy = slotY + SLOT_SIZE / 2;
       s(this.add.rectangle(cx, cy, SLOT_SIZE, SLOT_SIZE, 0x111122).setOrigin(0.5).setDepth(15).setStrokeStyle(1, 0x4444aa));
-      const lbl = this.add.text(cx, cy, '', { fontSize: '8px', color: '#aaaacc', align: 'center', wordWrap: { width: SLOT_SIZE - 4 } })
+      const lbl = this.add.text(cx, cy, '', { fontSize: '9px', color: '#aaaacc', align: 'center', wordWrap: { width: SLOT_SIZE - 4 } })
         .setOrigin(0.5).setDepth(16) as Phaser.GameObjects.Text;
       s(lbl);
       this.shortcutLabels.push(lbl);
     }
+
+    // 키 안내 패널 (우하단, 미니맵 위)
+    const KG_W = 144, KG_H = 66;
+    const kgRight = this.scale.width - 8;
+    const kgBottom = this.scale.height - 138;
+    s(this.add.rectangle(kgRight - KG_W / 2, kgBottom - KG_H / 2, KG_W, KG_H, 0x000000, 0.4)
+      .setOrigin(0.5).setDepth(15));
+    s(this.add.text(kgRight - 4, kgBottom - KG_H + 4,
+      '[O] 근접공격  [P] 원거리\n[K] 특수공격  [Shift] 대시\n[I] 인벤토리  [Q] 퀘스트\n[R] 귀환  [U] 해독제\n[E] 화염방패  [Space] 상호작용',
+      { fontSize: '9px', color: '#4d4d6e', align: 'right' },
+    ).setOrigin(1, 0).setDepth(16));
   }
 
   private updateUI(): void {
@@ -626,12 +638,13 @@ export class WorldScene extends Phaser.Scene {
     // 단축키 슬롯 업데이트
     const eq = this.inventory.getEquipment();
     const snap = this.inventory.toJSON();
-    this.shortcutLabels[0].setText(eq.weapon ? eq.weapon.replace('weapon_', '').substring(0, 8) : '-');
+    this.shortcutLabels[0].setText(eq.weapon ? (this.itemNameMap[eq.weapon] ?? eq.weapon.replace('weapon_', '').substring(0, 8)) : '-');
     const consumables = Object.entries(snap.items).filter(([, qty]) => qty > 0).slice(0, 3);
     for (let i = 0; i < 3; i++) {
       if (consumables[i]) {
         const [id, qty] = consumables[i];
-        this.shortcutLabels[1 + i].setText(id.replace('item_', '').substring(0, 7) + '\n×' + qty);
+        const name = this.itemNameMap[id] ?? id.replace('item_', '').substring(0, 7);
+        this.shortcutLabels[1 + i].setText(name + '\n×' + qty);
       } else {
         this.shortcutLabels[1 + i].setText('-');
       }
@@ -784,6 +797,15 @@ export class WorldScene extends Phaser.Scene {
     }
     if (balance?.enemies?.bosses) {
       for (const b of balance.enemies.bosses) this.enemyExpMap[b.id] = b.exp;
+    }
+
+    // 아이템 한글 이름 캐싱 (단축키 슬롯 표시용)
+    type BalItem = { id: string; name: string };
+    const balItems = (balance as unknown as { items?: Record<string, BalItem[]> }).items;
+    if (balItems) {
+      Object.values(balItems).forEach(cat => {
+        cat?.forEach((item: BalItem) => { this.itemNameMap[item.id] = item.name; });
+      });
     }
   }
 
