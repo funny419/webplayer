@@ -53,6 +53,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.spritesheet('npc_blacksmith', 'assets/sprites/npc/npc_blacksmith.png', nf);
     this.load.spritesheet('npc_merchant',   'assets/sprites/npc/npc_merchant.png',   nf);
 
+    // HUD 에셋
+    this.load.image('slot_hotbar',   'assets/ui/hud/slot_hotbar.png');
+    this.load.image('panel_keyhint', 'assets/ui/hud/panel_keyhint.png');
+    this.load.image('bar_hp_frame',  'assets/ui/hud/bar_hp_frame.png');
+    this.load.image('bar_mp_frame',  'assets/ui/hud/bar_mp_frame.png');
+
     // Tiled 맵 파일
     this.load.tilemapTiledJSON('map_haven',    'assets/maps/haven-village.tmj');
     this.load.tilemapTiledJSON('map_forest',   'assets/maps/forest-dungeon.tmj');
