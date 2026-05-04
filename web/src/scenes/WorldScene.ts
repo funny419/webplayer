@@ -33,6 +33,7 @@ export class WorldScene extends Phaser.Scene {
   player!: Player;
   walls!: Phaser.Physics.Arcade.StaticGroup;
   enemies: Enemy[] = [];
+  enemiesGroup!: Phaser.Physics.Arcade.Group;
   private projectiles!: Phaser.Physics.Arcade.Group;
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   activeBosses: BossBase[] = [];
@@ -115,6 +116,7 @@ export class WorldScene extends Phaser.Scene {
   create(): void {
     this.projectiles = this.physics.add.group();
     this.enemyProjectiles = this.physics.add.group();
+    this.enemiesGroup = this.physics.add.group();
     this.walls = this.physics.add.staticGroup();
     this.initSystems();
 
@@ -139,7 +141,7 @@ export class WorldScene extends Phaser.Scene {
     // PERF 1: Phaser broadphase overlap으로 발사체↔적 충돌 처리
     this.physics.add.overlap(
       this.projectiles,
-      this.enemies as unknown as Phaser.Types.Physics.Arcade.ArcadeColliderType,
+      this.enemiesGroup,
       (projObj, enemyObj) => {
         const proj = projObj as Projectile;
         const enemy = enemyObj as Enemy;
@@ -1090,6 +1092,7 @@ export class WorldScene extends Phaser.Scene {
       this.physics.add.collider(boss, this.activeCollisionLayer);
     }
     this.enemies.push(boss);
+    this.enemiesGroup.add(boss);
     this.activeBosses.push(boss);
   }
 
@@ -1158,6 +1161,7 @@ export class WorldScene extends Phaser.Scene {
           this.physics.add.collider(enemy, this.activeCollisionLayer);
         }
         this.enemies.push(enemy);
+        this.enemiesGroup.add(enemy);
       }
     });
 

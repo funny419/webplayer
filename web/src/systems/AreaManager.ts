@@ -34,6 +34,7 @@ const ENEMY_CONFIGS: Record<string, EnemyConfig> = {
 export interface AreaScene extends Phaser.Scene {
   player: Phaser.Physics.Arcade.Sprite;
   enemies: Enemy[];
+  enemiesGroup: Phaser.Physics.Arcade.Group;
   activeBosses: BossBase[];
   walls: Phaser.Physics.Arcade.StaticGroup;
   currentArea: string;
@@ -163,6 +164,7 @@ export class AreaManager {
 
     this.scene.enemies.forEach(e => { if (e.active) e.destroy(); });
     this.scene.enemies.length = 0;
+    this.scene.enemiesGroup.clear(false, false);
     this.scene.activeBosses.length = 0;
     this.scene.activeCollisionLayer = null;
   }
@@ -191,6 +193,7 @@ export class AreaManager {
     }
     if (collLayer) s.physics.add.collider(enemy, collLayer);
     this.scene.enemies.push(enemy);
+    this.scene.enemiesGroup.add(enemy);
   }
 
   private spawnBoss(bossId: string, x: number, y: number): void {
