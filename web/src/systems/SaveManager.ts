@@ -9,9 +9,12 @@ export interface PlayerStats {
   hp:          number;
   maxHp:       number;
   mp:          number;
+  maxMp:       number;
   level:       number;
   exp:         number;
   gold:        number;
+  atk:         number;
+  def:         number;
   playerClass: PlayerClass;
 }
 

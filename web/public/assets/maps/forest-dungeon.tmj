@@ -3948,6 +3948,42 @@
           "properties": []
         },
         {
+          "id": 36,
+          "name": "goblin_camp",
+          "type": "quest_marker",
+          "x": 968.0,
+          "y": 148.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 37,
+          "name": "child_rescue_point",
+          "type": "quest_marker",
+          "x": 128.0,
+          "y": 568.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 38,
+          "name": "hidden_chest_1",
+          "type": "quest_marker",
+          "x": 128.0,
+          "y": 1048.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
           "id": 35,
           "name": "heart_piece_forest_2",
           "type": "heart_piece",
@@ -3968,7 +4004,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 36,
+  "nextobjectid": 39,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

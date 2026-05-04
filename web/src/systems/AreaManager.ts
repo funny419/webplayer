@@ -140,6 +140,7 @@ export class AreaManager {
         case 'exit_zone':    this.createExitZone(obj); break;
         case 'gate':         this.emitGate(obj, s); break;
         case 'heart_piece':  this.spawnHeartPiece(obj); break;
+        case 'quest_marker': this.emitQuestMarker(obj, s); break;
       }
     });
 
@@ -255,6 +256,16 @@ export class AreaManager {
       },
     );
     this.overlaps.push(ov as unknown as Phaser.Physics.Arcade.Collider);
+  }
+
+  private emitQuestMarker(obj: Phaser.Types.Tilemaps.TiledObject, s: Phaser.Scene): void {
+    const x = (obj.x ?? 0) + (obj.width ?? 32) / 2;
+    const y = (obj.y ?? 0) + (obj.height ?? 32) / 2;
+    s.events.emit('quest_marker_found', {
+      scene:  this._currentAreaId,
+      marker: obj.name,
+      x, y,
+    });
   }
 
   private emitGate(obj: Phaser.Types.Tilemaps.TiledObject, s: Phaser.Scene): void {

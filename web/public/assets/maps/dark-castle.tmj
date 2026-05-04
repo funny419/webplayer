@@ -3725,6 +3725,30 @@
           "visible": true,
           "rotation": 0,
           "properties": []
+        },
+        {
+          "id": 24,
+          "name": "fortress_gate",
+          "type": "quest_marker",
+          "x": 576.0,
+          "y": 1048.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 25,
+          "name": "hidden_chest_4",
+          "type": "quest_marker",
+          "x": 160.0,
+          "y": 768.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -3735,7 +3759,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 24,
+  "nextobjectid": 26,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

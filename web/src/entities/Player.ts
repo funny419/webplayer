@@ -152,6 +152,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.events.emit('heart_piece_collected', this.heartPieces);
   }
 
+  /** 세이브 로드 시 레벨·스탯 직접 복원 (레벨업 누적 없이) */
+  restoreStats(level: number, exp: number, atk: number, def: number, maxMp: number): void {
+    this.level = level;
+    this.exp = exp;
+    this.atk = atk;
+    this.def = def;
+    this.maxMp = maxMp;
+    this._expToNextLevel = this.level < 20 ? (EXP_THRESHOLDS[this.level - 1] ?? null) : null;
+  }
+
   spendMp(amount: number): boolean {
     if (this.mp < amount) return false;
     this.mp -= amount;

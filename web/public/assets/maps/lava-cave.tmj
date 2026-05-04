@@ -3743,6 +3743,42 @@
           "visible": true,
           "rotation": 0,
           "properties": []
+        },
+        {
+          "id": 24,
+          "name": "cavern_entrance",
+          "type": "quest_marker",
+          "x": 576.0,
+          "y": 1048.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 25,
+          "name": "survivor_location",
+          "type": "quest_marker",
+          "x": 160.0,
+          "y": 968.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 26,
+          "name": "hidden_chest_3",
+          "type": "quest_marker",
+          "x": 576.0,
+          "y": 608.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -3753,7 +3789,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 24,
+  "nextobjectid": 27,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

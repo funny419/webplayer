@@ -1078,6 +1078,18 @@
           "visible": true,
           "rotation": 0,
           "properties": []
+        },
+        {
+          "id": 6,
+          "name": "town_plaza",
+          "type": "quest_marker",
+          "x": 448.0,
+          "y": 248.0,
+          "width": 64,
+          "height": 64,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -1088,7 +1100,7 @@
     }
   ],
   "nextlayerid": 3,
-  "nextobjectid": 6,
+  "nextobjectid": 7,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

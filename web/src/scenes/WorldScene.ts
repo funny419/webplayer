@@ -103,6 +103,10 @@ export class WorldScene extends Phaser.Scene {
   private goldText!: Phaser.GameObjects.Text;
   private shortcutLabels: Phaser.GameObjects.Text[] = [];
   private damageTextPool: Phaser.GameObjects.Text[] = [];
+  // quest_marker 근접 체크용
+  private questMarkers: Array<{ scene: string; marker: string; x: number; y: number }> = [];
+  private _pendingQuestMarkers: Array<{ scene: string; marker: string; x: number; y: number }> = [];
+  private _reachedQuestMarkers = new Set<string>();
 
   constructor() {
     super({ key: 'WorldScene' });
@@ -222,6 +226,9 @@ export class WorldScene extends Phaser.Scene {
     if (this.areaManager) {
       this.areaManager.checkNpcProximity(this.player.x, this.player.y);
     }
+
+    // 퀘스트 마커 근접 체크
+    this.checkQuestMarkerProximity();
 
     // 게이트 근접 체크
     this.gateSystem?.update(delta);
@@ -800,9 +807,17 @@ export class WorldScene extends Phaser.Scene {
       this.inventory.setPlayerClass(data.player.playerClass);
       this.quest.fromJSON(data.quests);
       this.quest.setPlayerClass(data.player.playerClass);
-      if (data.player.maxHp) this.player.maxHp = data.player.maxHp;
-      this.player.hp = Math.min(data.player.hp, this.player.maxHp);
-      this.player.mp = Math.min(data.player.mp, this.player.maxMp);
+      this.player.restoreStats(
+        data.player.level,
+        data.player.exp,
+        data.player.atk  ?? this.player.atk,
+        data.player.def  ?? this.player.def,
+        data.player.maxMp ?? this.player.maxMp,
+      );
+      this.player.gold  = data.player.gold;
+      this.player.maxHp = data.player.maxHp;
+      this.player.hp    = Math.min(data.player.hp, this.player.maxHp);
+      this.player.mp    = Math.min(data.player.mp, this.player.maxMp);
       if (data.puzzles) this.puzzleSystem?.loadSolved(data.puzzles);
       if (data.gates)   this.gateSystem?.loadSaved(data.gates);
       if (data.heartPieces) {
@@ -875,6 +890,11 @@ export class WorldScene extends Phaser.Scene {
 
     this.events.on('max_hp_up', () => {
       this.showHeartPieceNotification('❤️ 최대 HP +100!');
+    });
+
+    // quest_marker 수집 (loadArea 파싱 중 발행)
+    this.events.on('quest_marker_found', (data: { scene: string; marker: string; x: number; y: number }) => {
+      this._pendingQuestMarkers.push(data);
     });
 
     // 엔딩 트리거 (mq_11 완료)
@@ -1015,6 +1035,10 @@ export class WorldScene extends Phaser.Scene {
   private setupPuzzleEventHandlers(): void {
     this.events.on('area_loaded', (areaId: string) => {
       this.puzzleSystem.initPuzzle(areaId, this, this.player);
+      // quest_marker_found 이벤트가 area_loaded 이전에 모두 발행되므로 여기서 swap
+      this.questMarkers = [...this._pendingQuestMarkers];
+      this._pendingQuestMarkers = [];
+      this._reachedQuestMarkers.clear();
     });
 
     this.events.on('puzzle_solved', () => {
@@ -1275,9 +1299,12 @@ export class WorldScene extends Phaser.Scene {
         hp:          this.player.hp,
         maxHp:       this.player.maxHp,
         mp:          this.player.mp,
+        maxMp:       this.player.maxMp,
         level:       this.player.level,
         exp:         this.player.exp,
         gold:        this.player.gold,
+        atk:         this.player.atk,
+        def:         this.player.def,
         playerClass: this.inventory.getPlayerClass(),
       },
       inventory:   this.inventory.toJSON(),
@@ -1308,6 +1335,18 @@ export class WorldScene extends Phaser.Scene {
         proj.destroy();
       }
     });
+  }
+
+  private checkQuestMarkerProximity(): void {
+    const MARKER_RANGE = 64;
+    for (const m of this.questMarkers) {
+      const key = `${m.scene}::${m.marker}`;
+      if (this._reachedQuestMarkers.has(key)) continue;
+      if (Phaser.Math.Distance.Between(this.player.x, this.player.y, m.x, m.y) <= MARKER_RANGE) {
+        this._reachedQuestMarkers.add(key);
+        this.quest.onLocationReached(m.scene, m.marker);
+      }
+    }
   }
 
   /** 활성 보스 발사체 범위 초과 정리 (충돌은 registerBoss overlap이 처리) */
