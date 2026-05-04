@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 
-const SPEED = 200;
 
 // 레벨별 다음 레벨까지 필요 EXP (index 0 = Lv1→2, ..., index 18 = Lv19→20)
 const EXP_THRESHOLDS = [71, 130, 200, 280, 371, 471, 580, 698, 825, 961, 1104, 1255, 1413, 1579, 1752, 1931, 2117, 2309, 2507];
@@ -17,6 +16,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   // Stats
   hp = 100;
   maxHp = 100;
+  heartPieces = 0;
   mp = 50;
   maxMp = 50;
   level = 1;
@@ -73,6 +73,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   get dashReady(): boolean { return this.dashCooldownRemaining === 0 && !this._isDashing; }
   get canBeHit(): boolean { return !this.isInvincible && !this._isDead; }
   get expToNextLevel(): number | null { return this._expToNextLevel; }
+  get moveSpeed(): number { return Math.round(150 + (this.level - 1) * (70 / 19)); }
 
   gainExp(amount: number): void {
     if (this.level >= 20 || this._expToNextLevel === null) return;
@@ -119,7 +120,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (dx !== 0 || dy !== 0) {
       this._facing = this.toDir4(dx, dy);
       const len = Math.sqrt(dx * dx + dy * dy);
-      this.setVelocity((dx / len) * SPEED, (dy / len) * SPEED);
+      this.setVelocity((dx / len) * this.moveSpeed, (dy / len) * this.moveSpeed);
       this.playWalkAnim();
     } else {
       this.setVelocity(0, 0);
@@ -139,6 +140,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     });
     if (this.hp === 0) this.die();
+  }
+
+  collectHeartPiece(): void {
+    this.heartPieces++;
+    if (this.heartPieces % 4 === 0) {
+      this.maxHp += 100;
+      this.hp = Math.min(this.hp + 100, this.maxHp);
+      this.scene.events.emit('max_hp_up');
+    }
+    this.scene.events.emit('heart_piece_collected', this.heartPieces);
   }
 
   spendMp(amount: number): boolean {

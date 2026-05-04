@@ -4,11 +4,15 @@ import { Enemy } from '../entities/Enemy';
 import { Goblin } from '../entities/Goblin';
 import { BossBase } from '../entities/BossBase';
 import { QuestSystem, QuestData } from '../systems/Quest';
-import { InventorySystem } from '../systems/Inventory';
+import { InventorySystem, type PlayerClass } from '../systems/Inventory';
 import { MenuOverlay } from '../ui/MenuOverlay';
+import { ShopOverlay } from '../ui/ShopOverlay';
 import { SaveManager } from '../systems/SaveManager';
 import type { SaveData } from '../systems/SaveManager';
 import { AreaManager, type AreaScene } from '../systems/AreaManager';
+import { PuzzleSystem } from '../systems/PuzzleSystem';
+import { GateSystem, type GateObjectData } from '../systems/GateSystem';
+import { StatusEffectSystem } from '../systems/StatusEffectSystem';
 import { DialogueSystem, type DialogueDataMap } from '../systems/Dialogue';
 
 const MELEE_REACH = 28;   // player center → hitbox center (px)
@@ -42,6 +46,23 @@ export class WorldScene extends Phaser.Scene {
   private inventory!: InventorySystem;
   private saveManager = new SaveManager();
   private menuOverlay!: MenuOverlay;
+  private shopOverlay!: ShopOverlay;
+  private puzzleSystem!: PuzzleSystem;
+  private gateSystem!: GateSystem;
+  private statusEffectSystem!: StatusEffectSystem;
+  // 하트 조각
+  private collectedHeartPieceIds = new Set<string>();
+  private heartPieceHudText!: Phaser.GameObjects.Text;
+  // 독 상태 UI
+  private poisonText!: Phaser.GameObjects.Text;
+  private poisonTweenActive = false;
+  // flameshield 효과
+  private flameshieldKey!: Phaser.Input.Keyboard.Key;
+  private antidoteKey!: Phaser.Input.Keyboard.Key;
+  private recallKey!: Phaser.Input.Keyboard.Key;
+  private flameshieldActive = false;
+  private flameshieldCooldown = 0;  // ms
+  private flameshieldHudText!: Phaser.GameObjects.Text;
   private playtimeStart = 0;
 
   // Combat input
@@ -50,6 +71,14 @@ export class WorldScene extends Phaser.Scene {
   private meleeCooldownRemaining = 0;
   private rangedCooldownRemaining = 0;
 
+  // HUD 오브젝트 추적 (미니맵 카메라 ignore용)
+  private hudObjects: Phaser.GameObjects.GameObject[] = [];
+  // 미니맵
+  private minimapCamera!: Phaser.Cameras.Scene2D.Camera;
+  private minimapDot!: Phaser.GameObjects.Rectangle;
+  private minimapZoom = 0;
+  private minimapX = 0;
+  private minimapY = 0;
   // HUD
   private hpFill!: Phaser.GameObjects.Rectangle;
   private mpFill!: Phaser.GameObjects.Rectangle;
@@ -60,14 +89,21 @@ export class WorldScene extends Phaser.Scene {
 
   currentArea = 'scene_haven';  // 현재 지역 ID — 세이브 탭 활성화 조건에 사용
 
+  private startPlayerClass: PlayerClass = 'class_swordsman';
   private gameOverTriggered = false;
   private dialogueActive = false;
   private enemyExpMap: Record<string, number> = {};
   private enemyDropMap: Record<string, { goldMin: number; goldMax: number; drops: Array<{ id: string; rate: number }> }> = {};
   private levelText!: Phaser.GameObjects.Text;
+  private goldText!: Phaser.GameObjects.Text;
+  private shortcutLabels: Phaser.GameObjects.Text[] = [];
 
   constructor() {
     super({ key: 'WorldScene' });
+  }
+
+  init(data?: { playerClass?: PlayerClass }): void {
+    this.startPlayerClass = data?.playerClass ?? 'class_swordsman';
   }
 
   create(): void {
@@ -84,11 +120,15 @@ export class WorldScene extends Phaser.Scene {
     this.createProjectileTexture();
 
     this.spawnPlayer();
+    this.statusEffectSystem = new StatusEffectSystem(this.player);
     this.setupCamera();
     this.setupInput();
     this.setupUI();
+    this.setupMinimap();
     this.setupBossEventHandlers();
     this.setupQuestEventHandlers();
+    this.setupGateEventHandlers();
+    this.setupPuzzleEventHandlers();
 
     // AreaManager로 맵 로드
     this.areaManager = new AreaManager(this as unknown as AreaScene);
@@ -101,6 +141,12 @@ export class WorldScene extends Phaser.Scene {
       this.quest,
       this.saveManager,
       () => this.buildSaveData(),
+    );
+    this.shopOverlay = new ShopOverlay(
+      this,
+      this.inventory,
+      () => this.player,
+      this.cache.json.get('balance'),
     );
   }
 
@@ -130,12 +176,42 @@ export class WorldScene extends Phaser.Scene {
       this.areaManager.checkNpcProximity(this.player.x, this.player.y);
     }
 
-    // Space 키: 대화 진행 또는 NPC 대화 시작
+    // 게이트 근접 체크
+    this.gateSystem?.update(delta);
+
+    // 독 상태 업데이트
+    this.updatePoison(delta);
+
+    // flameshield E키 처리
+    this.updateFlameshield(delta);
+
+    // 미니맵 플레이어 도트 갱신
+    this.updateMinimapPlayerDot();
+
+    // R 키: 귀환석 사용
+    if (
+      !this.dialogueActive &&
+      !this.player.isDead &&
+      Phaser.Input.Keyboard.JustDown(this.recallKey) &&
+      this.inventory.hasItem('item_recall_stone')
+    ) {
+      this.inventory.removeItem('item_recall_stone', 1);
+      this.areaManager.transitionToArea('scene_haven');
+    }
+
+    // Space 키: 대화 진행 → NPC 상호작용 → 퍼즐 상호작용
     if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
       if (this.dialogue?.isPlaying()) {
         this.dialogue.next();
       } else if (this.areaManager?.nearbyNpcId) {
-        this.dialogue.start(this.areaManager.nearbyNpcId);
+        const npcId = this.areaManager.nearbyNpcId;
+        if (npcId === 'npc_merchant' || npcId === 'npc_healer') {
+          this.shopOverlay.open(npcId);
+        } else {
+          this.dialogue.start(npcId);
+        }
+      } else if (this.puzzleSystem?.nearInteractable) {
+        this.puzzleSystem.tryInteract();
       }
     }
 
@@ -217,6 +293,9 @@ export class WorldScene extends Phaser.Scene {
     qKey.on('down', () => this.menuOverlay.open('quest'));
     // 닫기(I/Q 토글·ESC): MenuOverlay 생성자의 DOM 리스너가 처리
     this.spaceKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.flameshieldKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.antidoteKey    = kb.addKey(Phaser.Input.Keyboard.KeyCodes.U);
+    this.recallKey      = kb.addKey(Phaser.Input.Keyboard.KeyCodes.R);
   }
 
   // ── 전투 ────────────────────────────────────────────────────────────────
@@ -256,10 +335,10 @@ export class WorldScene extends Phaser.Scene {
     const hitX = this.player.x + ox;
     const hitY = this.player.y + oy;
 
-    const dmg = Math.max(1, this.player.atk + this.inventory.getWeaponBonus());
     this.enemies.forEach(enemy => {
       if (enemy.isDead || !enemy.active) return;
       if (Phaser.Math.Distance.Between(hitX, hitY, enemy.x, enemy.y) <= MELEE_RANGE) {
+        const dmg = Math.max(1, this.player.atk + this.inventory.getWeaponBonus() - Math.floor(enemy.def / 2));
         enemy.takeDamage(dmg);
         this.spawnDamageNumber(enemy.x, enemy.y, dmg);
       }
@@ -291,10 +370,10 @@ export class WorldScene extends Phaser.Scene {
         return;
       }
 
-      const rdmg = Math.max(1, Math.floor((this.player.atk + this.inventory.getWeaponBonus()) * 0.75));
       for (const enemy of this.enemies) {
         if (enemy.isDead || !enemy.active) continue;
         if (Phaser.Math.Distance.Between(proj.x, proj.y, enemy.x, enemy.y) <= 16) {
+          const rdmg = Math.max(1, Math.floor((this.player.atk + this.inventory.getWeaponBonus()) * 0.75) - Math.floor(enemy.def / 2));
           enemy.takeDamage(rdmg);
           this.spawnDamageNumber(enemy.x, enemy.y, rdmg);
           proj.destroy();
@@ -321,6 +400,10 @@ export class WorldScene extends Phaser.Scene {
         this.player.takeDamage(incoming);
         this.spawnDamageNumber(this.player.x, this.player.y, incoming, true);
         enemy.triggerAttackCooldown();
+        // 거미 공격 시 25% 확률로 독 발동
+        if (enemy.enemyId === 'enemy_spider' && Math.random() < 0.25) {
+          this.statusEffectSystem?.applyPoison(4000, 3);
+        }
         break;
       }
     }
@@ -329,13 +412,22 @@ export class WorldScene extends Phaser.Scene {
   // ── HUD ─────────────────────────────────────────────────────────────────
 
   private setupUI(): void {
-    const s = (obj: Phaser.GameObjects.GameObject) =>
-      (obj as Phaser.GameObjects.Components.ScrollFactor & typeof obj).setScrollFactor(0);
+    const s = (obj: Phaser.GameObjects.GameObject): void => {
+      (obj as unknown as Phaser.GameObjects.Components.ScrollFactor).setScrollFactor(0);
+      this.hudObjects.push(obj);
+    };
 
     const BAR_W = 120;
     const BAR_H = 10;
     const LX = 10; // label x
     const BX = 36; // bar x
+
+    // 독 상태 표시 (HP 바 위, 기본 숨김)
+    this.poisonText = this.add.text(LX, 1, '💜 독!', {
+      fontSize: '9px', color: '#cc44ff', fontStyle: 'bold',
+    }) as Phaser.GameObjects.Text;
+    s(this.poisonText);
+    this.poisonText.setVisible(false);
 
     // HP bar
     s(this.add.text(LX, 10, 'HP', { fontSize: '11px', color: '#ff6666', fontStyle: 'bold' }));
@@ -371,6 +463,35 @@ export class WorldScene extends Phaser.Scene {
     // 레벨 / EXP
     this.levelText = this.add.text(LX, 90, 'Lv.1', { fontSize: '10px', color: '#ffee66' }) as Phaser.GameObjects.Text;
     s(this.levelText);
+
+    // 골드 상시 표시
+    this.goldText = this.add.text(LX, 103, 'G: 0', { fontSize: '10px', color: '#ffdd00' }) as Phaser.GameObjects.Text;
+    s(this.goldText);
+
+    // flameshield 쿨다운 HUD (숨김 상태로 시작)
+    this.flameshieldHudText = this.add.text(LX, 117, '', { fontSize: '10px', color: '#ff9900' }) as Phaser.GameObjects.Text;
+    s(this.flameshieldHudText);
+    this.flameshieldHudText.setVisible(false);
+
+    // 하트 조각 HUD
+    this.heartPieceHudText = this.add.text(LX, 130, '💗 x0', { fontSize: '10px', color: '#ff88aa' }) as Phaser.GameObjects.Text;
+    s(this.heartPieceHudText);
+
+    // 단축키 슬롯 4칸 (하단 중앙, 시각 표시만)
+    const SLOT_SIZE = 36;
+    const SLOT_GAP = 4;
+    const totalW = 4 * SLOT_SIZE + 3 * SLOT_GAP;
+    const slotStartX = (this.scale.width - totalW) / 2;
+    const slotY = this.scale.height - SLOT_SIZE - 10;
+    for (let i = 0; i < 4; i++) {
+      const cx = slotStartX + i * (SLOT_SIZE + SLOT_GAP) + SLOT_SIZE / 2;
+      const cy = slotY + SLOT_SIZE / 2;
+      s(this.add.rectangle(cx, cy, SLOT_SIZE, SLOT_SIZE, 0x111122).setOrigin(0.5).setDepth(15).setStrokeStyle(1, 0x4444aa));
+      const lbl = this.add.text(cx, cy, '', { fontSize: '8px', color: '#aaaacc', align: 'center', wordWrap: { width: SLOT_SIZE - 4 } })
+        .setOrigin(0.5).setDepth(16) as Phaser.GameObjects.Text;
+      s(lbl);
+      this.shortcutLabels.push(lbl);
+    }
   }
 
   private updateUI(): void {
@@ -388,6 +509,26 @@ export class WorldScene extends Phaser.Scene {
 
     const expNext = this.player.expToNextLevel;
     this.levelText.setText(`Lv.${this.player.level}  EXP ${this.player.exp}/${expNext ?? 'MAX'}`);
+
+    // 골드 상시 표시
+    this.goldText.setText(`G: ${this.player.gold}`);
+
+    // 하트 조각
+    this.heartPieceHudText.setText(`💗 x${this.player.heartPieces}`);
+
+    // 단축키 슬롯 업데이트
+    const eq = this.inventory.getEquipment();
+    const snap = this.inventory.toJSON();
+    this.shortcutLabels[0].setText(eq.weapon ? eq.weapon.replace('weapon_', '').substring(0, 8) : '-');
+    const consumables = Object.entries(snap.items).filter(([, qty]) => qty > 0).slice(0, 3);
+    for (let i = 0; i < 3; i++) {
+      if (consumables[i]) {
+        const [id, qty] = consumables[i];
+        this.shortcutLabels[1 + i].setText(id.replace('item_', '').substring(0, 7) + '\n×' + qty);
+      } else {
+        this.shortcutLabels[1 + i].setText('-');
+      }
+    }
   }
 
   // ── 플로팅 데미지 숫자 ───────────────────────────────────────────────────
@@ -449,8 +590,9 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  /** 플레이어 방어력(def + 장착 보너스)을 적용한 받는 피해량 */
+  /** 플레이어 방어력(def + 장착 보너스)을 적용한 받는 피해량. flameshield 활성 시 0 */
   private reducedIncoming(raw: number): number {
+    if (this.flameshieldActive) return 0;
     return Math.max(1, raw - Math.floor((this.player.def + this.inventory.getArmorBonus()) / 2));
   }
 
@@ -474,15 +616,26 @@ export class WorldScene extends Phaser.Scene {
   // ── 시스템 초기화 ────────────────────────────────────────────────────────
 
   private initSystems(): void {
+    this.puzzleSystem = new PuzzleSystem();
+    this.gateSystem   = new GateSystem();
     this.inventory = new InventorySystem();
     const questData = this.cache.json.get('quests') as { main_quests: QuestData[]; side_quests: QuestData[] };
     this.quest = new QuestSystem(questData, this.inventory);
     // mq_01은 게임 시작 시 즉시 수락
     this.quest.accept('mq_01');
 
+    // 직업 적용 및 초기 무기 지급
+    this.inventory.setPlayerClass(this.startPlayerClass);
+    this.quest.setPlayerClass(this.startPlayerClass);
+    if (this.startPlayerClass === 'class_mage') {
+      this.inventory.equipWeapon('weapon_basic_staff');
+    } else {
+      this.inventory.equipWeapon('weapon_wood_sword');
+    }
+
     // 적 처치 EXP·드롭 조회 테이블 빌드
     type RegularEnemy = { id: string; exp: number; gold_drop: [number, number]; item_drops: Array<{ id: string; rate: number }> };
-    const balance = this.cache.json.get('balance') as { enemies: { regular: RegularEnemy[] } };
+    const balance = this.cache.json.get('balance') as { enemies: { regular: RegularEnemy[]; bosses?: Array<{ id: string; exp: number }> } };
     if (balance?.enemies?.regular) {
       for (const e of balance.enemies.regular) {
         this.enemyExpMap[e.id] = e.exp;
@@ -493,6 +646,13 @@ export class WorldScene extends Phaser.Scene {
         };
       }
     }
+    if (balance?.enemies?.bosses) {
+      for (const b of balance.enemies.bosses) this.enemyExpMap[b.id] = b.exp;
+    }
+  }
+
+  isHeartPieceCollected(id: string): boolean {
+    return this.collectedHeartPieceIds.has(id);
   }
 
   private setupQuestEventHandlers(): void {
@@ -505,12 +665,29 @@ export class WorldScene extends Phaser.Scene {
       }
     });
 
-    // 세이브 불러오기 → 인벤토리·퀘스트 상태 복원
+    // 세이브 불러오기 → 인벤토리·퀘스트·퍼즐 상태 복원
     this.events.on('load_save', (data: import('../systems/SaveManager').SaveData) => {
       this.inventory.fromJSON(data.inventory);
+      this.inventory.setPlayerClass(data.player.playerClass);
       this.quest.fromJSON(data.quests);
+      this.quest.setPlayerClass(data.player.playerClass);
+      if (data.player.maxHp) this.player.maxHp = data.player.maxHp;
       this.player.hp = Math.min(data.player.hp, this.player.maxHp);
       this.player.mp = Math.min(data.player.mp, this.player.maxMp);
+      if (data.puzzles) this.puzzleSystem?.loadSolved(data.puzzles);
+      if (data.gates)   this.gateSystem?.loadSaved(data.gates);
+      if (data.heartPieces) {
+        this.collectedHeartPieceIds = new Set(
+          Object.keys(data.heartPieces).filter(k => data.heartPieces[k]),
+        );
+        this.player.heartPieces = this.collectedHeartPieceIds.size;
+      }
+    });
+
+    // 퀘스트 보상 지급
+    this.quest.on('quest_reward', (_id: string, reward: { exp: number; gold: number }) => {
+      if (reward.exp > 0) this.player.gainExp(reward.exp);
+      if (reward.gold > 0) this.player.gold += reward.gold;
     });
 
     // 적 처치 → QuestSystem 연동 + EXP + 드롭
@@ -531,6 +708,22 @@ export class WorldScene extends Phaser.Scene {
       this.quest.onItemCollected(id, qty);
     });
 
+    // 하트 조각 수집
+    this.events.on('heart_piece_found', (pieceId: string) => {
+      if (this.collectedHeartPieceIds.has(pieceId)) return;
+      this.collectedHeartPieceIds.add(pieceId);
+      this.player.collectHeartPiece();
+    });
+
+    this.events.on('heart_piece_collected', (total: number) => {
+      const inSet = total % 4 === 0 ? 4 : total % 4;
+      this.showHeartPieceNotification(`💗 하트 조각 획득! (${inSet}/4)`);
+    });
+
+    this.events.on('max_hp_up', () => {
+      this.showHeartPieceNotification('❤️ 최대 HP +100!');
+    });
+
     // 엔딩 트리거 (mq_11 완료)
     this.quest.on('game_ending', () => {
       this.time.delayedCall(2000, () => {
@@ -546,6 +739,215 @@ export class WorldScene extends Phaser.Scene {
         };
         this.scene.start('EndingScene', clearData);
       });
+    });
+  }
+
+  // ── 퍼즐 연동 ────────────────────────────────────────────────────────────
+
+  // ── 독 상태이상 ─────────────────────────────────────────────────────────
+
+  private updatePoison(delta: number): void {
+    const wasPoisoned = this.statusEffectSystem.isPoisoned;
+    this.statusEffectSystem.update(delta);
+    const nowPoisoned = this.statusEffectSystem.isPoisoned;
+
+    // UI 표시/숨김
+    this.poisonText.setVisible(nowPoisoned);
+
+    // 독 해제 시 틴트 초기화
+    if (wasPoisoned && !nowPoisoned) {
+      this.player.clearTint();
+      this.poisonTweenActive = false;
+    }
+
+    // 독 진입 시 보라색 깜빡임 트윈 시작
+    if (!wasPoisoned && nowPoisoned) {
+      this.startPoisonTween();
+    }
+
+    // U 키: 해독제 사용
+    if (Phaser.Input.Keyboard.JustDown(this.antidoteKey) && nowPoisoned && this.inventory.hasItem('item_antidote')) {
+      this.inventory.removeItem('item_antidote', 1);
+      this.statusEffectSystem.clearPoison();
+      this.player.clearTint();
+      this.poisonTweenActive = false;
+      this.poisonText.setVisible(false);
+    }
+  }
+
+  private startPoisonTween(): void {
+    if (this.poisonTweenActive) return;
+    this.poisonTweenActive = true;
+    let tintOn = false;
+    const timer = this.time.addEvent({
+      delay: 300,
+      loop: true,
+      callback: () => {
+        if (!this.statusEffectSystem.isPoisoned) {
+          timer.remove();
+          this.player.clearTint();
+          this.poisonTweenActive = false;
+          return;
+        }
+        tintOn = !tintOn;
+        if (tintOn) this.player.setTint(0x9900cc);
+        else        this.player.clearTint();
+      },
+    });
+  }
+
+  private setupGateEventHandlers(): void {
+    // gate_found는 loadArea 내 오브젝트 파싱 중 area_loaded보다 먼저 발행됨.
+    // 지역별로 수집 후 area_loaded 시 일괄 초기화.
+    let pendingGates: GateObjectData[] = [];
+
+    this.events.on('gate_found', (obj: GateObjectData) => {
+      pendingGates.push(obj);
+    });
+
+    this.events.on('area_loaded', () => {
+      if (pendingGates.length > 0) {
+        this.gateSystem.initGates(pendingGates, this, this.player, this.inventory);
+        pendingGates = [];
+      }
+    });
+
+    // 키 아이템 획득 시 해당 게이트 자동 개방
+    this.inventory.on('key_item_added', (id: string) => {
+      this.gateSystem.tryOpenByKeyItem(id);
+    });
+  }
+
+  private updateFlameshield(delta: number): void {
+    if (this.flameshieldCooldown > 0) {
+      this.flameshieldCooldown = Math.max(0, this.flameshieldCooldown - delta);
+      const secLeft = Math.ceil(this.flameshieldCooldown / 1000);
+      this.flameshieldHudText.setText(`[E] 불꽃방패 쿨다운: ${secLeft}s`).setVisible(true);
+    } else if (!this.flameshieldActive) {
+      if (this.inventory.hasKeyItem('key_flameshield')) {
+        this.flameshieldHudText.setText('[E] 불꽃방패').setVisible(true);
+      } else {
+        this.flameshieldHudText.setVisible(false);
+      }
+    }
+
+    if (
+      Phaser.Input.Keyboard.JustDown(this.flameshieldKey) &&
+      this.inventory.hasKeyItem('key_flameshield') &&
+      this.flameshieldCooldown === 0 &&
+      !this.flameshieldActive
+    ) {
+      this.activateFlameshield();
+    }
+  }
+
+  private activateFlameshield(): void {
+    this.flameshieldActive = true;
+    this.flameshieldHudText.setText('[E] 불꽃방패 활성!').setColor('#ff6600').setVisible(true);
+
+    const indicator = this.add.text(
+      this.scale.width / 2, this.scale.height / 2 - 60,
+      '불꽃방패 활성! (5초)',
+      { fontSize: '16px', color: '#ff9900', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 },
+    ).setScrollFactor(0).setOrigin(0.5).setDepth(25);
+    this.tweens.add({ targets: indicator, alpha: 0, duration: 2000, delay: 2000, onComplete: () => indicator.destroy() });
+
+    this.time.delayedCall(5000, () => {
+      this.flameshieldActive = false;
+      this.flameshieldCooldown = 30000;
+      this.flameshieldHudText.setColor('#ff9900');
+    });
+  }
+
+  private setupPuzzleEventHandlers(): void {
+    this.events.on('area_loaded', (areaId: string) => {
+      this.puzzleSystem.initPuzzle(areaId, this, this.player);
+    });
+
+    this.events.on('puzzle_solved', () => {
+      this.showPuzzleSolvedNotification();
+    });
+
+    this.events.on('puzzle_already_solved', () => {
+      // 이미 해결된 퍼즐 — 필요 시 문 개방 처리 확장
+    });
+  }
+
+  // ── 미니맵 ──────────────────────────────────────────────────────────────
+
+  private setupMinimap(): void {
+    const MM_W = 120;
+    const MM_H = 120;
+    this.minimapX = this.scale.width  - MM_W - 10;
+    this.minimapY = this.scale.height - MM_H - 10;
+
+    // 배경 (반투명 검정)
+    const bg = this.add.rectangle(
+      this.minimapX + MM_W / 2, this.minimapY + MM_H / 2,
+      MM_W, MM_H, 0x000000, 0.5,
+    ).setScrollFactor(0).setDepth(19) as Phaser.GameObjects.Rectangle;
+
+    // 테두리 (1px 흰색)
+    const border = this.add.rectangle(
+      this.minimapX + MM_W / 2, this.minimapY + MM_H / 2,
+      MM_W + 2, MM_H + 2, 0x000000, 0,
+    ).setScrollFactor(0).setDepth(18).setStrokeStyle(1, 0xffffff) as Phaser.GameObjects.Rectangle;
+
+    // 플레이어 도트 (4×4 흰색)
+    this.minimapDot = this.add.rectangle(
+      this.minimapX, this.minimapY, 4, 4, 0xffffff,
+    ).setScrollFactor(0).setDepth(21) as Phaser.GameObjects.Rectangle;
+
+    // 미니맵 카메라 — HUD 오브젝트와 미니맵 UI를 제외하고 월드만 렌더
+    this.minimapCamera = this.cameras.add(this.minimapX, this.minimapY, MM_W, MM_H);
+    this.minimapCamera.setScroll(0, 0);
+    this.minimapCamera.ignore([...this.hudObjects, bg, border, this.minimapDot]);
+
+    // area_loaded 시 맵 크기에 맞게 zoom 갱신
+    this.events.on('area_loaded', () => {
+      const { width, height } = this.physics.world.bounds;
+      this.minimapZoom = Math.min(MM_W / width, MM_H / height);
+      this.minimapCamera.setZoom(this.minimapZoom);
+    });
+  }
+
+  private updateMinimapPlayerDot(): void {
+    if (this.minimapZoom === 0) return;
+    this.minimapDot.x = this.minimapX + this.player.x * this.minimapZoom;
+    this.minimapDot.y = this.minimapY + this.player.y * this.minimapZoom;
+  }
+
+  private showHeartPieceNotification(msg: string): void {
+    const txt = this.add.text(
+      this.scale.width / 2, this.scale.height / 2 - 80,
+      msg,
+      { fontSize: '16px', color: '#ff88aa', fontStyle: 'bold', stroke: '#000000', strokeThickness: 3 },
+    ).setScrollFactor(0).setOrigin(0.5).setDepth(25);
+
+    this.tweens.add({
+      targets: txt,
+      y: txt.y - 40,
+      alpha: 0,
+      duration: 2000,
+      ease: 'Cubic.Out',
+      onComplete: () => txt.destroy(),
+    });
+  }
+
+  private showPuzzleSolvedNotification(): void {
+    const txt = this.add.text(
+      this.scale.width / 2, this.scale.height / 2 - 40,
+      '퍼즐 해결!',
+      { fontSize: '20px', color: '#44ff88', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 },
+    ).setScrollFactor(0).setOrigin(0.5).setDepth(25);
+
+    this.tweens.add({
+      targets: txt,
+      y: txt.y - 50,
+      alpha: 0,
+      duration: 2000,
+      ease: 'Cubic.Out',
+      onComplete: () => txt.destroy(),
     });
   }
 
@@ -635,8 +1037,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private setupDialogueUI(): void {
-    const s = (obj: Phaser.GameObjects.GameObject) =>
+    const s = (obj: Phaser.GameObjects.GameObject): void => {
       (obj as unknown as Phaser.GameObjects.Components.ScrollFactor).setScrollFactor(0);
+      this.hudObjects.push(obj);
+    };
 
     // 배경 패널
     const bg = this.add.rectangle(480, 490, 920, 110, 0x111122, 0.9)
@@ -665,6 +1069,7 @@ export class WorldScene extends Phaser.Scene {
     this.dialogueBox = this.add.container(0, 0, [bg, this.dialogueNameText, this.dialogueText, hint]);
     (this.dialogueBox as unknown as Phaser.GameObjects.Components.ScrollFactor).setScrollFactor(0);
     this.dialogueBox.setDepth(30).setVisible(false);
+    this.hudObjects.push(this.dialogueBox);
 
     // DialogueSystem 이벤트
     this.dialogue.on('dialogue_start', () => {
@@ -693,6 +1098,7 @@ export class WorldScene extends Phaser.Scene {
       playtime: this.time.now - this.playtimeStart,
       player: {
         hp:          this.player.hp,
+        maxHp:       this.player.maxHp,
         mp:          this.player.mp,
         level:       this.player.level,
         exp:         this.player.exp,
@@ -700,9 +1106,11 @@ export class WorldScene extends Phaser.Scene {
         playerClass: this.inventory.toJSON().equipment.weapon?.includes('staff')
                        ? 'class_mage' : 'class_swordsman',
       },
-      inventory: this.inventory.toJSON(),
-      quests:    this.quest.toJSON(),
-      puzzles:   {},
+      inventory:   this.inventory.toJSON(),
+      quests:      this.quest.toJSON(),
+      puzzles:     this.puzzleSystem?.toJSON() ?? {},
+      gates:       this.gateSystem?.toJSON()   ?? {},
+      heartPieces: Object.fromEntries([...this.collectedHeartPieceIds].map(id => [id, true])),
     };
   }
 

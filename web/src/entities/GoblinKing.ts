@@ -22,6 +22,7 @@ export class GoblinKing extends BossBase {
         attackRange: 50,
         moveSpeed: 70,
         attackCooldown: 2000,
+        def: 0,
       },
       'key_compass',
     );

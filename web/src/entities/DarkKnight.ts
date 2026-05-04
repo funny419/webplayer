@@ -26,6 +26,7 @@ export class DarkKnight extends BossBase {
         attackRange: 55,
         moveSpeed: 85,
         attackCooldown: 3000,
+        def: 0,
       },
       null,
     );

@@ -3904,6 +3904,60 @@
               "value": "4"
             }
           ]
+        },
+        {
+          "height": 32,
+          "id": 32,
+          "name": "gate_compass",
+          "properties": [
+            {
+              "name": "requires",
+              "type": "string",
+              "value": "key_compass"
+            }
+          ],
+          "rotation": 0,
+          "type": "gate",
+          "visible": true,
+          "width": 64,
+          "x": 608.0,
+          "y": 800.0
+        },
+        {
+          "height": 64,
+          "id": 33,
+          "name": "scene_haven",
+          "properties": [],
+          "rotation": 0,
+          "type": "exit_zone",
+          "visible": true,
+          "width": 64,
+          "x": 32.0,
+          "y": 96.0
+        },
+        {
+          "id": 34,
+          "name": "heart_piece_forest_1",
+          "type": "heart_piece",
+          "x": 256,
+          "y": 256,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 35,
+          "name": "heart_piece_forest_2",
+          "type": "heart_piece",
+          "x": 992,
+          "y": 992,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -3914,7 +3968,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 32,
+  "nextobjectid": 36,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

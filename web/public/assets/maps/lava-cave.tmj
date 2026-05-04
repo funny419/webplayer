@@ -3689,6 +3689,60 @@
               "value": "320"
             }
           ]
+        },
+        {
+          "height": 32,
+          "id": 20,
+          "name": "gate_flameshield",
+          "properties": [
+            {
+              "name": "requires",
+              "type": "string",
+              "value": "key_flameshield"
+            }
+          ],
+          "rotation": 0,
+          "type": "gate",
+          "visible": true,
+          "width": 64,
+          "x": 416.0,
+          "y": 640.0
+        },
+        {
+          "height": 64,
+          "id": 21,
+          "name": "scene_ruins",
+          "properties": [],
+          "rotation": 0,
+          "type": "exit_zone",
+          "visible": true,
+          "width": 64,
+          "x": 576.0,
+          "y": 1216.0
+        },
+        {
+          "id": 22,
+          "name": "heart_piece_cavern_1",
+          "type": "heart_piece",
+          "x": 320,
+          "y": 352,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 23,
+          "name": "heart_piece_cavern_2",
+          "type": "heart_piece",
+          "x": 960,
+          "y": 928,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -3699,7 +3753,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 20,
+  "nextobjectid": 24,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

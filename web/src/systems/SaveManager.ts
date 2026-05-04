@@ -7,6 +7,7 @@ const SAVE_VERSION = 1;
 
 export interface PlayerStats {
   hp:          number;
+  maxHp:       number;
   mp:          number;
   level:       number;
   exp:         number;
@@ -21,7 +22,9 @@ export interface SaveData {
   player:    PlayerStats;
   inventory: InventorySnapshot;
   quests:    QuestSnapshot;
-  puzzles:   Record<string, boolean>; // puzzleId → solved
+  puzzles:      Record<string, boolean>; // puzzleId → solved
+  gates:        Record<string, boolean>; // gateId → opened
+  heartPieces:  Record<string, boolean>; // pieceId → collected
 }
 
 export class SaveManager {

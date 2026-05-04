@@ -3689,6 +3689,42 @@
               "value": "0"
             }
           ]
+        },
+        {
+          "height": 64,
+          "id": 21,
+          "name": "scene_cavern",
+          "properties": [],
+          "rotation": 0,
+          "type": "exit_zone",
+          "visible": true,
+          "width": 64,
+          "x": 576.0,
+          "y": 1216.0
+        },
+        {
+          "id": 22,
+          "name": "heart_piece_fortress_1",
+          "type": "heart_piece",
+          "x": 256,
+          "y": 640,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
+        },
+        {
+          "id": 23,
+          "name": "heart_piece_fortress_2",
+          "type": "heart_piece",
+          "x": 992,
+          "y": 640,
+          "width": 16,
+          "height": 16,
+          "visible": true,
+          "rotation": 0,
+          "properties": []
         }
       ],
       "opacity": 1,
@@ -3699,7 +3735,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 21,
+  "nextobjectid": 24,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

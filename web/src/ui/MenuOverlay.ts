@@ -458,6 +458,20 @@ export class MenuOverlay {
     }
 
     root.appendChild(btnRow);
+
+    const newGameBtn = document.createElement('button');
+    newGameBtn.textContent = '새 게임 시작';
+    newGameBtn.style.cssText = [
+      'background:#7d3c98', 'border:none', 'border-radius:4px',
+      'padding:8px 16px', 'color:#fff', 'font-family:monospace',
+      'font-size:13px', 'cursor:pointer', 'align-self:flex-start',
+    ].join(';');
+    newGameBtn.onclick = () => {
+      this.el.style.display = 'none';
+      this.scene.scene.start('CharSelectScene');
+    };
+    root.appendChild(newGameBtn);
+
     return root;
   }
 }

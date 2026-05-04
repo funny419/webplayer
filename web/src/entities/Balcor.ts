@@ -29,6 +29,7 @@ export class Balcor extends BossBase {
         attackRange: 200,
         moveSpeed: 90,
         attackCooldown: 1800,
+        def: 0,
       },
       null,
     );

@@ -10,6 +10,7 @@ export class Goblin extends Enemy {
       attackRange: 36,
       moveSpeed: 80,
       attackCooldown: 1500,
+      def: 3,
     });
     this.onIdle();
   }
